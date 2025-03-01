@@ -1,17 +1,27 @@
 import { createRoot } from 'react-dom/client';
 import App from './app/App.jsx';
-import { CssBaseline } from '@mui/material';
-import { Experimental_CssVarsProvider as CssVarsProvider, getInitColorSchemeScript } from '@mui/material/styles';
+import { CssBaseline, getInitColorSchemeScript, ThemeProvider } from '@mui/material';
+import { BrowserRouter as Router } from 'react-router-dom';
 import { theme } from './theme';
+import { AuthProvider } from './context/AuthContext.jsx';
 
 createRoot(document.getElementById('root')).render(
     // <StrictMode>
     <>
         {getInitColorSchemeScript()}
-        <CssVarsProvider theme={theme} defaultMode="dark" storageKey="theme-mode">
+        <ThemeProvider theme={theme} defaultMode="light" storageKey="theme-mode">
             <CssBaseline />
-            <App />
-        </CssVarsProvider>
+            <Router
+                future={{
+                    v7_startTransition: true,
+                    v7_relativeSplatPath: true,
+                }}
+            >
+                <AuthProvider>
+                    <App />
+                </AuthProvider>
+            </Router>
+        </ThemeProvider>
     </>
     // </StrictMode>
 );

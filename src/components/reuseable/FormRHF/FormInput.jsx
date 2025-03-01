@@ -11,6 +11,7 @@ const FormInput = ({
     formatValue = (v) => v,
     formatOnBlur,
     sx,
+    slotProps,
     ...rest
 }) => {
     const { onChange, onBlur, ...props } = rest;
@@ -49,8 +50,9 @@ const FormInput = ({
             type={type}
             sx={{ '.MuiOutlinedInput-root fieldset': { border: label ? undefined : 'none !important' }, ...sx }}
             slotProps={{
-                htmlInput: { readOnly: props.readOnly },
-                formHelperText: { sx: label ? {} : { mt: -0.5, mb: 0.5 } },
+                ...slotProps,
+                htmlInput: { readOnly: props.readOnly, ...slotProps?.htmlInput },
+                formHelperText: { sx: label ? { fontSize: '14px' } : { fontSize: '14px', mt: -0.5, mb: 0.5 } },
             }}
             {...(rules ? { error: !!fieldState.error, helperText: fieldState.error?.message } : {})}
             {...props}

@@ -1,17 +1,15 @@
-import { extendTheme } from '@mui/material';
+import { createTheme } from '@mui/material';
 
-// Tùy chỉnh theme với extendTheme
-export const theme = extendTheme({
+export const theme = createTheme({
     colorSchemeSelector: 'class',
     typography: {
-        // fontSize: 13,
         lineHeight: 1.2,
     },
     colorSchemes: {
         light: {
             palette: {
                 primary: {
-                    main: '#1976d2',
+                    main: '#ff7300',
                 },
                 background: {
                     default: '#f4f4f4',
@@ -22,18 +20,6 @@ export const theme = extendTheme({
                 text: {
                     primary: '#000000',
                     secondary: '#888888',
-                },
-                blue: {
-                    main: '#1e88e5',
-                    light: '#6ab7ff',
-                    dark: '#005cb2',
-                    contrastText: '#ffffff',
-                },
-                pink: {
-                    main: '#d81b60',
-                    light: '#ff5c8d',
-                    dark: '#bb0047',
-                    contrastText: '#ffffff',
                 },
                 gray: {
                     main: '#dadada',
@@ -62,18 +48,6 @@ export const theme = extendTheme({
                     main: '#66bb6a',
                     light: '#81c784',
                     dark: '#388e3c',
-                    contrastText: '#ffffff',
-                },
-                blue: {
-                    main: '#1e88e5',
-                    light: '#6ab7ff',
-                    dark: '#005cb2',
-                    contrastText: '#ffffff',
-                },
-                pink: {
-                    main: '#d81b60',
-                    light: '#ff5c8d',
-                    dark: '#bb0047',
                     contrastText: '#ffffff',
                 },
                 gray: {

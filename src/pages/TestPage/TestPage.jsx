@@ -1,8 +1,8 @@
 import { Box, Button } from '@mui/material';
-import FormInput from '@src/components/reuseable/FormInput';
-import FormSelect from '@src/components/reuseable/FormSelect';
+import FormInput from '@src/components/reuseable/FormRHF/FormInput';
+import FormSelect from '@src/components/reuseable/FormRHF/FormSelect';
 import TableData from '@src/components/reuseable/TableData/TableData';
-import FormChip from '@src/components/reuseable/FormChip';
+import FormChip from '@src/components/reuseable/FormRHF/FormChip';
 import { useTable } from '@src/hooks/useTable';
 import { useCallback } from 'react';
 import { ContentCopy, ContentCut, EditOutlined } from '@mui/icons-material';
