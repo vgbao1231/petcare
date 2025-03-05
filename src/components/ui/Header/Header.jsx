@@ -1,15 +1,46 @@
-import { NotificationsOutlined, Pets, ShoppingCartOutlined } from '@mui/icons-material';
-import { Avatar, Badge, Box, IconButton, Link, Paper, Typography } from '@mui/material';
+import { Logout, NotificationsOutlined, PersonAdd, Pets, Settings, ShoppingCartOutlined } from '@mui/icons-material';
+import {
+    Avatar,
+    Badge,
+    Box,
+    Divider,
+    IconButton,
+    Link,
+    ListItemIcon,
+    Menu,
+    MenuItem,
+    Paper,
+    Typography,
+} from '@mui/material';
+import { routesConfig } from '@src/configs/routesConfig';
 import { centerSx } from '@src/theme';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 
 const Header = () => {
-    const [activeTab, setActiveTab] = useState('Home');
+    const location = useLocation();
+    const [anchorEl, setAnchorEl] = useState(null);
+
+    const handleClick = (event) => {
+        setAnchorEl(event.currentTarget);
+    };
+    const handleClose = () => {
+        setAnchorEl(null);
+    };
+    const isActive = useCallback(
+        (path) => {
+            if (path === '/') {
+                return location.pathname === '/';
+            }
+            return location.pathname.startsWith(path);
+        },
+        [location.pathname]
+    );
 
     return (
-        <Box sx={{ position: 'fixed', top: 24, width: 1, ...centerSx }}>
+        <Box sx={{ position: 'fixed', top: 24, width: 1, zIndex: 10, ...centerSx }}>
             <Paper
-                sx={{ bgcolor: '#fff', px: 5, py: 1, width: 0.7, borderRadius: 10, display: 'flex', gap: 8 }}
+                sx={{ bgcolor: '#fff', px: 5, py: 1, width: 0.8, borderRadius: 10, display: 'flex', gap: 8 }}
                 elevation={4}
             >
                 <Box {...centerSx} gap={1}>
@@ -19,16 +50,15 @@ const Header = () => {
                     </Typography>
                 </Box>
                 <Box {...centerSx} gap={4}>
-                    {['Home', 'Shop', 'About Us', 'Contact Us'].map((item) => (
+                    {routesConfig.user.map(({ path, label }) => (
                         <Link
-                            key={item}
+                            key={path}
                             underline="none"
-                            // href="/forgot-password"
-                            onClick={() => setActiveTab(item)}
+                            href={path}
                             sx={{
                                 cursor: 'pointer',
                                 fontWeight: '500',
-                                color: activeTab === item ? 'primary.main' : 'black',
+                                color: isActive(path) ? 'primary.main' : 'black',
                                 position: 'relative',
                                 transition: 'color 0.3s',
                                 '&:after': {
@@ -36,7 +66,7 @@ const Header = () => {
                                     position: 'absolute',
                                     left: 0,
                                     bottom: -4,
-                                    width: activeTab === item ? 1 : 0,
+                                    width: isActive(path) ? 1 : 0,
                                     height: 2,
                                     backgroundColor: 'primary.main',
                                     transition: 'width 0.3s',
@@ -47,7 +77,7 @@ const Header = () => {
                                 },
                             }}
                         >
-                            {item}
+                            {label}
                         </Link>
                     ))}
                 </Box>
@@ -84,9 +114,44 @@ const Header = () => {
                             <ShoppingCartOutlined sx={{ color: '#111' }} />
                         </Badge>
                     </IconButton>
-                    <IconButton size="small">
+                    <IconButton size="small" onClick={handleClick}>
                         <Avatar alt="Remy Sharp" src="/src/assets/gura.jpg" />
                     </IconButton>
+                    <Menu
+                        anchorEl={anchorEl}
+                        id="account-menu"
+                        open={!!anchorEl}
+                        onClose={handleClose}
+                        onClick={handleClose}
+                        transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+                        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+                    >
+                        <MenuItem onClick={handleClose}>
+                            <Avatar /> Profile
+                        </MenuItem>
+                        <MenuItem onClick={handleClose}>
+                            <Avatar /> My account
+                        </MenuItem>
+                        <Divider />
+                        <MenuItem onClick={handleClose}>
+                            <ListItemIcon>
+                                <PersonAdd fontSize="small" />
+                            </ListItemIcon>
+                            Add another account
+                        </MenuItem>
+                        <MenuItem onClick={handleClose}>
+                            <ListItemIcon>
+                                <Settings fontSize="small" />
+                            </ListItemIcon>
+                            Settings
+                        </MenuItem>
+                        <MenuItem onClick={handleClose}>
+                            <ListItemIcon>
+                                <Logout fontSize="small" />
+                            </ListItemIcon>
+                            Logout
+                        </MenuItem>
+                    </Menu>
                 </Box>
             </Paper>
         </Box>

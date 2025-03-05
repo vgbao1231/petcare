@@ -74,7 +74,7 @@ const LoginPage = () => {
                         backdropFilter: 'blur(1px)',
                     }}
                 >
-                    <Typography variant="body1" color="text.secondary" gutterBottom>
+                    <Typography color="text.secondary" gutterBottom>
                         WELCOME TO PETCARE
                     </Typography>
                     <Typography variant="h4" fontWeight={700} my={2}>
@@ -206,7 +206,7 @@ const LoginPage = () => {
                     </Box>
 
                     <Box display="flex" justifyContent="center" mt={3}>
-                        <Typography variant="body1" color="text.secondary">
+                        <Typography color="text.secondary">
                             {"Don't have an account? "}
                             <Link href="/register" underline="hover" color="text.secondary">
                                 Sign up

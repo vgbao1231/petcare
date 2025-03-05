@@ -11,15 +11,25 @@ export const theme = createTheme({
                 primary: {
                     main: '#ff7300',
                 },
+                brand: {
+                    // Màu chủ đạo của brand
+                    main: '#ff7300',
+                    light: '#ffa04d',
+                    dark: '#e06500',
+                    contrastText: '#ffffff',
+                },
                 background: {
-                    default: '#f4f4f4',
+                    default: '#fafafa',
                     paper: '#ffffff',
                     hover: '#f4f4f4',
                     active: '#edf4fb',
+                    brand: '#f6a431',
+                    contrast: '#111827',
                 },
                 text: {
                     primary: '#000000',
                     secondary: '#888888',
+                    tertiary: '#78350f',
                 },
                 gray: {
                     main: '#dadada',
