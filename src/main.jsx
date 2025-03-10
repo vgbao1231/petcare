@@ -3,11 +3,12 @@ import App from './app/App.jsx';
 import { CssBaseline, getInitColorSchemeScript, ThemeProvider } from '@mui/material';
 import { BrowserRouter as Router } from 'react-router-dom';
 import { theme } from './theme';
-import { AuthProvider } from './context/AuthContext.jsx';
+import { ToastContainer } from 'react-toastify';
 
 createRoot(document.getElementById('root')).render(
     // <StrictMode>
     <>
+        <ToastContainer />
         {getInitColorSchemeScript()}
         <ThemeProvider theme={theme} defaultMode="light" storageKey="theme-mode">
             <CssBaseline />
@@ -17,9 +18,7 @@ createRoot(document.getElementById('root')).render(
                     v7_relativeSplatPath: true,
                 }}
             >
-                <AuthProvider>
-                    <App />
-                </AuthProvider>
+                <App />
             </Router>
         </ThemeProvider>
     </>

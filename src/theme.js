@@ -23,7 +23,6 @@ export const theme = createTheme({
                     paper: '#ffffff',
                     hover: '#f4f4f4',
                     active: '#edf4fb',
-                    brand: '#f6a431',
                     contrast: '#111827',
                 },
                 text: {

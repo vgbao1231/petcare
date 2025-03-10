@@ -2,9 +2,7 @@ import { AddShoppingCart, Check } from '@mui/icons-material';
 import { Button, Card, CardActions, CardContent, CardMedia, Grow, Typography } from '@mui/material';
 import { useCallback, useState } from 'react';
 
-const ProductCard = ({ img, name, price, category, productId }) => {
-    console.log(productId);
-
+const ProductCard = ({ img, name, price, category }) => {
     const [added, setAdded] = useState(false);
 
     const handleClick = useCallback(() => {

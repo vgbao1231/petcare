@@ -2,16 +2,15 @@ import './App.css';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { Fragment, useMemo } from 'react';
 import { routesConfig } from '@src/configs/routesConfig';
-import { useAuth } from '@src/hooks/useAuth';
+import Cookies from 'js-cookie';
 
 function App() {
-    const { auth } = useAuth();
     // Test
     const jwtClaims = useMemo(
         () => ({
-            scope: auth.accessToken,
+            scope: Cookies.get('accessToken'),
         }),
-        [auth.accessToken]
+        []
     );
 
     const routes = useMemo(() => {
@@ -26,7 +25,7 @@ function App() {
     }, [jwtClaims]);
 
     const routesWithPaths = useMemo(() => routes.flatMap((r) => (r.children ? r.children : r)), [routes]);
-    console.log(routesWithPaths);
+    // console.log(routesWithPaths);
 
     return (
         <Routes>

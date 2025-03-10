@@ -107,7 +107,7 @@ export default function Sidebar({ sidebarItems }) {
                             sx={{ m: 0, opacity: !open && 0, transition: 'opacity 0.3s' }}
                             slotProps={{
                                 primary: { sx: { fontWeight: 600, ...textEllipsisSx } },
-                                secondary: { sx: { overflow: 'hidden', textOverflow: 'ellipsis' } },
+                                secondary: { sx: textEllipsisSx },
                             }}
                             primary="Võ Gia Bảo"
                             secondary="vgbao1231@gmail.com"
@@ -151,8 +151,7 @@ export default function Sidebar({ sidebarItems }) {
                                 onClose={handleClose}
                                 anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
                                 transformOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-                                MenuListProps={{ style: { width: 208 } }}
-                                slotProps={{ paper: { elevation: 2 } }}
+                                slotProps={{ paper: { elevation: 2 }, list: { sx: { width: 208 } } }}
                                 disableAutoFocusItem
                             >
                                 <MenuItem onClick={handleClose}>

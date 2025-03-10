@@ -1,4 +1,14 @@
-import { Logout, NotificationsOutlined, PersonAdd, Pets, Settings, ShoppingCartOutlined } from '@mui/icons-material';
+import {
+    CalendarMonth,
+    Logout,
+    NotificationsOutlined,
+    PersonOutline,
+    Pets,
+    PetsOutlined,
+    Settings,
+    ShoppingBagOutlined,
+    ShoppingCartOutlined,
+} from '@mui/icons-material';
 import {
     Avatar,
     Badge,
@@ -6,20 +16,25 @@ import {
     Divider,
     IconButton,
     Link,
+    ListItem,
+    ListItemAvatar,
     ListItemIcon,
+    ListItemText,
     Menu,
     MenuItem,
     Paper,
     Typography,
 } from '@mui/material';
 import { routesConfig } from '@src/configs/routesConfig';
-import { centerSx } from '@src/theme';
-import { useCallback, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { centerSx, textEllipsisSx } from '@src/theme';
+import ProfileDialog from '@ui/ProfileDialog/ProfileDialog';
+import { memo, useCallback, useState } from 'react';
+import { Link as RouterLink, useLocation } from 'react-router-dom';
 
 const Header = () => {
     const location = useLocation();
     const [anchorEl, setAnchorEl] = useState(null);
+    const [open, setOpen] = useState(false);
 
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget);
@@ -28,12 +43,7 @@ const Header = () => {
         setAnchorEl(null);
     };
     const isActive = useCallback(
-        (path) => {
-            if (path === '/') {
-                return location.pathname === '/';
-            }
-            return location.pathname.startsWith(path);
-        },
+        (path) => (path === '/' ? location.pathname === '/' : location.pathname.startsWith(path)),
         [location.pathname]
     );
 
@@ -50,36 +60,40 @@ const Header = () => {
                     </Typography>
                 </Box>
                 <Box {...centerSx} gap={4}>
-                    {routesConfig.user.map(({ path, label }) => (
-                        <Link
-                            key={path}
-                            underline="none"
-                            href={path}
-                            sx={{
-                                cursor: 'pointer',
-                                fontWeight: '500',
-                                color: isActive(path) ? 'primary.main' : 'black',
-                                position: 'relative',
-                                transition: 'color 0.3s',
-                                '&:after': {
-                                    content: "''",
-                                    position: 'absolute',
-                                    left: 0,
-                                    bottom: -4,
-                                    width: isActive(path) ? 1 : 0,
-                                    height: 2,
-                                    backgroundColor: 'primary.main',
-                                    transition: 'width 0.3s',
-                                },
-                                '&:hover': {
-                                    color: 'primary.main',
-                                    '&:after': { width: 1 },
-                                },
-                            }}
-                        >
-                            {label}
-                        </Link>
-                    ))}
+                    {routesConfig.user.map(
+                        ({ path, label }, index) =>
+                            index < 4 && (
+                                <Link
+                                    component={RouterLink}
+                                    key={path}
+                                    underline="none"
+                                    to={path}
+                                    sx={{
+                                        cursor: 'pointer',
+                                        fontWeight: '500',
+                                        color: isActive(path) ? 'primary.main' : 'black',
+                                        position: 'relative',
+                                        transition: 'color 0.3s',
+                                        '&:after': {
+                                            content: "''",
+                                            position: 'absolute',
+                                            left: 0,
+                                            bottom: -4,
+                                            width: isActive(path) ? 1 : 0,
+                                            height: 2,
+                                            backgroundColor: 'primary.main',
+                                            transition: 'width 0.3s',
+                                        },
+                                        '&:hover': {
+                                            color: 'primary.main',
+                                            '&:after': { width: 1 },
+                                        },
+                                    }}
+                                >
+                                    {label}
+                                </Link>
+                            )
+                    )}
                 </Box>
                 <Box {...centerSx} ml="auto" gap={2}>
                     <IconButton size="small">
@@ -115,47 +129,74 @@ const Header = () => {
                         </Badge>
                     </IconButton>
                     <IconButton size="small" onClick={handleClick}>
-                        <Avatar alt="Remy Sharp" src="/src/assets/gura.jpg" />
+                        <Avatar alt="Avatar" src="/src/assets/gura.jpg" />
                     </IconButton>
-                    <Menu
-                        anchorEl={anchorEl}
-                        id="account-menu"
-                        open={!!anchorEl}
-                        onClose={handleClose}
-                        onClick={handleClose}
-                        transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-                        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-                    >
-                        <MenuItem onClick={handleClose}>
-                            <Avatar /> Profile
-                        </MenuItem>
-                        <MenuItem onClick={handleClose}>
-                            <Avatar /> My account
-                        </MenuItem>
-                        <Divider />
-                        <MenuItem onClick={handleClose}>
-                            <ListItemIcon>
-                                <PersonAdd fontSize="small" />
-                            </ListItemIcon>
-                            Add another account
-                        </MenuItem>
-                        <MenuItem onClick={handleClose}>
-                            <ListItemIcon>
-                                <Settings fontSize="small" />
-                            </ListItemIcon>
-                            Settings
-                        </MenuItem>
-                        <MenuItem onClick={handleClose}>
-                            <ListItemIcon>
-                                <Logout fontSize="small" />
-                            </ListItemIcon>
-                            Logout
-                        </MenuItem>
-                    </Menu>
                 </Box>
             </Paper>
+            <Menu
+                anchorEl={anchorEl}
+                open={!!anchorEl}
+                onClose={handleClose}
+                transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+                anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+                disableScrollLock
+                sx={{ maxWidth: '260px' }}
+            >
+                <ListItem sx={{ py: 0.5 }}>
+                    <ListItemAvatar>
+                        <Avatar alt="Avatar" src="/src/assets/gura.jpg" />
+                    </ListItemAvatar>
+                    <ListItemText
+                        primary="Bảo Võ"
+                        secondary="vgbao1231@gmail.com asdasd asdas "
+                        slotProps={{
+                            primary: { sx: { fontWeight: 500, ...textEllipsisSx } },
+                            secondary: { sx: textEllipsisSx },
+                        }}
+                    />
+                </ListItem>
+                <Divider />
+                <MenuItem onClick={() => setOpen(true)} sx={{ fontSize: '14px' }}>
+                    <ListItemIcon>
+                        <PersonOutline />
+                    </ListItemIcon>
+                    Profile
+                </MenuItem>
+                <ProfileDialog open={open} onClose={() => setOpen(false)} />
+                <MenuItem component={Link} to="/pet-tracking" sx={{ fontSize: '14px' }}>
+                    <ListItemIcon>
+                        <PetsOutlined fontSize="small" />
+                    </ListItemIcon>
+                    Pet Tracking
+                </MenuItem>
+                <MenuItem component={Link} to="/my-order" sx={{ fontSize: '14px' }}>
+                    <ListItemIcon>
+                        <ShoppingBagOutlined fontSize="small" />
+                    </ListItemIcon>
+                    My Order
+                </MenuItem>
+                <MenuItem component={Link} to="/my-appointment" sx={{ fontSize: '14px' }}>
+                    <ListItemIcon>
+                        <CalendarMonth fontSize="small" />
+                    </ListItemIcon>
+                    My Appointment
+                </MenuItem>
+                <MenuItem sx={{ fontSize: '14px' }}>
+                    <ListItemIcon>
+                        <Settings fontSize="small" />
+                    </ListItemIcon>
+                    Settings
+                </MenuItem>
+                <Divider />
+                <MenuItem sx={{ color: 'error.main', fontSize: '14px' }}>
+                    <ListItemIcon>
+                        <Logout fontSize="small" color="error" />
+                    </ListItemIcon>
+                    Logout
+                </MenuItem>
+            </Menu>
         </Box>
     );
 };
 
-export default Header;
+export default memo(Header);
