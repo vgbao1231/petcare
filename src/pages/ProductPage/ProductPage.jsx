@@ -10,7 +10,7 @@ const ProductPage = () => {
         setCurrentTab(index);
     }, []);
     return (
-        <Box sx={{ pt: 16, px: 20, pb: 5 }}>
+        <Box sx={{ pt: 15, px: 20, pb: 5 }}>
             <Typography variant="h4" fontWeight="bold">
                 Pet Shop
             </Typography>

@@ -2,15 +2,16 @@ import './App.css';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { Fragment, useMemo } from 'react';
 import { routesConfig } from '@src/configs/routesConfig';
-import Cookies from 'js-cookie';
+import { useAuth } from '@src/hooks/useAuth';
 
 function App() {
+    const { role } = useAuth();
     // Test
     const jwtClaims = useMemo(
         () => ({
-            scope: Cookies.get('accessToken'),
+            scope: role,
         }),
-        []
+        [role]
     );
 
     const routes = useMemo(() => {

@@ -1,11 +1,9 @@
 import { api } from '@src/configs/apiConfig';
 import Cookies from 'js-cookie';
 
-const API_USER_PREFIX = import.meta.env.VITE_API_USER_PREFIX;
-
 const register = async (formData) => {
     try {
-        const response = await api.post(`${API_USER_PREFIX}/register`, {
+        const response = await api.post(`users/register`, {
             email: formData.email,
             name: formData.firstName + formData.lastName,
             password: formData.password,
@@ -19,7 +17,7 @@ const register = async (formData) => {
 
 const verify = async (token) => {
     try {
-        const response = await api.get(`${API_USER_PREFIX}/verify`, {
+        const response = await api.get(`users/verify`, {
             params: {
                 token,
             },
@@ -36,20 +34,13 @@ const login = async (formData) => {
         // TODO: Giả lập token, có thể thay đổi theo API thực tế
         console.log('data form auth context: ', formData);
 
-        const { accessToken, refreshToken } = {
-            accessToken: formData.email.includes('admin') ? 'ADMIN' : 'USER',
-            refreshToken: 'REFRESH',
-        };
-
         // Lưu token vào cookie
-        Cookies.set('accessToken', accessToken, { expires: 7 });
-        Cookies.set('refreshToken', refreshToken, { expires: 7 });
+        Cookies.set('accessToken', formData.email.includes('admin') ? 'ADMIN' : 'USER', { expires: 7 });
     } catch (error) {
         console.log(error);
     }
     // try {
-    //     console.log(formData);
-    //     const response = await api.post(`${API_USER_PREFIX}/login`, formData);
+    //     const response = await api.post(`users/login`, formData);
     //     return response.data;
     // } catch (error) {
     //     console.error(error);
@@ -57,9 +48,8 @@ const login = async (formData) => {
     // }
 };
 
-const logout = () => {
+const logout = async () => {
     Cookies.remove('accessToken');
-    Cookies.remove('refreshToken');
 };
 
 export const authServices = {

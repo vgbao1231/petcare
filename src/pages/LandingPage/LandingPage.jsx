@@ -115,7 +115,6 @@ const LandingPage = () => {
                     color="brand"
                     sx={{
                         textTransform: 'none',
-                        display: 'flex',
                         gap: 0,
                         transition: '0.3s',
                         ':hover': { gap: 1 },
@@ -164,7 +163,6 @@ const LandingPage = () => {
                     color="brand"
                     sx={{
                         textTransform: 'none',
-                        display: 'flex',
                         gap: 0,
                         transition: '0.3s',
                         ':hover': { gap: 1 },

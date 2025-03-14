@@ -1,6 +1,10 @@
 import { useController, useFormContext } from 'react-hook-form';
 import TextField from '@mui/material/TextField';
 import { useCallback } from 'react';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider, TimePicker } from '@mui/x-date-pickers';
+import dayjs from 'dayjs';
+import { AccessTime } from '@mui/icons-material';
 
 const FormInput = ({
     name,
@@ -20,7 +24,7 @@ const FormInput = ({
 
     const handleChange = useCallback(
         (e) => {
-            if (!formatOnBlur && e.target.value) e.target.value = formatValue(e.target.value);
+            if (!formatOnBlur && e?.target?.value) e.target.value = formatValue(e.target.value);
             field.onChange(e);
             onChange?.(e);
         },
@@ -29,7 +33,7 @@ const FormInput = ({
 
     const handleBlur = useCallback(
         (e) => {
-            if (formatOnBlur) {
+            if (formatOnBlur && e?.target?.value) {
                 e.target.value = formatValue(e.target.value);
                 field.onChange(e);
             }
@@ -38,6 +42,50 @@ const FormInput = ({
         },
         [field, formatOnBlur, formatValue, onBlur]
     );
+
+    if (type === 'time') {
+        console.log(dayjs(field.value).format('HH:mm'));
+
+        return (
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <TimePicker
+                    value={dayjs(field.value)}
+                    inputRef={field.ref}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    label={label}
+                    type={type}
+                    skipDisabled
+                    minutesStep={props.minutesStep}
+                    sx={{
+                        '.MuiOutlinedInput-root fieldset': { border: label ? undefined : 'none !important' },
+                        ...sx,
+                    }}
+                    slots={{
+                        openPickerIcon: () => <AccessTime fontSize="small" />,
+                    }}
+                    slotProps={{
+                        textField: {
+                            size: 'small',
+                            sx: {
+                                '& .MuiFormHelperText-root': label
+                                    ? { fontSize: 14 }
+                                    : { fontSize: 14, mt: -0.5, mb: 0.5 },
+                                '& .MuiOutlinedInput-root': { pr: '18px' },
+                                ...sx,
+                            },
+                            slotProps: {
+                                ...slotProps,
+                                htmlInput: { readOnly: props.readOnly, ...slotProps?.htmlInput },
+                            },
+                            ...(rules ? { error: !!fieldState.error, helperText: fieldState.error?.message } : {}),
+                            ...props,
+                        },
+                    }}
+                />
+            </LocalizationProvider>
+        );
+    }
 
     return (
         <TextField

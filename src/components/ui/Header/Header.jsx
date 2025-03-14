@@ -25,16 +25,20 @@ import {
     Paper,
     Typography,
 } from '@mui/material';
+import { authServices } from '@services/authServices';
 import { routesConfig } from '@src/configs/routesConfig';
+import { useAuth } from '@src/hooks/useAuth';
 import { centerSx, textEllipsisSx } from '@src/theme';
 import ProfileDialog from '@ui/ProfileDialog/ProfileDialog';
 import { memo, useCallback, useState } from 'react';
 import { Link as RouterLink, useLocation } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
 const Header = () => {
     const location = useLocation();
     const [anchorEl, setAnchorEl] = useState(null);
     const [open, setOpen] = useState(false);
+    const { setRole } = useAuth();
 
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget);
@@ -46,6 +50,16 @@ const Header = () => {
         (path) => (path === '/' ? location.pathname === '/' : location.pathname.startsWith(path)),
         [location.pathname]
     );
+
+    const handleLogout = useCallback(async () => {
+        try {
+            await authServices.logout();
+            setRole();
+            toast.success('Logout successful!');
+        } catch {
+            toast.error('Logout failed!');
+        }
+    }, [setRole]);
 
     return (
         <Box sx={{ position: 'fixed', top: 24, width: 1, zIndex: 10, ...centerSx }}>
@@ -163,19 +177,19 @@ const Header = () => {
                     Profile
                 </MenuItem>
                 <ProfileDialog open={open} onClose={() => setOpen(false)} />
-                <MenuItem component={Link} to="/pet-tracking" sx={{ fontSize: '14px' }}>
+                <MenuItem component={RouterLink} to="/pet-tracking" sx={{ fontSize: '14px' }}>
                     <ListItemIcon>
                         <PetsOutlined fontSize="small" />
                     </ListItemIcon>
                     Pet Tracking
                 </MenuItem>
-                <MenuItem component={Link} to="/my-order" sx={{ fontSize: '14px' }}>
+                <MenuItem component={RouterLink} to="/my-order" sx={{ fontSize: '14px' }}>
                     <ListItemIcon>
                         <ShoppingBagOutlined fontSize="small" />
                     </ListItemIcon>
                     My Order
                 </MenuItem>
-                <MenuItem component={Link} to="/my-appointment" sx={{ fontSize: '14px' }}>
+                <MenuItem component={RouterLink} to="/my-appointment" sx={{ fontSize: '14px' }}>
                     <ListItemIcon>
                         <CalendarMonth fontSize="small" />
                     </ListItemIcon>
@@ -188,7 +202,7 @@ const Header = () => {
                     Settings
                 </MenuItem>
                 <Divider />
-                <MenuItem sx={{ color: 'error.main', fontSize: '14px' }}>
+                <MenuItem onClick={handleLogout} sx={{ color: 'error.main', fontSize: '14px' }}>
                     <ListItemIcon>
                         <Logout fontSize="small" color="error" />
                     </ListItemIcon>

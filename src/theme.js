@@ -2,24 +2,27 @@ import { createTheme } from '@mui/material';
 
 export const theme = createTheme({
     colorSchemeSelector: 'class',
-    typography: {
-        lineHeight: 1.2,
-    },
+    // typography: {
+    //     body1: {
+    //         lineHeight: 1.2,
+    //     },
+    // },
     colorSchemes: {
         light: {
             palette: {
                 primary: {
                     main: '#ff7300',
+                    contrastText: '#ffffff',
                 },
                 brand: {
                     // Màu chủ đạo của brand
                     main: '#ff7300',
                     light: '#ffa04d',
-                    dark: '#e06500',
+                    dark: '#eb6a00',
                     contrastText: '#ffffff',
                 },
                 background: {
-                    default: '#fafafa',
+                    default: '#f8f8f8',
                     paper: '#ffffff',
                     hover: '#f4f4f4',
                     active: '#edf4fb',

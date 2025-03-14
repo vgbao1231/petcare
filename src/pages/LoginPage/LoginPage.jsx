@@ -15,10 +15,13 @@ import {
 import { authServices } from '@services/authServices';
 import loginBgr from '@src/assets/login-background/login3.png';
 import FormInput from '@src/components/reuseable/FormRHF/FormInput';
+import { useAuth } from '@src/hooks/useAuth';
 import { centerSx } from '@src/theme';
 import { checkIsEmail } from '@src/utils/validators';
-import { useCallback, useState } from 'react';
+import Cookies from 'js-cookie';
+import { useCallback, useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
+import { useLocation } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
 const lightTheme = createTheme({
@@ -36,11 +39,29 @@ const lightTheme = createTheme({
 const LoginPage = () => {
     const [showPassword, setShowPassword] = useState(false);
     const methods = useForm({ mode: 'all' });
+    const { setRole } = useAuth();
+    const location = useLocation();
 
-    const onSubmit = useCallback((data) => {
-        authServices.login(data);
-        toast.success('Thành công!');
-    }, []);
+    const handleSubmit = useCallback(
+        async (data) => {
+            try {
+                await authServices.login(data);
+                setRole(Cookies.get('accessToken'));
+                toast.success('Đăng nhập thành công!');
+            } catch {
+                toast.error('Đăng nhập thất bại!');
+            }
+        },
+        [setRole]
+    );
+
+    useEffect(() => {
+        if (location.state?.isVerified !== undefined) {
+            location.state.isVerified
+                ? toast.success('Verification successful! Please log in.')
+                : toast.error('Verification failed! Invalid token.');
+        }
+    }, [location]);
 
     return (
         <ThemeProvider theme={lightTheme}>
@@ -60,11 +81,13 @@ const LoginPage = () => {
                 {/* Login Form */}
                 <Box
                     sx={{
+                        transition: 'width 0.3s',
                         position: 'absolute',
-                        top: 100,
-                        right: 180,
+                        top: '50vh',
+                        transform: { xs: 'translate(50%, -50%)', md: 'translateY(-50%)' },
+                        right: { xs: '50vw', md: 180 },
                         bgcolor: 'rgba(255,255,255,0.8)',
-                        width: 500,
+                        width: { xs: '90%', sm: '75%', md: 500 },
                         p: 4,
                         borderRadius: 5,
                         backdropFilter: 'blur(1px)',
@@ -77,7 +100,7 @@ const LoginPage = () => {
                         Log In to Your Account
                     </Typography>
                     <FormProvider {...methods}>
-                        <form onSubmit={methods.handleSubmit(onSubmit)}>
+                        <form onSubmit={methods.handleSubmit(handleSubmit)}>
                             <FormInput
                                 fullWidth
                                 size="medium"
@@ -89,6 +112,7 @@ const LoginPage = () => {
                                 }}
                                 sx={{ mb: methods.formState.errors.email ? 0.5 : 2.5 }}
                                 slotProps={{ htmlInput: { sx: { fontSize: 17, p: 1.8 } } }}
+                                placeholder="Enter your Email"
                             />
                             <FormInput
                                 fullWidth
@@ -108,11 +132,12 @@ const LoginPage = () => {
                                         ),
                                     },
                                 }}
+                                placeholder="Enter your Password"
                                 rules={{ required: 'Please enter your password' }}
                                 sx={{ mb: methods.formState.errors.password ? 0 : 1 }}
                             />
                             <Box display="flex" justifyContent="space-between" alignItems="center">
-                                <Box>
+                                <Box {...centerSx}>
                                     <Checkbox size="small" />
                                     <Typography variant="span" ml={0.5}>
                                         Remember Me
@@ -222,6 +247,8 @@ const LoginPage = () => {
                         bgcolor: 'rgba(0,0,0,0.4)',
                         backdropFilter: 'blur(4px)',
                         borderRadius: 3,
+                        opacity: { xs: '0', md: '1' },
+                        transition: 'opacity 0.3s',
                         display: 'flex',
                         flexDirection: 'column',
                         gap: 1,

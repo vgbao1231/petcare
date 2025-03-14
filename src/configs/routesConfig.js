@@ -1,6 +1,7 @@
 import { BarChart, HelpOutlineOutlined, TrendingUp } from '@mui/icons-material';
 import { HeaderLayout } from '@src/layout/HeaderLayout';
 import { SidebarLayout } from '@src/layout/SidebarLayout';
+import AppointmentPage from '@src/pages/AppointmentPage/AppointmentPage';
 import LandingPage from '@src/pages/LandingPage/LandingPage';
 import LoginPage from '@src/pages/LoginPage/LoginPage';
 import MyAppointmentPage from '@src/pages/MyAppointmentPage/MyAppointmentPage';
@@ -33,7 +34,7 @@ export const routesConfig = {
         { path: '/', component: LandingPage, label: 'Home', layout: HeaderLayout },
         { path: '/product', component: ProductPage, label: 'Shop', layout: HeaderLayout },
         { path: '/service', component: ProductPage, label: 'Services', layout: HeaderLayout },
-        { path: '/appointment', component: ProductPage, label: 'Appointment', layout: HeaderLayout },
+        { path: '/appointment', component: AppointmentPage, label: 'Appointment', layout: HeaderLayout },
         { path: '/pet-tracking', component: PetTrackingPage, label: 'Pet Tracking', layout: HeaderLayout },
         { path: '/my-order', component: MyOrderPage, label: 'My Order', layout: HeaderLayout },
         { path: '/my-appointment', component: MyAppointmentPage, label: 'My Appointment', layout: HeaderLayout },
