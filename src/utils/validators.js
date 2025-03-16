@@ -23,3 +23,11 @@ export const checkMinLength = (val, minLen) => val.trim().length < minLen;
 export const checkMinValue = (val, minVal) => Number(val) < minVal;
 
 export const checkMaxValue = (val, maxVal) => Number(val) > maxVal;
+
+export const checkPastDate = (value) => {
+    const selectedDate = new Date(value);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Đặt giờ về 0 để so sánh chính xác
+
+    return selectedDate >= today;
+};

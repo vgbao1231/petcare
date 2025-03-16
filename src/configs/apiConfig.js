@@ -1,10 +1,10 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
 
-const API_PRIVATE_AUTH_PREFIX = import.meta.env.VITE_API_PREFIX_URL;
-console.log(API_PRIVATE_AUTH_PREFIX);
+const apiPrefixUrl = import.meta.env.VITE_API_PREFIX_URL;
+console.log(apiPrefixUrl);
 
-const api = axios.create({ baseURL: API_PRIVATE_AUTH_PREFIX });
+const api = axios.create({ baseURL: apiPrefixUrl });
 
 const headerConfig = (more) => ({
     'Content-Type': 'application/json',
@@ -13,8 +13,8 @@ const headerConfig = (more) => ({
 
 const requestInterceptor = (request) => {
     request.headers = headerConfig(request.headers);
-    const accessToken = Cookies.get('accessToken');
-    request.headers['Authorization'] = accessToken ? `Bearer ${accessToken}` : 'none';
+    const token = Cookies.get('token');
+    request.headers['Authorization'] = token ? `Bearer ${token}` : 'none';
 
     return request;
 };
@@ -24,8 +24,8 @@ const responseInterceptor = (error) => {
 
     if (status === 401) {
         // ❌ Token hết hạn → Đăng xuất người dùng, xóa token
-        Cookies.remove('accessToken');
-        window.location.href = '/login'; // Chuyển về trang login
+        Cookies.remove('token');
+        // window.location.href = '/login'; // Chuyển về trang login
     } else if (status === 403) {
         console.error('Không có quyền truy cập!');
     } else if (status >= 500) {

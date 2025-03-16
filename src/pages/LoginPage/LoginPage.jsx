@@ -18,7 +18,6 @@ import FormInput from '@src/components/reuseable/FormRHF/FormInput';
 import { useAuth } from '@src/hooks/useAuth';
 import { centerSx } from '@src/theme';
 import { checkIsEmail } from '@src/utils/validators';
-import Cookies from 'js-cookie';
 import { useCallback, useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useLocation } from 'react-router-dom';
@@ -39,20 +38,20 @@ const lightTheme = createTheme({
 const LoginPage = () => {
     const [showPassword, setShowPassword] = useState(false);
     const methods = useForm({ mode: 'all' });
-    const { setRole } = useAuth();
+    const { setToken } = useAuth();
     const location = useLocation();
 
     const handleSubmit = useCallback(
         async (data) => {
             try {
-                await authServices.login(data);
-                setRole(Cookies.get('accessToken'));
-                toast.success('Đăng nhập thành công!');
+                const res = await authServices.login(data);
+                setToken(res.token);
+                toast.success('Login Successfully!');
             } catch {
-                toast.error('Đăng nhập thất bại!');
+                toast.error('Login Failed!');
             }
         },
-        [setRole]
+        [setToken]
     );
 
     useEffect(() => {

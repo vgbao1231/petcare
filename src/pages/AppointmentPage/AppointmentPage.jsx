@@ -1,82 +1,32 @@
-import { Add, DeleteForeverOutlined, Remove, Search } from '@mui/icons-material';
-import {
-    Box,
-    Button,
-    Card,
-    CardContent,
-    CardMedia,
-    Divider,
-    IconButton,
-    InputAdornment,
-    TextField,
-    Typography,
-} from '@mui/material';
+import { Search } from '@mui/icons-material';
+import { Box, Button, Chip, Divider, InputAdornment, Stack, TextField, Typography } from '@mui/material';
+import { appointmentServices } from '@services/appointmentServices';
+import { orderServices } from '@services/orderServices';
+import { productServices } from '@services/productServices';
+import { serviceServices } from '@services/serviceServices';
 import FormInput from '@src/components/reuseable/FormRHF/FormInput';
-import { useCallback } from 'react';
+import { useAuth } from '@src/hooks/useAuth';
+import { getTokenPayload } from '@src/utils/helpers';
+import { useCallback, useEffect } from 'react';
 import { useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-
-const services = [
-    {
-        serviceId: 1,
-        name: 'Dog Grooming',
-        desc: 'Full-service grooming for your dog, including bath and haircut',
-        price: 50,
-        imgUrl: '/src/assets/gura.jpg',
-    },
-    {
-        serviceId: 2,
-        name: 'Cat Boarding',
-        desc: 'Safe and comfortable boarding for your cat while you are away',
-        price: 40,
-        imgUrl: '/src/assets/gura.jpg',
-    },
-];
-
-const products = [
-    {
-        productId: 1,
-        name: 'Premium Dog Food',
-        desc: 'High-quality dog food with essential nutrients',
-        price: 25,
-        imgUrl: '/src/assets/gura.jpg',
-    },
-    {
-        productId: 2,
-        name: 'Cat Scratching Post',
-        desc: 'Durable scratching post to keep your cat entertained',
-        price: 35,
-        imgUrl: '/src/assets/gura.jpg',
-    },
-    {
-        productId: 3,
-        name: 'Pet Shampoo',
-        desc: 'Gentle and effective shampoo for a clean and healthy coat',
-        price: 15,
-        imgUrl: '/src/assets/gura.jpg',
-    },
-    {
-        productId: 4,
-        name: 'Chew Toy',
-        desc: 'Safe and fun chew toy for dogs of all sizes',
-        price: 10,
-        imgUrl: '/src/assets/gura.jpg',
-    },
-    {
-        productId: 5,
-        name: 'Automatic Water Dispenser',
-        desc: 'Ensures a fresh water supply for your pet at all times',
-        price: 45,
-        imgUrl: '/src/assets/gura.jpg',
-    },
-];
+import ProductCard from './ProductCard';
+import ServiceCard from './ServiceCard';
+import { branchServices } from '@services/branchServices';
+import FormSelect from '@src/components/reuseable/FormRHF/FormSelect';
+import { toast } from 'react-toastify';
+import { checkPastDate } from '@src/utils/validators';
 
 const AppointmentPage = () => {
-    // const [services, setServices] = useState([]);
+    const [branches, setBranches] = useState([]);
+    const [services, setServices] = useState([]);
+    const [products, setProducts] = useState([]);
     const [selectedServices, setSelectedServices] = useState([]);
     const [selectedProducts, setSelectedProducts] = useState([]);
     const [itemTab, setItemTab] = useState(0); // 0: Mở ds sản phẩm, 1: Mở ds dịch vụ
     const methods = useForm({ mode: 'all' });
+    const { token } = useAuth();
+    const [servingType, setServingType] = useState(0);
 
     const subTotal = [...selectedProducts, ...selectedServices].reduce(
         (sum, item) => sum + item.price * item.quantity,
@@ -84,25 +34,63 @@ const AppointmentPage = () => {
     );
 
     const handleSubmit = useCallback(
-        (formData) => {
-            console.log(formData);
-            console.log(selectedServices);
-            console.log(selectedProducts);
+        async ({ date, time, address, branch, note }) => {
+            try {
+                console.log({ date, time, address, branch, note });
+                const customer_id = parseInt(getTokenPayload(token).user_id);
+                const utcDateTime = new Date(`${date}T${time.format('HH:mm')}:00Z`).toISOString().replace('.000', '');
+                const serviceData = selectedServices.map((s) => ({ service_id: s.serviceId, quantity: s.quantity }));
+                const productData = selectedProducts.map((p) => ({
+                    product_id: p.product_id,
+                    product_type: p.product_type,
+                    quantity: p.quantity,
+                    unit_price: p.price,
+                }));
+
+                const appointmentData = {
+                    customer_id,
+                    ...(servingType === 0 ? { customer_address: address } : { branch_id: branch }),
+                    scheduled_time: utcDateTime,
+                    note,
+                    services: serviceData,
+                };
+
+                const appointmentRes = await appointmentServices.createAppointment(appointmentData);
+
+                if (productData.length > 0) {
+                    const orderData = {
+                        customer_id,
+                        ...(servingType === 0 ? { customer_address: address } : { branch_id: branch }),
+                        appointment_id: appointmentRes.appointment_id,
+                        items: productData,
+                    };
+                    await orderServices.createOrder(orderData);
+                }
+                toast.success('Successful appointment schedule');
+            } catch (e) {
+                console.log(e);
+                toast.success('Failed to make an appointment!');
+            }
         },
-        [selectedServices, selectedProducts]
+
+        [selectedServices, selectedProducts, token, servingType]
     );
 
-    // useEffect(() => {
-    //     const getAllServices = async () => {
-    //         try {
-    //             const res = await serviceServices.getAllServices();
-    //             setServices(res);
-    //         } catch (e) {
-    //             console.log(e);
-    //         }
-    //     };
-    //     getAllServices();
-    // }, []);
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const serviceRes = await serviceServices.getAllServices();
+                setServices(serviceRes);
+                const productRes = await productServices.getAllProducts();
+                setProducts(productRes);
+                const branchRes = await branchServices.getAllBranches();
+                setBranches(branchRes.map((b) => ({ value: b.id, label: b.location })));
+            } catch (e) {
+                console.log(e);
+            }
+        };
+        fetchData();
+    }, []);
 
     return (
         <Box sx={{ pt: 14, px: 20, pb: 5 }}>
@@ -160,9 +148,9 @@ const AppointmentPage = () => {
                                               setSelectedServices={setSelectedServices}
                                           />
                                       ))
-                                    : products.map((product) => (
+                                    : products.map((product, index) => (
                                           <ProductCard
-                                              key={product.productId}
+                                              key={index}
                                               product={product}
                                               setSelectedProducts={setSelectedProducts}
                                           />
@@ -176,11 +164,18 @@ const AppointmentPage = () => {
                 <FormProvider {...methods}>
                     <Box
                         component="form"
-                        onSubmit={methods.handleSubmit(handleSubmit)}
                         sx={{ width: 440, display: 'flex', flexDirection: 'column', gap: 2 }}
+                        onSubmit={methods.handleSubmit(handleSubmit)}
                     >
                         <Box
-                            sx={{ borderRadius: 2, border: 1, borderColor: 'gray.main', bgcolor: '#fff', p: 2, px: 3 }}
+                            sx={{
+                                borderRadius: 2,
+                                border: 1,
+                                borderColor: 'gray.main',
+                                bgcolor: '#fff',
+                                p: 2,
+                                px: 3,
+                            }}
                         >
                             <Typography variant="h6" fontWeight="bold" mb={2}>
                                 Appointment Details
@@ -195,6 +190,7 @@ const AppointmentPage = () => {
                                 slotProps={{ inputLabel: { shrink: true } }}
                                 rules={{
                                     required: 'Please enter date',
+                                    validate: (v) => checkPastDate(v) || 'Date cannot be in the past',
                                 }}
                             />
 
@@ -210,15 +206,30 @@ const AppointmentPage = () => {
                                     required: 'Please enter time',
                                 }}
                             />
-                            <FormInput
-                                name="address"
-                                label="Address"
-                                sx={{ mb: 2 }}
-                                fullWidth
-                                slotProps={{ inputLabel: { shrink: true } }}
-                                rules={{ required: 'Please enter your address' }}
-                                placeholder="Enter your address"
-                            />
+                            <Stack direction="row" spacing={2} mb={2}>
+                                {['home', 'shop'].map((label, index) => (
+                                    <Chip
+                                        key={index}
+                                        label={`Serving at ${label}`}
+                                        color="brand"
+                                        variant={servingType === index ? 'filled' : 'outlined'}
+                                        onClick={() => setServingType(index)}
+                                    />
+                                ))}
+                            </Stack>
+                            {servingType === 0 ? (
+                                <FormInput
+                                    name="address"
+                                    label="Address"
+                                    sx={{ mb: 2 }}
+                                    fullWidth
+                                    slotProps={{ inputLabel: { shrink: true } }}
+                                    rules={{ required: 'Please enter your address' }}
+                                    placeholder="Enter your address"
+                                />
+                            ) : (
+                                <FormSelect name="branch" fullWidth options={branches} sx={{ mb: 2 }} label="Branch" />
+                            )}
                             <FormInput
                                 name="note"
                                 label="Note"
@@ -233,7 +244,14 @@ const AppointmentPage = () => {
 
                         {/* Selected Items */}
                         <Box
-                            sx={{ borderRadius: 2, border: 1, borderColor: 'gray.main', bgcolor: '#fff', p: 2, px: 3 }}
+                            sx={{
+                                borderRadius: 2,
+                                border: 1,
+                                borderColor: 'gray.main',
+                                bgcolor: '#fff',
+                                p: 2,
+                                px: 3,
+                            }}
                         >
                             <Typography variant="h6" fontWeight="bold" mb={1}>
                                 Selected Items
@@ -267,9 +285,9 @@ const AppointmentPage = () => {
                                         Products
                                     </Typography>
                                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                                        {selectedProducts.map((product) => (
+                                        {selectedProducts.map((product, index) => (
                                             <ProductCard
-                                                key={product.productId}
+                                                key={index}
                                                 product={product}
                                                 selected
                                                 setSelectedProducts={setSelectedProducts}
@@ -298,180 +316,6 @@ const AppointmentPage = () => {
                 </FormProvider>
             </Box>
         </Box>
-    );
-};
-
-const ServiceCard = ({ service, selected, setSelectedServices }) => {
-    const { serviceId, imgUrl, name, desc, price, quantity } = service;
-
-    const addService = () => {
-        console.log(serviceId);
-
-        setSelectedServices((prev) => {
-            const existing = prev.find((item) => item.serviceId === serviceId);
-            if (existing) {
-                return prev.map((item) =>
-                    item.serviceId === serviceId ? { ...item, quantity: item.quantity + 1 } : item
-                );
-            }
-            return [...prev, { ...service, quantity: 1 }];
-        });
-    };
-    const removeService = () => {
-        setSelectedServices((prev) => prev.filter((item) => item.serviceId !== serviceId));
-    };
-    const handleIncrease = () => addService();
-    const handleDecrease = () => {
-        setSelectedServices((prev) =>
-            prev.map((item) =>
-                item.serviceId === serviceId && item.quantity > 1 ? { ...item, quantity: item.quantity - 1 } : item
-            )
-        );
-    };
-
-    return (
-        <Card
-            sx={{
-                display: 'flex',
-                alignItems: 'center',
-                py: selected ? 0.5 : 1,
-                px: selected ? 1 : 2,
-                border: 1,
-                borderColor: 'gray.main',
-                boxShadow: 0,
-                borderRadius: 2,
-            }}
-        >
-            <CardMedia
-                component="img"
-                sx={{ width: selected ? 36 : 60, height: selected ? 36 : 60, borderRadius: 1 }}
-                image={imgUrl}
-            />
-            <CardContent sx={{ flex: 1, padding: '0 16px' }}>
-                <Typography variant={selected ? 'body2' : 'body1'} fontWeight={500}>
-                    {name}
-                </Typography>
-                {!selected && (
-                    <Typography variant="body2" color="text.secondary">
-                        {desc}
-                    </Typography>
-                )}
-                <Typography
-                    fontSize={selected ? 13 : 14}
-                    fontWeight={selected ? 400 : 500}
-                    sx={{ marginTop: selected ? 0.5 : 1 }}
-                >
-                    ${price.toFixed(2)}
-                </Typography>
-            </CardContent>
-            {selected ? (
-                <Box display="flex" alignItems="center">
-                    <IconButton size="small" sx={{ p: 0.25 }} onClick={handleDecrease} disabled={quantity === 1}>
-                        <Remove fontSize="small" />
-                    </IconButton>
-                    <Typography variant="body2" sx={{ minWidth: 24, textAlign: 'center' }}>
-                        {quantity}
-                    </Typography>
-                    <IconButton size="small" sx={{ p: 0.25 }} onClick={handleIncrease}>
-                        <Add fontSize="small" />
-                    </IconButton>
-                    <IconButton size="small" sx={{ marginLeft: 1 }} onClick={removeService}>
-                        <DeleteForeverOutlined fontSize="small" />
-                    </IconButton>
-                </Box>
-            ) : (
-                <IconButton size="small" onClick={addService}>
-                    <Add fontSize="small" />
-                </IconButton>
-            )}
-        </Card>
-    );
-};
-
-const ProductCard = ({ product, selected, setSelectedProducts }) => {
-    const { productId, imgUrl, name, desc, price, quantity } = product;
-
-    const addProduct = () => {
-        setSelectedProducts((prev) => {
-            const existing = prev.find((item) => item.productId === productId);
-            if (existing) {
-                return prev.map((item) =>
-                    item.productId === productId ? { ...item, quantity: item.quantity + 1 } : item
-                );
-            }
-            return [...prev, { ...product, quantity: 1 }];
-        });
-    };
-
-    const removeProduct = () => {
-        setSelectedProducts((prev) => prev.filter((item) => item.productId !== productId));
-    };
-
-    const handleIncrease = () => addProduct();
-    const handleDecrease = () => {
-        setSelectedProducts((prev) =>
-            prev.map((item) =>
-                item.productId === productId && item.quantity > 1 ? { ...item, quantity: item.quantity - 1 } : item
-            )
-        );
-    };
-
-    return (
-        <Card
-            sx={{
-                display: 'flex',
-                alignItems: 'center',
-                py: selected ? 0.5 : 1,
-                px: selected ? 1 : 2,
-                border: 1,
-                borderColor: 'gray.main',
-                boxShadow: 0,
-                borderRadius: 2,
-            }}
-        >
-            <CardMedia
-                component="img"
-                sx={{ width: selected ? 36 : 60, height: selected ? 36 : 60, borderRadius: 1 }}
-                image={imgUrl}
-            />
-            <CardContent sx={{ flex: 1, padding: '0 16px' }}>
-                <Typography variant={selected ? 'body2' : 'body1'} fontWeight={500}>
-                    {name}
-                </Typography>
-                {!selected && (
-                    <Typography variant="body2" color="text.secondary">
-                        {desc}
-                    </Typography>
-                )}
-                <Typography
-                    fontSize={selected ? 13 : 14}
-                    fontWeight={selected ? 400 : 500}
-                    sx={{ marginTop: selected ? 0.5 : 1 }}
-                >
-                    ${price.toFixed(2)}
-                </Typography>
-            </CardContent>
-            {selected ? (
-                <Box display="flex" alignItems="center">
-                    <IconButton size="small" sx={{ p: 0.25 }} onClick={handleDecrease} disabled={quantity === 1}>
-                        <Remove fontSize="small" />
-                    </IconButton>
-                    <Typography variant="body2" sx={{ minWidth: 24, textAlign: 'center' }}>
-                        {quantity}
-                    </Typography>
-                    <IconButton size="small" sx={{ p: 0.25 }} onClick={handleIncrease}>
-                        <Add fontSize="small" />
-                    </IconButton>
-                    <IconButton size="small" sx={{ marginLeft: 1 }} onClick={removeProduct}>
-                        <DeleteForeverOutlined fontSize="small" />
-                    </IconButton>
-                </Box>
-            ) : (
-                <IconButton size="small" onClick={addProduct}>
-                    <Add fontSize="small" />
-                </IconButton>
-            )}
-        </Card>
     );
 };
 

@@ -44,8 +44,6 @@ const FormInput = ({
     );
 
     if (type === 'time') {
-        console.log(dayjs(field.value).format('HH:mm'));
-
         return (
             <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <TimePicker

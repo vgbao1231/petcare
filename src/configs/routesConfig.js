@@ -30,7 +30,8 @@ export const routesConfig = {
             ],
         },
     ],
-    user: [
+    employee: [{ path: '/', component: TestPage, icon: HelpOutlineOutlined, label: 'Help', layout: SidebarLayout }],
+    customer: [
         { path: '/', component: LandingPage, label: 'Home', layout: HeaderLayout },
         { path: '/product', component: ProductPage, label: 'Shop', layout: HeaderLayout },
         { path: '/service', component: ProductPage, label: 'Services', layout: HeaderLayout },

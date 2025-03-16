@@ -2,7 +2,7 @@ import { api } from '@src/configs/apiConfig';
 
 const createAppointment = async (formData) => {
     try {
-        const response = await api.post(``, formData);
+        const response = await api.post(`/appointments`, formData);
         return response.data;
     } catch (error) {
         console.error(error);
@@ -10,6 +10,6 @@ const createAppointment = async (formData) => {
     }
 };
 
-export const serviceServices = {
+export const appointmentServices = {
     createAppointment,
 };

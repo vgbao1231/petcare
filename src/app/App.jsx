@@ -3,30 +3,26 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import { Fragment, useMemo } from 'react';
 import { routesConfig } from '@src/configs/routesConfig';
 import { useAuth } from '@src/hooks/useAuth';
+import { getTokenPayload } from '@src/utils/helpers';
 
 function App() {
-    const { role } = useAuth();
-    // Test
-    const jwtClaims = useMemo(
-        () => ({
-            scope: role,
-        }),
-        [role]
-    );
+    const { token } = useAuth();
+    const role = getTokenPayload(token).role;
 
     const routes = useMemo(() => {
-        switch (jwtClaims['scope']) {
-            case 'ADMIN':
+        switch (role) {
+            case 1:
                 return routesConfig.admin;
-            case 'USER':
-                return routesConfig.user;
+            case 2:
+                return routesConfig.employee;
+            case 3:
+                return routesConfig.customer;
             default:
                 return routesConfig.public;
         }
-    }, [jwtClaims]);
+    }, [role]);
 
     const routesWithPaths = useMemo(() => routes.flatMap((r) => (r.children ? r.children : r)), [routes]);
-    // console.log(routesWithPaths);
 
     return (
         <Routes>

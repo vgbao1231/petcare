@@ -74,7 +74,7 @@ const Header = () => {
                     </Typography>
                 </Box>
                 <Box {...centerSx} gap={4}>
-                    {routesConfig.user.map(
+                    {routesConfig.customer.map(
                         ({ path, label }, index) =>
                             index < 4 && (
                                 <Link

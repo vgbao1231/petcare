@@ -1,20 +1,11 @@
-import { createContext, useEffect, useState } from 'react';
 import Cookies from 'js-cookie';
+import { createContext, useState } from 'react';
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-    const [role, setRole] = useState(Cookies.get('accessToken') || '');
+    const [token, setToken] = useState(Cookies.get('token'));
 
-    useEffect(() => {
-        const handleChange = () => {
-            setRole(Cookies.get('accessToken') || '');
-        };
-
-        window.addEventListener('storage', handleChange);
-        return () => window.removeEventListener('storage', handleChange);
-    }, []);
-
-    return <AuthContext.Provider value={{ role, setRole }}>{children}</AuthContext.Provider>;
+    return <AuthContext.Provider value={{ token, setToken }}>{children}</AuthContext.Provider>;
 }

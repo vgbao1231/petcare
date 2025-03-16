@@ -16,6 +16,7 @@ import FormInput from '@src/components/reuseable/FormRHF/FormInput';
 import { checkIsAlphabetic, checkIsEmail } from '@src/utils/validators';
 import { useCallback, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
+import { toast } from 'react-toastify';
 
 const lightTheme = createTheme({
     palette: {
@@ -35,8 +36,13 @@ const RegisterPage = () => {
     const [currentPass, setCurrentPass] = useState('');
     const methods = useForm({ mode: 'all' });
 
-    const onSubmit = useCallback((data) => {
-        authServices.register(data);
+    const onSubmit = useCallback(async (data) => {
+        try {
+            await authServices.register(data);
+            toast.success('Register Successfully! Please check your email');
+        } catch {
+            toast.error('Register Failed!');
+        }
     }, []);
 
     return (
