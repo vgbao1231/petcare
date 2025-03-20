@@ -31,6 +31,7 @@ function TableCompo() {
     console.log('table compo');
 
     const tableInfo = useTable({
+        pageSize: 2,
         tableData,
         features: {
             // editable: true,
@@ -86,7 +87,7 @@ function TableCompo() {
 
     const createCellProps = useCallback(() => {
         return {
-            // onClick: () => console.log('cell click'),
+            // onClick: () => console.log('cell click'),a
         };
     }, []);
 
@@ -407,9 +408,10 @@ function FormCompo() {
     return (
         <Box sx={{ p: 2, width: 350, border: 1, backgroundColor: 'background.paper' }}>
             <FormProvider {...methods}>
-                <form
+                <Box
+                    component="form"
                     onSubmit={methods.handleSubmit(onSubmit)}
-                    style={{ display: 'flex', flexDirection: 'column', gap: '16px', alignItems: 'flex-start' }}
+                    sx={{ display: 'flex', flexDirection: 'column', gap: '16px', alignItems: 'flex-start' }}
                 >
                     <FormChip name="status" variant="outlined" checkedLabel="Active" unCheckedLabel="Unactive" />
                     <FormInput
@@ -454,7 +456,7 @@ function FormCompo() {
                         // getOptionLookup={(v) => console.log(v)}
                     />
                     <Button type="submit">Submit</Button>
-                </form>
+                </Box>
             </FormProvider>
         </Box>
     );

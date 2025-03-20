@@ -10,11 +10,11 @@ const ProductPage = () => {
         setCurrentTab(index);
     }, []);
     return (
-        <Box sx={{ pt: 15, px: 20, pb: 5 }}>
-            <Typography variant="h4" fontWeight="bold">
+        <Box sx={{ pt: 12, px: 20, pb: 5 }}>
+            <Typography fontSize={30} fontWeight="bold">
                 Pet Shop
             </Typography>
-            <Typography variant="body1" color="textSecondary" sx={{ mt: 1, mb: 4 }}>
+            <Typography variant="body1" color="textSecondary" sx={{ mb: 2 }}>
                 Browse our selection of premium pet products, from nutritious food to fun toys and essential
                 accessories.
             </Typography>

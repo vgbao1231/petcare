@@ -18,11 +18,12 @@ export const theme = createTheme({
                     // Màu chủ đạo của brand
                     main: '#ff7300',
                     light: '#ffa04d',
+                    bgcolor: '#fef6ea',
                     dark: '#eb6a00',
                     contrastText: '#ffffff',
                 },
                 background: {
-                    default: '#f8f8f8',
+                    default: '#fafafa',
                     paper: '#ffffff',
                     hover: '#f4f4f4',
                     active: '#edf4fb',

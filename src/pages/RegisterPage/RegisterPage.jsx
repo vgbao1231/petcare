@@ -36,7 +36,7 @@ const RegisterPage = () => {
     const [currentPass, setCurrentPass] = useState('');
     const methods = useForm({ mode: 'all' });
 
-    const onSubmit = useCallback(async (data) => {
+    const handleSubmit = useCallback(async (data) => {
         try {
             await authServices.register(data);
             toast.success('Register Successfully! Please check your email');
@@ -80,7 +80,7 @@ const RegisterPage = () => {
                         Create an Account
                     </Typography>
                     <FormProvider {...methods}>
-                        <form onSubmit={methods.handleSubmit(onSubmit)}>
+                        <Box component="form" onSubmit={methods.handleSubmit(handleSubmit)}>
                             <Box display="flex" gap={2}>
                                 <FormInput
                                     fullWidth
@@ -172,7 +172,7 @@ const RegisterPage = () => {
                             <Button fullWidth variant="contained" color="black" sx={{ mt: 2, py: 1 }} type="submit">
                                 Continue
                             </Button>
-                        </form>
+                        </Box>
                     </FormProvider>
 
                     <Box display="flex" justifyContent="center" mt={3}>

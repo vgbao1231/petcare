@@ -26,11 +26,12 @@ import {
     Typography,
 } from '@mui/material';
 import { authServices } from '@services/authServices';
+import { userServices } from '@services/userServices';
 import { routesConfig } from '@src/configs/routesConfig';
 import { useAuth } from '@src/hooks/useAuth';
 import { centerSx, textEllipsisSx } from '@src/theme';
 import ProfileDialog from '@ui/ProfileDialog/ProfileDialog';
-import { memo, useCallback, useState } from 'react';
+import { memo, useCallback, useEffect, useState } from 'react';
 import { Link as RouterLink, useLocation } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
@@ -38,7 +39,7 @@ const Header = () => {
     const location = useLocation();
     const [anchorEl, setAnchorEl] = useState(null);
     const [open, setOpen] = useState(false);
-    const { setRole } = useAuth();
+    const { setToken, userInfo, setUserInfo } = useAuth();
 
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget);
@@ -52,19 +53,27 @@ const Header = () => {
     );
 
     const handleLogout = useCallback(async () => {
-        try {
-            await authServices.logout();
-            setRole();
-            toast.success('Logout successful!');
-        } catch {
-            toast.error('Logout failed!');
-        }
-    }, [setRole]);
+        authServices.logout();
+        setToken();
+        toast.success('Logout successful!');
+    }, [setToken]);
+
+    useEffect(() => {
+        const fetchUserInfo = async () => {
+            try {
+                const res = await userServices.getSelfInfo();
+                setUserInfo(res);
+            } catch {
+                toast.error('Failed to fetch user info');
+            }
+        };
+        if (!userInfo) fetchUserInfo();
+    }, [userInfo, setUserInfo]);
 
     return (
         <Box sx={{ position: 'fixed', top: 24, width: 1, zIndex: 10, ...centerSx }}>
             <Paper
-                sx={{ bgcolor: '#fff', px: 5, py: 1, width: 0.8, borderRadius: 10, display: 'flex', gap: 8 }}
+                sx={{ bgcolor: '#fff', px: 5, py: 0.5, width: 0.8, borderRadius: 10, display: 'flex', gap: 8 }}
                 elevation={4}
             >
                 <Box {...centerSx} gap={1}>
@@ -161,8 +170,8 @@ const Header = () => {
                         <Avatar alt="Avatar" src="/src/assets/gura.jpg" />
                     </ListItemAvatar>
                     <ListItemText
-                        primary="Bảo Võ"
-                        secondary="vgbao1231@gmail.com asdasd asdas "
+                        primary={userInfo ? userInfo.name : 'Customer'}
+                        secondary={userInfo ? userInfo.email : 'customer@gmail.com'}
                         slotProps={{
                             primary: { sx: { fontWeight: 500, ...textEllipsisSx } },
                             secondary: { sx: textEllipsisSx },

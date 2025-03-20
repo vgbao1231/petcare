@@ -28,16 +28,7 @@ const verify = async (token) => {
 };
 
 const login = async (formData) => {
-    // try {
-    //     // TODO: Giả lập token, có thể thay đổi theo API thực tế
-    //     console.log('data form auth context: ', formData);
-
-    //     // Lưu token vào cookie
-    //     Cookies.set('accessToken', formData.email.includes('admin') ? 'ADMIN' : 'USER', { expires: 7 });
-    // } catch (error) {
-    //     console.log(error);
-    // }
-    // 1: admin, 2: employee, 3: customer
+    // role: 1: admin, 2: employee, 3: customer
     try {
         const response = await api.post(`users/login`, formData);
         Cookies.set('token', response.data.token, { expires: 7 });

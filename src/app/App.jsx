@@ -9,6 +9,8 @@ function App() {
     const { token } = useAuth();
     const role = getTokenPayload(token).role;
 
+    // const role = 3;
+
     const routes = useMemo(() => {
         switch (role) {
             case 1:

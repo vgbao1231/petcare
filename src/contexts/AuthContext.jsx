@@ -6,6 +6,7 @@ export const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
     const [token, setToken] = useState(Cookies.get('token'));
+    const [userInfo, setUserInfo] = useState();
 
-    return <AuthContext.Provider value={{ token, setToken }}>{children}</AuthContext.Provider>;
+    return <AuthContext.Provider value={{ token, setToken, userInfo, setUserInfo }}>{children}</AuthContext.Provider>;
 }

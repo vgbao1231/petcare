@@ -16,8 +16,6 @@ import ProductCard from '@ui/ProductCard/ProductCard';
 import ServiceCard from '@ui/ServiceCard/ServiceCard';
 
 const LandingPage = () => {
-    console.log('landing page');
-
     return (
         <Box>
             {/* First Section */}

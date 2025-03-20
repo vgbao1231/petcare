@@ -99,7 +99,7 @@ const LoginPage = () => {
                         Log In to Your Account
                     </Typography>
                     <FormProvider {...methods}>
-                        <form onSubmit={methods.handleSubmit(handleSubmit)}>
+                        <Box component="form" onSubmit={methods.handleSubmit(handleSubmit)}>
                             <FormInput
                                 fullWidth
                                 size="medium"
@@ -150,7 +150,7 @@ const LoginPage = () => {
                             <Button fullWidth variant="contained" color="black" sx={{ mt: 2, py: 1 }} type="submit">
                                 Continue
                             </Button>
-                        </form>
+                        </Box>
                     </FormProvider>
 
                     {/* Divider */}

@@ -2,15 +2,15 @@ import { Add, DeleteForeverOutlined, Remove } from '@mui/icons-material';
 import { Box, Card, CardContent, CardMedia, IconButton, Typography } from '@mui/material';
 
 const ProductCard = ({ product, selected, setSelectedProducts }) => {
-    const { product_id, imgurl, name, desc, price, quantity } = product;
+    const { product_id, product_type, imgurl, name, desc, price, quantity } = product;
 
     const addProduct = () => {
+        const checkExistedItem = (item) => item.product_id === product_id && item.product_type === product_type;
         setSelectedProducts((prev) => {
-            const existing = prev.find((item) => item.product_id === product_id);
+            const existing = prev.find((item) => checkExistedItem(item));
+
             if (existing) {
-                return prev.map((item) =>
-                    item.product_id === product_id ? { ...item, quantity: item.quantity + 1 } : item
-                );
+                return prev.map((item) => (checkExistedItem(item) ? { ...item, quantity: item.quantity + 1 } : item));
             }
             return [...prev, { ...product, quantity: 1 }];
         });

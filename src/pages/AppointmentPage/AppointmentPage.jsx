@@ -2,8 +2,6 @@ import { Search } from '@mui/icons-material';
 import { Box, Button, Chip, Divider, InputAdornment, Stack, TextField, Typography } from '@mui/material';
 import { appointmentServices } from '@services/appointmentServices';
 import { orderServices } from '@services/orderServices';
-import { productServices } from '@services/productServices';
-import { serviceServices } from '@services/serviceServices';
 import FormInput from '@src/components/reuseable/FormRHF/FormInput';
 import { useAuth } from '@src/hooks/useAuth';
 import { getTokenPayload } from '@src/utils/helpers';
@@ -12,10 +10,12 @@ import { useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import ProductCard from './ProductCard';
 import ServiceCard from './ServiceCard';
-import { branchServices } from '@services/branchServices';
 import FormSelect from '@src/components/reuseable/FormRHF/FormSelect';
 import { toast } from 'react-toastify';
 import { checkPastDate } from '@src/utils/validators';
+import { serviceServices } from '@services/serviceServices';
+import { productServices } from '@services/productServices';
+import { branchServices } from '@services/branchServices';
 
 const AppointmentPage = () => {
     const [branches, setBranches] = useState([]);
@@ -36,9 +36,10 @@ const AppointmentPage = () => {
     const handleSubmit = useCallback(
         async ({ date, time, address, branch, note }) => {
             try {
-                console.log({ date, time, address, branch, note });
                 const customer_id = parseInt(getTokenPayload(token).user_id);
-                const utcDateTime = new Date(`${date}T${time.format('HH:mm')}:00Z`).toISOString().replace('.000', '');
+                const utcDateTime = new Date(`${date}T${time.format('HH:mm')}:00+07:00`)
+                    .toISOString()
+                    .replace('.000', '');
                 const serviceData = selectedServices.map((s) => ({ service_id: s.serviceId, quantity: s.quantity }));
                 const productData = selectedProducts.map((p) => ({
                     product_id: p.product_id,
