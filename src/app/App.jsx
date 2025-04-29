@@ -2,14 +2,12 @@ import './App.css';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { Fragment, useMemo } from 'react';
 import { routesConfig } from '@src/configs/routesConfig';
-import { useAuth } from '@src/hooks/useAuth';
-import { getTokenPayload } from '@src/utils/helpers';
 
 function App() {
-    const { token } = useAuth();
-    const role = getTokenPayload(token).role;
+    // const { token } = useAuth();
+    // const role = getTokenPayload(token).role;
 
-    // const role = 3;
+    const role = 3;
 
     const routes = useMemo(() => {
         switch (role) {

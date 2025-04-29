@@ -10,6 +10,18 @@ const getAllProducts = async () => {
     }
 };
 
+// Food/Medicine/Accessory
+const getProductsByType = async (type) => {
+    try {
+        const response = await api.get(`products${type}`);
+        return response.data;
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+};
+
 export const productServices = {
     getAllProducts,
+    getProductsByType,
 };

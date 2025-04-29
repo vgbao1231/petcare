@@ -1,7 +1,7 @@
 import { Add, DeleteForeverOutlined, Remove } from '@mui/icons-material';
 import { Box, Card, CardContent, CardMedia, IconButton, Typography } from '@mui/material';
 const ServiceCard = ({ service, selected, setSelectedServices }) => {
-    const { serviceId, imgUrl, name, desc, price, quantity } = service;
+    const { serviceId, imgUrl, name, description, price, quantity } = service;
 
     const addService = () => {
         setSelectedServices((prev) => {
@@ -34,7 +34,7 @@ const ServiceCard = ({ service, selected, setSelectedServices }) => {
                 py: selected ? 0.5 : 1,
                 px: selected ? 1 : 2,
                 border: 1,
-                borderColor: 'gray.main',
+                borderColor: 'divider',
                 boxShadow: 0,
                 borderRadius: 2,
             }}
@@ -50,7 +50,7 @@ const ServiceCard = ({ service, selected, setSelectedServices }) => {
                 </Typography>
                 {!selected && (
                     <Typography variant="body2" color="text.secondary">
-                        {desc}
+                        {description}
                     </Typography>
                 )}
                 <Typography

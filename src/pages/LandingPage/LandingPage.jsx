@@ -66,9 +66,7 @@ const LandingPage = () => {
                         </Typography>
                     </Box>
                     <Box display="flex" gap={2}>
-                        <Button variant="contained" color="brand">
-                            Our Services
-                        </Button>
+                        <Button variant="contained">Our Services</Button>
                         <Button variant="outlined">Shop Now</Button>
                     </Box>
                 </Box>
@@ -84,25 +82,25 @@ const LandingPage = () => {
                 </Typography>
                 <Box sx={{ display: 'flex', gap: 4, mb: 6 }}>
                     <ServiceCard
-                        icon={<AutoFixHigh sx={{ fontSize: 50, color: 'brand.main' }} />}
+                        icon={<AutoFixHigh sx={{ fontSize: 50, color: 'primary.main' }} />}
                         name="Grooming"
                         description="Bathing, hair trimming, ear cleaning, nail cutting, and other beauty services."
                         price="From $30"
                     />
                     <ServiceCard
-                        icon={<MedicalServicesOutlined sx={{ fontSize: 50, color: 'brand.main' }} />}
+                        icon={<MedicalServicesOutlined sx={{ fontSize: 50, color: 'primary.main' }} />}
                         name="Veterinary Care"
                         description="General check-up, imaging, blood tests, and other medical services."
                         price="From $30"
                     />
                     <ServiceCard
-                        icon={<Vaccines sx={{ fontSize: 50, color: 'brand.main' }} />}
+                        icon={<Vaccines sx={{ fontSize: 50, color: 'primary.main' }} />}
                         name="Vaccinations"
                         description="Vaccination services for all necessary vaccines to protect your pet."
                         price="Price upon request"
                     />
                     <ServiceCard
-                        icon={<DirectionsCar sx={{ fontSize: 50, color: 'brand.main' }} />}
+                        icon={<DirectionsCar sx={{ fontSize: 50, color: 'primary.main' }} />}
                         name="Home Services"
                         description="We bring care to your home, keeping your pet comfortable."
                         price="Price upon request"
@@ -110,7 +108,6 @@ const LandingPage = () => {
                 </Box>
                 <Button
                     variant="contained"
-                    color="brand"
                     sx={{
                         textTransform: 'none',
                         gap: 0,
@@ -132,33 +129,32 @@ const LandingPage = () => {
                 </Typography>
                 <Box sx={{ display: 'flex', gap: 4, mb: 6, width: 0.9 }}>
                     <ProductCard
-                        img="/src/assets/login-background/login1.png"
+                        imgUrl="/src/assets/login-background/login1.png"
                         name="Thức ăn cho chó cao cấp chó cao cấp"
-                        category="Food"
+                        type="Food"
                         price="$29.99"
                     />
                     <ProductCard
-                        img="/src/assets/login-background/login2.png"
+                        imgUrl="/src/assets/login-background/login2.png"
                         name="Veterinary Care"
-                        category="Food"
+                        type="Food"
                         price="$29.99"
                     />
                     <ProductCard
-                        img="/src/assets/login-background/login3.png"
+                        imgUrl="/src/assets/login-background/login3.png"
                         name="Vaccinations"
-                        category="Food"
+                        type="Food"
                         price="$29.99"
                     />
                     <ProductCard
-                        img="/src/assets/login-background/login4.png"
+                        imgUrl="/src/assets/login-background/login4.png"
                         name="Home Services"
-                        category="Food"
+                        type="Food"
                         price="$29.99"
                     />
                 </Box>
                 <Button
                     variant="outlined"
-                    color="brand"
                     sx={{
                         textTransform: 'none',
                         gap: 0,
@@ -190,30 +186,28 @@ const LandingPage = () => {
 
                 <Box sx={{ ...centerSx, gap: 4, width: 0.8, mb: 5 }}>
                     <PolicyCard
-                        icon={<CalendarMonthOutlined sx={{ fontSize: 40, color: 'brand.main' }} />}
+                        icon={<CalendarMonthOutlined sx={{ fontSize: 40, color: 'primary.main' }} />}
                         name="Flexible Scheduling"
                         description="Vaccination services for all necessary vaccines to protect your pet."
                     />
                     <PolicyCard
-                        icon={<MedicalServicesOutlined sx={{ fontSize: 40, color: 'brand.main' }} />}
+                        icon={<MedicalServicesOutlined sx={{ fontSize: 40, color: 'primary.main' }} />}
                         name="Expert Care"
                         description="Vaccination services for all necessary vaccines to protect your pet."
                     />
                     <PolicyCard
-                        icon={<AccessTime sx={{ fontSize: 40, color: 'brand.main' }} />}
+                        icon={<AccessTime sx={{ fontSize: 40, color: 'primary.main' }} />}
                         name="Quick Process"
                         description="Vaccination services for all necessary vaccines to protect your pet."
                     />
                     <PolicyCard
-                        icon={<HeadsetMicOutlined sx={{ fontSize: 40, color: 'brand.main' }} />}
+                        icon={<HeadsetMicOutlined sx={{ fontSize: 40, color: 'primary.main' }} />}
                         name="24/7 Support"
                         description="Vaccination services for all necessary vaccines to protect your pet."
                     />
                 </Box>
 
-                <Button variant="contained" color="brand">
-                    Book Your Appointment Now
-                </Button>
+                <Button variant="contained">Book Your Appointment Now</Button>
 
                 <Typography variant="body2" color="textSecondary" sx={{ mt: 2 }}>
                     Need immediate assistance? Call us at <b>0123456789</b>

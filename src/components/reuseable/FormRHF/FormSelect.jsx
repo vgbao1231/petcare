@@ -3,13 +3,13 @@ import { useController, useFormContext } from 'react-hook-form';
 import { useMemo, useCallback, useState } from 'react';
 
 const FormSelect = ({ name, label, rules, defaultValue, options, valueRepeat, multiple, sx, ...rest }) => {
-    const { onChange, onBlur, getOptionLookup = (v) => v, ...props } = rest;
+    const { onChange, onBlur, getOptionLookup = (v) => v, noBorder, ...props } = rest;
     const { control } = useFormContext();
     const { field, fieldState } = useController({
         name,
         control,
         rules,
-        defaultValue: defaultValue ?? (multiple ? [] : options[0].value),
+        defaultValue: defaultValue ?? (multiple ? [] : options[0]?.value || ''),
     });
     const [open, setOpen] = useState(false);
 
@@ -69,13 +69,14 @@ const FormSelect = ({ name, label, rules, defaultValue, options, valueRepeat, mu
                         ? { error: !!fieldState.error, helperText: fieldState.error?.message }
                         : {})}
                     slotProps={{
-                        formHelperText: { sx: label ? {} : { mt: -0.5, mb: 0.5 } },
+                        formHelperText: { sx: noBorder ? { mt: -0.5, mb: 0.5 } : {} },
                     }}
                     sx={{ minWidth: 120, ...(!open ? AutocompleteInputSx : {}) }}
+                    {...props}
                 />
             )}
             slotProps={{ chip: { variant: 'outlined', color: fieldState.error ? 'error' : 'primary' } }}
-            sx={{ '.MuiOutlinedInput-root fieldset': { border: label ? undefined : 'none' }, ...sx }}
+            sx={{ '.MuiOutlinedInput-root fieldset': { border: noBorder ? 'none' : undefined }, ...sx }}
             forcePopupIcon={!props.readOnly}
             {...props}
         />

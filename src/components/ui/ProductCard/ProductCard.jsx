@@ -1,46 +1,52 @@
-import { AddShoppingCart, Check } from '@mui/icons-material';
+import { Check } from '@mui/icons-material';
 import { Button, Card, CardActions, CardContent, CardMedia, Grow, Typography } from '@mui/material';
+import { useCart } from '@src/hooks/useCart';
+import { textEllipsisSx } from '@src/theme';
 import { useCallback, useState } from 'react';
 
-const ProductCard = ({ img, name, price, category }) => {
+const ProductCard = ({ id, imgUrl, name, price, type }) => {
     const [added, setAdded] = useState(false);
+    const { cart, setCart } = useCart();
 
-    const handleClick = useCallback(() => {
-        setAdded(true);
-        setTimeout(() => setAdded(false), 1000); // 2s sau về trạng thái cũ
-    }, []);
+    const handleClick = useCallback(
+        (product) => {
+            setAdded(true);
+
+            const index = cart.findIndex((item) => item.id === product.id && item.type === product.type);
+            if (index !== -1) {
+                cart[index].quantity += product.quantity;
+            } else {
+                cart.push(product);
+            }
+            setCart([...cart]);
+
+            setTimeout(() => setAdded(false), 1000); // 2s sau về trạng thái cũ
+        },
+        [cart, setCart]
+    );
 
     return (
-        <Card
-            sx={{
-                flex: 1,
-                borderRadius: 2,
-                boxShadow: 2,
-            }}
-        >
-            <CardMedia sx={{ height: 140 }} image={img} title="gura" />
-            <CardContent>
-                <Typography gutterBottom sx={{ fontWeight: 600, minHeight: 48 }}>
-                    {name}
-                </Typography>
+        <Card sx={{ flex: 1, borderRadius: 2, boxShadow: 1, height: 280, ':hover': { boxShadow: 3 } }}>
+            <CardMedia sx={{ height: 140 }} image={imgUrl} title="gura" />
+            <CardContent sx={{ pt: 1 }}>
+                <Typography sx={{ fontWeight: 600, ...textEllipsisSx }}>{name}</Typography>
                 <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                    {category}
+                    {type}
                 </Typography>
-                <Typography fontWeight={600}>{price}</Typography>
+                <Typography fontWeight={600}>${price}</Typography>
             </CardContent>
-            <CardActions sx={{ justifyContent: 'space-between', px: 2, pt: 0, pb: 2 }}>
-                <Button variant="contained" size="small" color="brand">
-                    View Detail
-                </Button>
+            <CardActions sx={{ px: 2, pt: 0, pb: 0 }}>
                 <Button
+                    size="small"
                     variant="outlined"
-                    sx={{ minWidth: 50, color: 'brand.main', borderColor: 'brand.main' }}
-                    onClick={handleClick}
+                    fullWidth
+                    onClick={() => handleClick({ id, type, imgUrl, name, price, quantity: 1 })}
                     disabled={added}
                 >
                     <Grow in={!added} timeout={500}>
                         <span style={{ display: added ? 'none' : 'flex', alignItems: 'center', gap: 8 }}>
-                            <AddShoppingCart fontSize="small" />
+                            {/* <AddShoppingCart fontSize="small" /> */}
+                            Add to Cart
                         </span>
                     </Grow>
 

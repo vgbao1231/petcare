@@ -16,6 +16,7 @@ import FormInput from '@src/components/reuseable/FormRHF/FormInput';
 import { checkIsAlphabetic, checkIsEmail } from '@src/utils/validators';
 import { useCallback, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
+import { Link as RouterLink } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
 const lightTheme = createTheme({
@@ -33,15 +34,19 @@ const lightTheme = createTheme({
 const RegisterPage = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-    const [currentPass, setCurrentPass] = useState('');
+    const [loading, setLoading] = useState(false);
     const methods = useForm({ mode: 'all' });
+    const password = methods.watch('password');
 
     const handleSubmit = useCallback(async (data) => {
         try {
+            setLoading(true);
             await authServices.register(data);
             toast.success('Register Successfully! Please check your email');
         } catch {
             toast.error('Register Failed!');
+        } finally {
+            setLoading(false);
         }
     }, []);
 
@@ -139,7 +144,6 @@ const RegisterPage = () => {
                                 }}
                                 rules={{ required: 'Please enter your password' }}
                                 sx={{ mb: methods.formState.errors.password ? 0.5 : 2.5 }}
-                                onChange={(e) => setCurrentPass(e.target.value)}
                             />
 
                             <FormInput
@@ -163,13 +167,19 @@ const RegisterPage = () => {
                                         ),
                                     },
                                 }}
-                                rules={{
-                                    validate: (v) => v === currentPass || "Password does't match",
-                                }}
+                                rules={{ validate: (v) => v === password || "Password does't match" }}
                                 sx={{ mb: methods.formState.errors.password ? 0 : 1 }}
                             />
 
-                            <Button fullWidth variant="contained" color="black" sx={{ mt: 2, py: 1 }} type="submit">
+                            <Button
+                                fullWidth
+                                variant="contained"
+                                color="black"
+                                loading={loading}
+                                loadingPosition="end"
+                                sx={{ mt: 2, py: 1 }}
+                                type="submit"
+                            >
                                 Continue
                             </Button>
                         </Box>
@@ -178,7 +188,7 @@ const RegisterPage = () => {
                     <Box display="flex" justifyContent="center" mt={3}>
                         <Typography color="text.secondary">
                             {'Already have an account? '}
-                            <Link href="/login" underline="hover" color="text.secondary">
+                            <Link component={RouterLink} to="/login" underline="hover" color="text.secondary">
                                 Log In
                             </Link>
                         </Typography>

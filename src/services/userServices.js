@@ -1,8 +1,10 @@
 import { api } from '@src/configs/apiConfig';
 
+
+
 const getSelfInfo = async () => {
     try {
-        const response = await api.get(`users/info/me`);
+        const response = await api.get(`users/me`);
         return response.data;
     } catch (error) {
         console.error(error);
@@ -20,7 +22,20 @@ const changeUserInfo = async (formData) => {
     }
 };
 
+const changePassword = async (formData) => {
+    try {
+        const response = await api.put(`users/change-password`, formData);
+        return response.data;
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+};
+
+
+
 export const userServices = {
     getSelfInfo,
     changeUserInfo,
+    changePassword,
 };

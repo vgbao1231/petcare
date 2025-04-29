@@ -4,7 +4,7 @@ import Cookies from 'js-cookie';
 const apiPrefixUrl = import.meta.env.VITE_API_PREFIX_URL;
 console.log(apiPrefixUrl);
 
-const api = axios.create({ baseURL: apiPrefixUrl });
+const api = axios.create({ baseURL: apiPrefixUrl, timeout: 5000 });
 
 const headerConfig = (more) => ({
     'Content-Type': 'application/json',
@@ -24,8 +24,8 @@ const responseInterceptor = (error) => {
 
     if (status === 401) {
         // ❌ Token hết hạn → Đăng xuất người dùng, xóa token
-        Cookies.remove('token');
-        // window.location.href = '/login'; // Chuyển về trang login
+        // Cookies.remove('token');
+        console.error('Token hết hạn!');
     } else if (status === 403) {
         console.error('Không có quyền truy cập!');
     } else if (status >= 500) {

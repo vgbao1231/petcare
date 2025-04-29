@@ -62,7 +62,7 @@ const TableRow = ({ row, isSelected, isEditing }) => {
                 ref={rowRef}
                 sx={{
                     borderBottom: 1,
-                    borderColor: 'gray.main',
+                    borderColor: 'divider',
                     display: 'flex',
                     transition: `background-color 0.3s, box-shadow 0.3s, ${transition}`,
                     backgroundColor: isSelected || isEditing ? 'background.active' : 'background.paper',

@@ -23,7 +23,7 @@ const ServiceCard = ({ icon, name, description, price }) => {
                     display: 'flex',
                     alignItems: 'center',
                     gap: 3,
-                    bgcolor: '#fff',
+                    bgcolor: 'background.paper',
                     borderRadius: 2,
                 }}
             >

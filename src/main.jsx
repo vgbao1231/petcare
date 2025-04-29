@@ -5,6 +5,11 @@ import { BrowserRouter as Router } from 'react-router-dom';
 import { theme } from './theme';
 import { ToastContainer } from 'react-toastify';
 import { AuthProvider } from './contexts/AuthContext.jsx';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { CartProvider } from './contexts/CartContext.jsx';
+import { BranchProvider } from './contexts/BranchContext.jsx';
+
+const queryClient = new QueryClient();
 
 createRoot(document.getElementById('root')).render(
     // <StrictMode>
@@ -13,15 +18,16 @@ createRoot(document.getElementById('root')).render(
         {getInitColorSchemeScript()}
         <ThemeProvider theme={theme} defaultMode="light" storageKey="theme-mode">
             <CssBaseline />
-            <Router
-                future={{
-                    v7_startTransition: true,
-                    v7_relativeSplatPath: true,
-                }}
-            >
-                <AuthProvider>
-                    <App />
-                </AuthProvider>
+            <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+                <QueryClientProvider client={queryClient}>
+                    <AuthProvider>
+                        <CartProvider>
+                            <BranchProvider>
+                                <App />
+                            </BranchProvider>
+                        </CartProvider>
+                    </AuthProvider>
+                </QueryClientProvider>
             </Router>
         </ThemeProvider>
     </>

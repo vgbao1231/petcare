@@ -20,7 +20,7 @@ import { centerSx } from '@src/theme';
 import { checkIsEmail } from '@src/utils/validators';
 import { useCallback, useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import { useLocation } from 'react-router-dom';
+import { useLocation, Link as RouterLink } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
 const lightTheme = createTheme({
@@ -37,6 +37,7 @@ const lightTheme = createTheme({
 
 const LoginPage = () => {
     const [showPassword, setShowPassword] = useState(false);
+    const [loading, setLoading] = useState(false);
     const methods = useForm({ mode: 'all' });
     const { setToken } = useAuth();
     const location = useLocation();
@@ -44,21 +45,31 @@ const LoginPage = () => {
     const handleSubmit = useCallback(
         async (data) => {
             try {
+                setLoading(true);
                 const res = await authServices.login(data);
                 setToken(res.token);
                 toast.success('Login Successfully!');
             } catch {
                 toast.error('Login Failed!');
+            } finally {
+                setLoading(false);
             }
         },
         [setToken]
     );
 
     useEffect(() => {
-        if (location.state?.isVerified !== undefined) {
-            location.state.isVerified
-                ? toast.success('Verification successful! Please log in.')
-                : toast.error('Verification failed! Invalid token.');
+        if (location.state) {
+            if (location.state?.isVerified) {
+                location.state.isVerified
+                    ? toast.success('Verification successful! Please log in.')
+                    : toast.error('Verification failed! Invalid token.');
+            }
+            if (location.state?.isReseted && location.state.isReseted) {
+                toast.success('Reset password successful!\nPlease log in.', {
+                    style: { whiteSpace: 'pre-line' },
+                });
+            }
         }
     }, [location]);
 
@@ -142,12 +153,25 @@ const LoginPage = () => {
                                         Remember Me
                                     </Typography>
                                 </Box>
-                                <Link href="/forgot-password" underline="hover" color="text.secondary">
+                                <Link
+                                    component={RouterLink}
+                                    to="/forgot-password"
+                                    underline="hover"
+                                    color="text.secondary"
+                                >
                                     Forgot Password?
                                 </Link>
                             </Box>
 
-                            <Button fullWidth variant="contained" color="black" sx={{ mt: 2, py: 1 }} type="submit">
+                            <Button
+                                fullWidth
+                                variant="contained"
+                                color="black"
+                                loading={loading}
+                                loadingPosition="end"
+                                sx={{ mt: 2, py: 1 }}
+                                type="submit"
+                            >
                                 Continue
                             </Button>
                         </Box>
@@ -228,7 +252,7 @@ const LoginPage = () => {
                     <Box display="flex" justifyContent="center" mt={3}>
                         <Typography color="text.secondary">
                             {"Don't have an account? "}
-                            <Link href="/register" underline="hover" color="text.secondary">
+                            <Link component={RouterLink} to="/register" underline="hover" color="text.secondary">
                                 Sign up
                             </Link>
                         </Typography>

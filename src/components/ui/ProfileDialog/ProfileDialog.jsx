@@ -1,7 +1,8 @@
-import { Box, Dialog, DialogContent, DialogTitle, Tab, Tabs, Typography } from '@mui/material';
+import { Box, Dialog, DialogContent, DialogTitle, IconButton, Tab, Tabs, Typography } from '@mui/material';
 import { useState } from 'react';
 import ProfileTab from './ProfileTab';
 import SecurityTab from './SecurityTab';
+import { Close } from '@mui/icons-material';
 
 const ProfileDialog = ({ open, onClose }) => {
     const [tabIndex, setTabIndex] = useState(0);
@@ -10,15 +11,17 @@ const ProfileDialog = ({ open, onClose }) => {
         <Dialog open={open} onClose={onClose} slotProps={{ paper: { sx: { width: 600 } } }}>
             {/* Tiêu đề */}
             <DialogTitle>
-                <Typography variant="body1" sx={{ fontWeight: 'bold', fontSize: 18 }}>
-                    My Profile
-                </Typography>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <Typography variant="body1" sx={{ fontWeight: 'bold', fontSize: 18 }}>
+                        My Profile
+                    </Typography>
+                    <IconButton size="small" onClick={onClose}>
+                        <Close fontSize="small" />
+                    </IconButton>
+                </Box>
                 <Typography variant="body2" color="text.secondary">
                     Manage your account information and preferences
                 </Typography>
-                {/* <IconButton onClick={onClose}>
-                    <Close />
-                </IconButton> */}
             </DialogTitle>
 
             {/* Nội dung */}

@@ -20,15 +20,13 @@ const VerifyPage = () => {
             }
         };
 
-        if (token) {
-            verify();
-        }
+        if (token) verify();
     }, [token, navigate]);
 
     return (
         <Box sx={{ width: 1, height: '100vh', ...centerSx, bgcolor: 'grey.200' }}>
             <Paper
-                sx={{ bgcolor: '#fff', p: 4, px: 8, borderRadius: 3, ...centerSx, flexDirection: 'column' }}
+                sx={{ bgcolor: 'background.paper', p: 4, px: 8, borderRadius: 3, ...centerSx, flexDirection: 'column' }}
                 elevation={2}
             >
                 <Typography variant="h5" fontWeight="bold" mb={1}>

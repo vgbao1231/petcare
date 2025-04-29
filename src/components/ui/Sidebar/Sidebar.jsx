@@ -89,7 +89,7 @@ export default function Sidebar({ sidebarItems }) {
                     transition: !isResizing && 'width 0.3s',
                     width: open ? width : 80,
                     borderRight: 1,
-                    borderColor: mode === 'light' ? 'grey.200' : 'grey.900',
+                    borderColor: 'divider',
                     backgroundColor: 'background.paper',
                 }}
             >

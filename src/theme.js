@@ -12,15 +12,23 @@ export const theme = createTheme({
             palette: {
                 primary: {
                     main: '#ff7300',
+                    light: '#ffa04d',
+                    dark: '#f56e00',
+                    bgcolor: '#fef6ea',
                     contrastText: '#ffffff',
                 },
-                brand: {
-                    // Màu chủ đạo của brand
-                    main: '#ff7300',
-                    light: '#ffa04d',
-                    bgcolor: '#fef6ea',
-                    dark: '#eb6a00',
-                    contrastText: '#ffffff',
+                common: {
+                    main: '#333333',         // màu đen nhẹ (nội dung chính)
+                    light: '#f5f5f5',        // nền nhạt (hover/disabled)
+                    dark: '#000000',         // đen đậm (có thể dùng cho border hoặc text nổi bật)
+                    contrastText: '#ffffff', // chữ trên nền đậm (ví dụ nút đen)
+                },
+                blue: {
+                    main: '#1976d2',
+                    light: '#42a5f5',
+                    dark: '#1565c0',
+                    bgcolor: '#E3F2FD',
+                    contrastText: '#ffffff'
                 },
                 background: {
                     default: '#fafafa',
@@ -34,12 +42,34 @@ export const theme = createTheme({
                     secondary: '#888888',
                     tertiary: '#78350f',
                 },
-                gray: {
-                    main: '#dadada',
-                    light: '#cfcfcf',
-                    dark: '#707070',
-                    contrastText: '#ffffff',
+                error: {
+                    main: '#f44336',
+                    light: '#ff7961',
+                    dark: '#e53935',
+                    bgcolor: '#FFE6E6',
+                    contrastText: '#fff',
                 },
+                success: {
+                    main: '#4caf50',
+                    light: '#22c55e',
+                    dark: '#1b5e20',
+                    bgcolor: '#DFF5E9',
+                    contrastText: '#fff',
+                },
+                warning: {
+                    main: '#ed6c02',
+                    light: '#ff9800',
+                    dark: '#e65100',
+                    bgcolor: '#fff7eb',
+                    contrastText: '#fff',
+                },
+                info: {
+                    main: '#0288d1',
+                    light: '#03a9f4',
+                    dark: '#01579b',
+                    bgcolor: '#E3F2FD',
+                    contrastText: '#fff',
+                }
             },
         },
         dark: {
@@ -61,12 +91,6 @@ export const theme = createTheme({
                     main: '#66bb6a',
                     light: '#81c784',
                     dark: '#388e3c',
-                    contrastText: '#ffffff',
-                },
-                gray: {
-                    main: '#444444',
-                    light: '#cfcfcf',
-                    dark: '#707070',
                     contrastText: '#ffffff',
                 },
             },

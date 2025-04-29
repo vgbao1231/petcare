@@ -1,9 +1,11 @@
 import { LockReset, Visibility, VisibilityOff } from '@mui/icons-material';
 import { Box, Button, IconButton, InputAdornment, Typography } from '@mui/material';
+import { userServices } from '@services/userServices';
 import FormInput from '@src/components/reuseable/FormRHF/FormInput';
 import { centerSx } from '@src/theme';
 import { memo, useCallback, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
+import { toast } from 'react-toastify';
 
 const SecurityTab = () => {
     const [showCurrentPassword, setShowCurrentPassword] = useState(false);
@@ -11,7 +13,15 @@ const SecurityTab = () => {
     const [currentPass, setCurrentPass] = useState('');
     const methods = useForm({ mode: 'all' });
 
-    const handleSubmit = useCallback(() => {}, []);
+    const handleSubmit = useCallback(async (data) => {
+        try {
+            delete data.confirmNewPassword;
+            await userServices.changePassword(data);
+            toast.success('Update info successfully');
+        } catch {
+            toast.error('Update info failed');
+        }
+    }, []);
 
     return (
         <>
@@ -29,7 +39,7 @@ const SecurityTab = () => {
                 >
                     <FormInput
                         fullWidth
-                        name="currentPassword"
+                        name="oldPassword"
                         label="Current Password"
                         type={showCurrentPassword ? 'text' : 'password'}
                         slotProps={{
@@ -46,7 +56,7 @@ const SecurityTab = () => {
                                 ),
                             },
                         }}
-                        rules={{ required: 'Please enter your password' }}
+                        rules={{ required: 'Please enter your current password' }}
                         onChange={(e) => setCurrentPass(e.target.value)}
                     />
                     <FormInput
@@ -65,7 +75,7 @@ const SecurityTab = () => {
                                 ),
                             },
                         }}
-                        rules={{ required: 'Please enter your password' }}
+                        rules={{ required: 'Please enter your new password' }}
                         onChange={(e) => setCurrentPass(e.target.value)}
                     />
 
@@ -81,7 +91,6 @@ const SecurityTab = () => {
                         fullWidth
                         variant="contained"
                         size="small"
-                        color="brand"
                         sx={{ py: 1, textTransform: 'none' }}
                         type="submit"
                     >

@@ -10,6 +10,17 @@ const createAppointment = async (formData) => {
     }
 };
 
+const myAppointment = async (id) => {
+    try {
+        const response = await api.get(`/appointments/customer/${id}`);
+        return response.data;
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+};
+
 export const appointmentServices = {
     createAppointment,
+    myAppointment
 };

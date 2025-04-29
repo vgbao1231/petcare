@@ -1,82 +1,43 @@
-import {
-    CalendarMonth,
-    Logout,
-    NotificationsOutlined,
-    PersonOutline,
-    Pets,
-    PetsOutlined,
-    Settings,
-    ShoppingBagOutlined,
-    ShoppingCartOutlined,
-} from '@mui/icons-material';
-import {
-    Avatar,
-    Badge,
-    Box,
-    Divider,
-    IconButton,
-    Link,
-    ListItem,
-    ListItemAvatar,
-    ListItemIcon,
-    ListItemText,
-    Menu,
-    MenuItem,
-    Paper,
-    Typography,
-} from '@mui/material';
-import { authServices } from '@services/authServices';
-import { userServices } from '@services/userServices';
+import { NotificationsOutlined, Pets, ShoppingCartOutlined } from '@mui/icons-material';
+import { Avatar, Badge, Box, IconButton, Link, Paper, Typography } from '@mui/material';
 import { routesConfig } from '@src/configs/routesConfig';
 import { useAuth } from '@src/hooks/useAuth';
-import { centerSx, textEllipsisSx } from '@src/theme';
-import ProfileDialog from '@ui/ProfileDialog/ProfileDialog';
-import { memo, useCallback, useEffect, useState } from 'react';
+import { centerSx } from '@src/theme';
+import { memo, useCallback, useState } from 'react';
 import { Link as RouterLink, useLocation } from 'react-router-dom';
-import { toast } from 'react-toastify';
+import ProfilePopover from './ProfilePopOver';
+import CartPopover from './CartPopover';
+import { genAvatarColor } from '@src/utils/helpers';
+import { useCart } from '@src/hooks/useCart';
 
 const Header = () => {
     const location = useLocation();
-    const [anchorEl, setAnchorEl] = useState(null);
-    const [open, setOpen] = useState(false);
-    const { setToken, userInfo, setUserInfo } = useAuth();
+    const [profileAnchorEl, setProfileAnchorEl] = useState(null);
+    const [cartAnchorEl, setCartAnchorEl] = useState(null);
+    const { userInfo } = useAuth();
+    const { cart } = useCart();
+    const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
 
-    const handleClick = (event) => {
-        setAnchorEl(event.currentTarget);
-    };
-    const handleClose = () => {
-        setAnchorEl(null);
-    };
     const isActive = useCallback(
         (path) => (path === '/' ? location.pathname === '/' : location.pathname.startsWith(path)),
         [location.pathname]
     );
 
-    const handleLogout = useCallback(async () => {
-        authServices.logout();
-        setToken();
-        toast.success('Logout successful!');
-    }, [setToken]);
-
-    useEffect(() => {
-        const fetchUserInfo = async () => {
-            try {
-                const res = await userServices.getSelfInfo();
-                setUserInfo(res);
-            } catch {
-                toast.error('Failed to fetch user info');
-            }
-        };
-        if (!userInfo) fetchUserInfo();
-    }, [userInfo, setUserInfo]);
-
     return (
-        <Box sx={{ position: 'fixed', top: 24, width: 1, zIndex: 10, ...centerSx }}>
+        <Box sx={{ position: 'fixed', top: 20, width: 1, zIndex: 10, ...centerSx }}>
             <Paper
-                sx={{ bgcolor: '#fff', px: 5, py: 0.5, width: 0.8, borderRadius: 10, display: 'flex', gap: 8 }}
-                elevation={4}
+                sx={{
+                    bgcolor: 'background.paper',
+                    px: 5,
+                    py: 0.5,
+                    width: 0.8,
+                    borderRadius: 10,
+                    display: 'flex',
+                    gap: 8,
+                }}
+                elevation={2}
             >
-                <Box {...centerSx} gap={1}>
+                <Box component={RouterLink} to="/" {...centerSx} gap={1}>
                     <Pets />
                     <Typography variant="h6" component="div">
                         Petcare
@@ -135,9 +96,9 @@ const Header = () => {
                             <NotificationsOutlined sx={{ color: '#111' }} />
                         </Badge>
                     </IconButton>
-                    <IconButton size="small">
+                    <IconButton size="small" onClick={(e) => setCartAnchorEl(e.currentTarget)}>
                         <Badge
-                            badgeContent={4}
+                            badgeContent={totalItems}
                             color="primary"
                             sx={{
                                 '& .MuiBadge-badge': {
@@ -151,73 +112,18 @@ const Header = () => {
                             <ShoppingCartOutlined sx={{ color: '#111' }} />
                         </Badge>
                     </IconButton>
-                    <IconButton size="small" onClick={handleClick}>
-                        <Avatar alt="Avatar" src="/src/assets/gura.jpg" />
+                    <IconButton size="small" onClick={(e) => setProfileAnchorEl(e.currentTarget)}>
+                        <Avatar
+                            alt="Avatar"
+                            sx={{ width: 36, height: 36, bgcolor: genAvatarColor(userInfo?.name), color: '#fff' }}
+                        >
+                            {userInfo?.name?.[0] || 'C'}
+                        </Avatar>
                     </IconButton>
                 </Box>
             </Paper>
-            <Menu
-                anchorEl={anchorEl}
-                open={!!anchorEl}
-                onClose={handleClose}
-                transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-                anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-                disableScrollLock
-                sx={{ maxWidth: '260px' }}
-            >
-                <ListItem sx={{ py: 0.5 }}>
-                    <ListItemAvatar>
-                        <Avatar alt="Avatar" src="/src/assets/gura.jpg" />
-                    </ListItemAvatar>
-                    <ListItemText
-                        primary={userInfo ? userInfo.name : 'Customer'}
-                        secondary={userInfo ? userInfo.email : 'customer@gmail.com'}
-                        slotProps={{
-                            primary: { sx: { fontWeight: 500, ...textEllipsisSx } },
-                            secondary: { sx: textEllipsisSx },
-                        }}
-                    />
-                </ListItem>
-                <Divider />
-                <MenuItem onClick={() => setOpen(true)} sx={{ fontSize: '14px' }}>
-                    <ListItemIcon>
-                        <PersonOutline />
-                    </ListItemIcon>
-                    Profile
-                </MenuItem>
-                <ProfileDialog open={open} onClose={() => setOpen(false)} />
-                <MenuItem component={RouterLink} to="/pet-tracking" sx={{ fontSize: '14px' }}>
-                    <ListItemIcon>
-                        <PetsOutlined fontSize="small" />
-                    </ListItemIcon>
-                    Pet Tracking
-                </MenuItem>
-                <MenuItem component={RouterLink} to="/my-order" sx={{ fontSize: '14px' }}>
-                    <ListItemIcon>
-                        <ShoppingBagOutlined fontSize="small" />
-                    </ListItemIcon>
-                    My Order
-                </MenuItem>
-                <MenuItem component={RouterLink} to="/my-appointment" sx={{ fontSize: '14px' }}>
-                    <ListItemIcon>
-                        <CalendarMonth fontSize="small" />
-                    </ListItemIcon>
-                    My Appointment
-                </MenuItem>
-                <MenuItem sx={{ fontSize: '14px' }}>
-                    <ListItemIcon>
-                        <Settings fontSize="small" />
-                    </ListItemIcon>
-                    Settings
-                </MenuItem>
-                <Divider />
-                <MenuItem onClick={handleLogout} sx={{ color: 'error.main', fontSize: '14px' }}>
-                    <ListItemIcon>
-                        <Logout fontSize="small" color="error" />
-                    </ListItemIcon>
-                    Logout
-                </MenuItem>
-            </Menu>
+            <ProfilePopover anchorEl={profileAnchorEl} setAnchorEl={setProfileAnchorEl} />
+            <CartPopover anchorEl={cartAnchorEl} setAnchorEl={setCartAnchorEl} />
         </Box>
     );
 };

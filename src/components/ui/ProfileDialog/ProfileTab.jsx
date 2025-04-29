@@ -17,6 +17,7 @@ const ProfileTab = () => {
     const handleSubmit = useCallback(async (data) => {
         try {
             console.log(data);
+
             await userServices.changeUserInfo(data);
             toast.success('Update info successfully');
         } catch {
@@ -64,7 +65,6 @@ const ProfileTab = () => {
                     <FormInput label="Address" name="address" fullWidth />
                     <Button
                         variant="contained"
-                        color="brand"
                         size="small"
                         type="submit"
                         sx={{ textTransform: 'none', float: 'right' }}

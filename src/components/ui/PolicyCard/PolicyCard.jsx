@@ -14,7 +14,7 @@ const PolicyCard = ({ icon, name, description }) => {
                     display: 'flex',
                     alignItems: 'center',
                     gap: 2,
-                    bgcolor: '#fff',
+                    bgcolor: 'background.paper',
                     borderRadius: 2,
                 }}
             >

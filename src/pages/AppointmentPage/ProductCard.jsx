@@ -2,7 +2,7 @@ import { Add, DeleteForeverOutlined, Remove } from '@mui/icons-material';
 import { Box, Card, CardContent, CardMedia, IconButton, Typography } from '@mui/material';
 
 const ProductCard = ({ product, selected, setSelectedProducts }) => {
-    const { product_id, product_type, imgurl, name, desc, price, quantity } = product;
+    const { product_id, product_type, imgurl, name, description, price, quantity } = product;
 
     const addProduct = () => {
         const checkExistedItem = (item) => item.product_id === product_id && item.product_type === product_type;
@@ -17,14 +17,18 @@ const ProductCard = ({ product, selected, setSelectedProducts }) => {
     };
 
     const removeProduct = () => {
-        setSelectedProducts((prev) => prev.filter((item) => item.product_id !== product_id));
+        setSelectedProducts((prev) =>
+            prev.filter((item) => item.product_id !== product_id || item.product_type !== product_type)
+        );
     };
 
     const handleIncrease = () => addProduct();
     const handleDecrease = () => {
         setSelectedProducts((prev) =>
             prev.map((item) =>
-                item.product_id === product_id && item.quantity > 1 ? { ...item, quantity: item.quantity - 1 } : item
+                item.product_id === product_id && item.product_type === product_type
+                    ? { ...item, quantity: item.quantity - 1 }
+                    : item
             )
         );
     };
@@ -37,7 +41,7 @@ const ProductCard = ({ product, selected, setSelectedProducts }) => {
                 py: selected ? 0.5 : 1,
                 px: selected ? 1 : 2,
                 border: 1,
-                borderColor: 'gray.main',
+                borderColor: 'divider',
                 boxShadow: 0,
                 borderRadius: 2,
             }}
@@ -53,7 +57,7 @@ const ProductCard = ({ product, selected, setSelectedProducts }) => {
                 </Typography>
                 {!selected && (
                     <Typography variant="body2" color="text.secondary">
-                        {desc}
+                        {description}
                     </Typography>
                 )}
                 <Typography
