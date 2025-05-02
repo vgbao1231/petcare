@@ -126,7 +126,7 @@ const MyAppointmentPage = () => {
                     </Box>
                 ))}
             </Box>
-            <Stack spacing={4} sx={{ px: 1, pt: 2, pb: 1, maxHeight: 484, overflowY: 'auto' }}>
+            <Stack spacing={4} sx={{ px: 1, pt: 2, pb: 1, maxHeight: '100%', overflowY: 'auto' }}>
                 {filteredAppointments.map((appointment) => (
                     <AppointmentCard key={appointment.id} appointment={appointment} />
                 ))}

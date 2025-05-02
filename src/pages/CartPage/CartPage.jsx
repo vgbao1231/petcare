@@ -31,8 +31,8 @@ const CartPage = () => {
                     <Typography color="text.secondary">
                         {"Looks like you haven't added anything to your cart yet."}
                     </Typography>
-                    <Button component={Link} to="/product" variant="contained">
-                        Continue Shopping
+                    <Button component={Link} to="/product" variant="contained" sx={{ textTransform: 'none' }}>
+                        Start Shopping
                     </Button>
                 </Box>
             </Box>

@@ -70,17 +70,7 @@ const ProductPage = () => {
     // });
 
     return (
-        <Box
-            sx={{
-                pt: 11,
-                px: 20,
-                pb: 5,
-                height: '100vh',
-                display: 'flex',
-                flexDirection: 'column',
-                overflow: 'hidden',
-            }}
-        >
+        <Box sx={{ pt: 11, px: 20, pb: 2, height: '100vh' }}>
             <Typography fontSize={24} fontWeight={500}>
                 Pet Shop
             </Typography>
@@ -88,9 +78,19 @@ const ProductPage = () => {
                 Browse our selection of premium pet products, from nutritious food to fun toys and essential
                 accessories.
             </Typography>
-            <Box sx={{ display: 'flex', gap: 4, height: 1 }}>
+            <Box sx={{ display: 'flex', gap: 4, height: '88%' }}>
                 {/* Filter Box */}
-                <Paper sx={{ borderRadius: 2, width: 240, mb: 0.5, p: 2, display: 'flex', flexDirection: 'column' }}>
+                <Paper
+                    sx={{
+                        borderRadius: 2,
+                        width: 240,
+                        mb: 0.5,
+                        p: 2,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        // alignSelf: 'start',
+                    }}
+                >
                     <Typography fontSize={18} fontWeight={500} mb={1}>
                         Filter
                     </Typography>
@@ -187,7 +187,7 @@ const ProductPage = () => {
                             display: 'grid',
                             gridTemplateColumns: '1fr 1fr 1fr 1fr',
                             gap: 3,
-                            maxHeight: 500,
+                            maxHeight: '100%',
                             overflow: 'auto',
                             p: 0.4,
                         }}

@@ -2,7 +2,6 @@ import {
     Autorenew,
     CalendarTodayOutlined,
     KeyboardArrowDown,
-    LocalAtmOutlined,
     LocalShippingOutlined,
     PaymentOutlined,
     ShoppingBagOutlined,
@@ -37,7 +36,7 @@ const statusColors = {
     Cancelled: 'error',
 };
 
-const OrderCard = ({ id, dateTime, status, items, note, deliveredOn, method, summary }) => {
+const OrderCard = ({ id, dateTime, status, items, note, deliveredOn, summary }) => {
     const [open, setOpen] = useState(false);
 
     const itemNames = items.slice(0, 2).map((item) => {
@@ -208,22 +207,6 @@ const OrderCard = ({ id, dateTime, status, items, note, deliveredOn, method, sum
                                     <Typography fontWeight={500}>Total</Typography>
                                     <Typography fontWeight={500}>${summary.total}</Typography>
                                 </Stack>
-                                <Box sx={{ display: 'flex', alignItems: 'center', mt: 2 }}>
-                                    <Box
-                                        sx={{
-                                            bgcolor: 'primary.bgcolor',
-                                            p: 1,
-                                            borderRadius: '50%',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            mr: 1,
-                                        }}
-                                    >
-                                        <LocalAtmOutlined color="primary" fontSize="small" />
-                                    </Box>
-                                    <Typography>Payment Method: {method}</Typography>
-                                </Box>
                             </Box>
                         </Box>
                     </Stack>

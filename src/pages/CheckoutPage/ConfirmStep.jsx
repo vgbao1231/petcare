@@ -75,7 +75,7 @@ const ConfirmStep = () => {
 
             {/* Buttons */}
             <Stack direction="row" spacing={6} justifyContent="center">
-                <Button component={Link} to="/product" variant="contained" color="warning">
+                <Button component={Link} to="/product" variant="contained">
                     Continue Shopping
                 </Button>
                 <Button component={Link} to="/my-order" variant="outlined">

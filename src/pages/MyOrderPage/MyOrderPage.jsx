@@ -24,7 +24,6 @@ const orders = [
                 image: '/src/assets/gura.jpg',
             },
         ],
-        method: 'Cash on Delivery',
         note: 'Please leave at the front door if no one answers',
         deliveredOn: '2023-07-17',
         summary: {
@@ -52,7 +51,6 @@ const orders = [
                 image: '/src/assets/gura.jpg',
             },
         ],
-        method: 'Bank Transfer',
         note: 'Call before delivery',
         summary: {
             subtotal: 64.98,
@@ -72,7 +70,6 @@ const orders = [
                 image: '/src/assets/gura.jpg',
             },
         ],
-        method: 'Bank Transfer',
         summary: {
             subtotal: 34.99,
             total: 34.99,
@@ -98,7 +95,6 @@ const MyOrderPage = () => {
                 pt: 12,
                 px: 24,
                 pb: 5,
-                height: '100vh',
                 display: 'flex',
                 flexDirection: 'column',
             }}

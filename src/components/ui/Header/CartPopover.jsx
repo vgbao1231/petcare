@@ -58,8 +58,13 @@ const CartPopover = ({ anchorEl, setAnchorEl }) => {
                             <Typography variant="body2" color="text.secondary">
                                 Add items to your cart to see them here
                             </Typography>
-                            <Button component={Link} to="/product" variant="contained" sx={{ mt: 2, py: 0.5 }}>
-                                Continue Shopping
+                            <Button
+                                component={Link}
+                                to="/product"
+                                variant="contained"
+                                sx={{ mt: 2, py: 0.5, textTransform: 'none' }}
+                            >
+                                Start Shopping
                             </Button>
                         </Box>
                     ) : (
@@ -98,12 +103,20 @@ const CartPopover = ({ anchorEl, setAnchorEl }) => {
                             to="/cart"
                             fullWidth
                             variant="contained"
-                            sx={{ mt: 2 }}
+                            sx={{ mt: 2, textTransform: 'none' }}
+                            size="small"
                             onClick={handleClose}
                         >
                             View Cart
                         </Button>
-                        <Button component={Link} to="/checkout" fullWidth variant="outlined" sx={{ mt: 1 }}>
+                        <Button
+                            component={Link}
+                            to="/checkout"
+                            fullWidth
+                            variant="outlined"
+                            size="small"
+                            sx={{ mt: 1, textTransform: 'none' }}
+                        >
                             Checkout
                         </Button>
                     </Box>

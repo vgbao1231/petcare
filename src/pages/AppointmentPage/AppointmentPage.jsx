@@ -269,12 +269,12 @@ const AppointmentPage = () => {
                             <FormInput
                                 name="note"
                                 label="Note"
-                                multiline
                                 sx={{ mb: 2 }}
                                 fullWidth
                                 slotProps={{ inputLabel: { shrink: true } }}
                                 placeholder="Any secial requests or information"
-                                rows={2}
+                                multiline
+                                rows={3}
                             />
                         </Box>
 

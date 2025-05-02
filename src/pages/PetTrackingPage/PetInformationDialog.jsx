@@ -1,12 +1,31 @@
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Grid2, Typography } from '@mui/material';
+import { FileUploadOutlined } from '@mui/icons-material';
+import {
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
+    Button,
+    Grid2,
+    Typography,
+    Avatar,
+    Box,
+} from '@mui/material';
+import FormFile from '@src/components/reuseable/FormRHF/FormFile';
 import FormInput from '@src/components/reuseable/FormRHF/FormInput';
 import FormSelect from '@src/components/reuseable/FormRHF/FormSelect';
+import { centerSx } from '@src/theme';
+import { useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
 const speciesList = ['Dog', 'Cat', 'Bird', 'Rabbit', 'Other'];
 
 const PetInformationDialog = ({ formData, open, onClose }) => {
     const methods = useForm({ defaultValues: formData, mode: 'all' });
+    const [previewUrl, setPreviewUrl] = useState();
+
+    const handleFileChange = (file) => {
+        setPreviewUrl(file.type.startsWith('image/') ? URL.createObjectURL(file) : null);
+    };
 
     const handleSubmit = () => {
         formData ? console.log('edit') : console.log('add');
@@ -18,6 +37,19 @@ const PetInformationDialog = ({ formData, open, onClose }) => {
             <DialogTitle>{formData ? 'Edit Pet Information' : 'Add New Pet'}</DialogTitle>
             <DialogContent sx={{ py: 0 }}>
                 <FormProvider {...methods}>
+                    <Box {...centerSx} flexDirection="column" gap={2} mb={2}>
+                        <Avatar src={previewUrl} sx={{ width: 100, height: 100 }} />
+                        <FormFile
+                            color="common"
+                            size="small"
+                            label="Upload Image"
+                            name="image"
+                            variant="outlined"
+                            sx={{ textTransform: 'none' }}
+                            startIcon={<FileUploadOutlined />}
+                            onFileChange={handleFileChange}
+                        />
+                    </Box>
                     <Grid2 container spacing={2}>
                         <Grid2 size={6}>
                             <Typography variant="body2" fontWeight={500} mb={1}>
@@ -64,7 +96,7 @@ const PetInformationDialog = ({ formData, open, onClose }) => {
                             <Typography variant="body2" fontWeight={500} mb={1}>
                                 Identifier
                             </Typography>
-                            <FormInput placeholder="Enter identifier" name="identifier" fullWidth />
+                            <FormInput placeholder="Enter identifier" name="identifier" fullWidth multiline rows={3} />
                         </Grid2>
                     </Grid2>
                 </FormProvider>

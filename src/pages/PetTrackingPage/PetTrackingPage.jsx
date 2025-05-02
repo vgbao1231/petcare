@@ -239,29 +239,45 @@ const PetTrackingPage = () => {
                             ID: {currentPet.pet_id}
                         </Typography>
                         <Box sx={{ px: 4, pt: 1 }}>
+                            <Stack alignItems="center" spacing={1} mb={1}>
+                                <Avatar src="/src/assets/gura.jpg" sx={{ width: 100, height: 100 }} />
+                                <Typography variant="h3" fontSize={20} fontWeight={500}>
+                                    {currentPet.name}
+                                </Typography>
+                            </Stack>
                             <Stack direction="row" spacing={1}>
-                                <Typography fontWeight={500}>Breed:</Typography>
-                                <Typography>{currentPet.breed}</Typography>
+                                <Typography variant="body2" fontWeight={500}>
+                                    Breed:
+                                </Typography>
+                                <Typography variant="body2">{currentPet.breed}</Typography>
                             </Stack>
 
                             <Stack direction="row" spacing={1}>
-                                <Typography fontWeight={500}>Color:</Typography>
-                                <Typography>{currentPet.color}</Typography>
+                                <Typography variant="body2" fontWeight={500}>
+                                    Color:
+                                </Typography>
+                                <Typography variant="body2">{currentPet.color}</Typography>
                             </Stack>
 
                             <Stack direction="row" spacing={1}>
-                                <Typography fontWeight={500}>Weight:</Typography>
-                                <Typography>{currentPet.weight} kg</Typography>
+                                <Typography variant="body2" fontWeight={500}>
+                                    Weight:
+                                </Typography>
+                                <Typography variant="body2">{currentPet.weight} kg</Typography>
                             </Stack>
 
                             <Stack direction="row" spacing={1}>
-                                <Typography fontWeight={500}>Height:</Typography>
-                                <Typography>{currentPet.height} cm</Typography>
+                                <Typography variant="body2" fontWeight={500}>
+                                    Height:
+                                </Typography>
+                                <Typography variant="body2">{currentPet.height} cm</Typography>
                             </Stack>
 
                             <Stack direction="row" spacing={1}>
-                                <Typography fontWeight={500}>Identifier:</Typography>
-                                <Typography>{currentPet.identifier}</Typography>
+                                <Typography variant="body2" fontWeight={500}>
+                                    Identifier:
+                                </Typography>
+                                <Typography variant="body2">{currentPet.identifier}</Typography>
                             </Stack>
                         </Box>
                     </Box>
@@ -270,7 +286,7 @@ const PetTrackingPage = () => {
                         <Typography variant="body2" color="text.secondary" fontWeight={500}>
                             Owner
                         </Typography>
-                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
                             <ListItemAvatar sx={{ minWidth: 44 }}>
                                 <Avatar
                                     alt="Avatar"
@@ -291,6 +307,7 @@ const PetTrackingPage = () => {
                                     primary: { sx: { fontWeight: 500, ...textEllipsisSx, lineHeight: 1.2 } },
                                     secondary: { sx: textEllipsisSx },
                                 }}
+                                sx={{ m: 0 }}
                             />
                         </Box>
                     </Box>
