@@ -4,8 +4,9 @@ import ViewMode from './ViewMode';
 import { useState } from 'react';
 import EditMode from './EditMode';
 
-const AppointmentDetailsDialog = ({ open, onClose, appointment }) => {
+const AppointmentDetailsDialog = ({ open, onClose, appointmentDetail }) => {
     const [editMode, setEditMode] = useState(false);
+
     return (
         <Dialog
             open={open}
@@ -16,7 +17,7 @@ const AppointmentDetailsDialog = ({ open, onClose, appointment }) => {
             <DialogTitle component="div" sx={{ position: 'relative' }}>
                 <Typography variant="h6">Appointment Details</Typography>
                 <Typography variant="body2" color="text.secondary">
-                    APT-12345 · Upcoming
+                    Appointment · {appointmentDetail.appointment.id}
                 </Typography>
                 <IconButton onClick={onClose} size="small" sx={{ position: 'absolute', right: 10, top: 10 }}>
                     <Close fontSize="small" />
@@ -24,9 +25,9 @@ const AppointmentDetailsDialog = ({ open, onClose, appointment }) => {
             </DialogTitle>
 
             {editMode ? (
-                <EditMode setEditMode={setEditMode} appointment={appointment} />
+                <EditMode setEditMode={setEditMode} appointmentDetail={appointmentDetail} />
             ) : (
-                <ViewMode setEditMode={setEditMode} appointment={appointment} />
+                <ViewMode setEditMode={setEditMode} appointmentDetail={appointmentDetail} />
             )}
         </Dialog>
     );

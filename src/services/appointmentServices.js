@@ -20,7 +20,32 @@ const myAppointment = async (id) => {
     }
 };
 
+const getAppointmentDetail = async (id) => {
+    try {
+        const response = await api.get(`/appointments/${id}`);
+        return response.data;
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+};
+
+const cancelAppointment = async (id) => {
+    try {
+        const response = await api.put(`/appointments/update-status`, {
+            "appointment_id": `${id}`,
+            "status": "CANCELLED"
+        });
+        return response.data;
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+};
+
 export const appointmentServices = {
     createAppointment,
-    myAppointment
+    myAppointment,
+    getAppointmentDetail,
+    cancelAppointment
 };

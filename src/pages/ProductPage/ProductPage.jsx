@@ -1,52 +1,11 @@
 import { Search } from '@mui/icons-material';
 import { Box, InputAdornment, MenuItem, Paper, Select, Slider, TextField, Typography } from '@mui/material';
+import { productServices } from '@services/productServices';
 import { centerSx } from '@src/theme';
 import { capitalizeWords } from '@src/utils/formatters';
+import { useQuery } from '@tanstack/react-query';
 import ProductCard from '@ui/ProductCard/ProductCard';
 import { useCallback, useState } from 'react';
-
-const products = [
-    {
-        id: 1,
-        type: 'foods',
-        name: 'Premium Dog Food',
-        desc: 'High-quality dog food with essential nutrients',
-        price: 25,
-        imgUrl: '/src/assets/gura.jpg',
-    },
-    {
-        id: 1,
-        type: 'accessories',
-        name: 'Cat Scratching Post',
-        desc: 'Durable scratching post to keep your cat entertained',
-        price: 35,
-        imgUrl: '/src/assets/gura.jpg',
-    },
-    {
-        id: 2,
-        type: 'medicines',
-        name: 'Pet Shampoo',
-        desc: 'Gentle and effective shampoo for a clean and healthy coat',
-        price: 15,
-        imgUrl: '/src/assets/gura.jpg',
-    },
-    {
-        id: 2,
-        type: 'accessories',
-        name: 'Chew Toy',
-        desc: 'Safe and fun chew toy for dogs of all sizes',
-        price: 10,
-        imgUrl: '/src/assets/gura.jpg',
-    },
-    {
-        id: 3,
-        type: 'accessories',
-        name: 'Automatic Water Dispenser',
-        desc: 'Ensures a fresh water supply for your pet at all times',
-        price: 45,
-        imgUrl: '/src/assets/gura.jpg',
-    },
-];
 
 const productTypes = [
     { singular: 'All Product', plural: 'All Products', api: '' },
@@ -63,11 +22,11 @@ const ProductPage = () => {
 
     const handleClick = useCallback((index) => setCurrentTab(index), []);
 
-    // const { data: products = [] } = useQuery({
-    //     queryKey: ['products', currentTab],
-    //     queryFn: () => productServices.getProductsByType(productTypes[currentTab].api),
-    //     keepPreviousData: true, // giữ data cũ khi đổi tab
-    // });
+    const { data: products = [] } = useQuery({
+        queryKey: ['products', currentTab],
+        queryFn: () => productServices.getProductsByType(productTypes[currentTab].api),
+        keepPreviousData: true, // giữ data cũ khi đổi tab
+    });
 
     return (
         <Box sx={{ pt: 11, px: 20, pb: 2, height: '100vh' }}>

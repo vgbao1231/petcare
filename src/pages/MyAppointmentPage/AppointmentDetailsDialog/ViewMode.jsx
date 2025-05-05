@@ -1,38 +1,62 @@
-import { Typography, Divider, Box, Stack, Avatar, DialogContent, DialogActions, Button } from '@mui/material';
-import { Close, Edit, Person } from '@mui/icons-material';
-const ViewMode = ({ setEditMode }) => {
+import { Typography, Divider, Box, Stack, DialogContent, DialogActions, Button } from '@mui/material';
+import { Close, Edit } from '@mui/icons-material';
+import { useBranch } from '@src/hooks/useBranch';
+import { ISOtoLocale } from '@src/utils/formatters';
+import { appointmentServices } from '@services/appointmentServices';
+import { toast } from 'react-toastify';
+import { useMutation } from '@tanstack/react-query';
+import ConfirmDialog from '@ui/ConfirmDialog/ConfirmDialog';
+import { useState } from 'react';
+const ViewMode = ({ setEditMode, appointmentDetail }) => {
+    const { customer_address, scheduled_time, branch_id, note, id } = appointmentDetail.appointment;
+    const { branches } = useBranch();
+    const branch = branches.find((b) => b.id == branch_id) || {};
+    const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
+
+    const { mutate: cancelAppointment } = useMutation({
+        mutationFn: appointmentServices.cancelAppointment,
+        onError: () => toast.error('Failed to cancel appoinment'),
+        onSuccess: () => toast.success('Cancel appoinment successfully'),
+    });
+
     return (
         <>
             <DialogContent sx={{ maxHeight: 420, overflowY: 'auto', pb: 0 }}>
                 <Typography variant="body2" fontWeight={500}>
                     Appointment Type
                 </Typography>
-                <Typography mb={1}>In-Store Visit</Typography>
+                <Typography mb={1}> {branch_id === 0 ? 'In-Store Visit' : 'At-Home Visit'}</Typography>
                 <Typography variant="body2" fontWeight={500}>
                     Date & Time
                 </Typography>
-                <Typography mb={1}>2023-07-20 at 10:00 AM</Typography>
+                <Typography mb={1}>{ISOtoLocale(scheduled_time)}</Typography>
                 <Typography variant="body2" fontWeight={500}>
                     Location
                 </Typography>
-                <Typography>Downtown Branch</Typography>
-                <Typography variant="body2" color="text.secondary" mb={1}>
-                    123 Main St, City Center
-                </Typography>
+                {branch_id === 0 ? (
+                    <Typography variant="body2">{customer_address}</Typography>
+                ) : (
+                    <>
+                        <Typography>{branch.name}</Typography>
+                        <Typography variant="body2" color="text.secondary" mb={1}>
+                            {branch.location}
+                        </Typography>
+                    </>
+                )}
                 <Stack spacing={0.5} mb={1}>
                     <Typography variant="body2" fontWeight={500}>
                         Services
                     </Typography>
-                    <Box display="flex" justifyContent="space-between">
-                        <Typography variant="body2">Pet Grooming</Typography>
-                        <Typography variant="body2">$50.00</Typography>
-                    </Box>
-                    <Box display="flex" justifyContent="space-between">
-                        <Typography variant="body2">Health Check-up</Typography>
-                        <Typography variant="body2">$75.00</Typography>
-                    </Box>
+                    {appointmentDetail.details.map((ad, index) => (
+                        <Box key={index} display="flex" justifyContent="space-between">
+                            <Typography variant="body2">
+                                {ad.service_name} x {ad.quantity}
+                            </Typography>
+                            <Typography variant="body2">${ad.service_price * ad.quantity}</Typography>
+                        </Box>
+                    ))}
                 </Stack>
-                <Stack spacing={0.5}>
+                {/* <Stack spacing={0.5}>
                     <Typography variant="body2" fontWeight={500}>
                         Products
                     </Typography>
@@ -40,18 +64,22 @@ const ViewMode = ({ setEditMode }) => {
                         <Typography variant="body2">Premium Dog Food</Typography>
                         <Typography variant="body2">$29.99</Typography>
                     </Box>
-                </Stack>
+                </Stack> */}
                 <Divider sx={{ my: 1.5 }} />
                 <Box display="flex" justifyContent="space-between">
                     <Typography fontWeight={500}>Total Amount</Typography>
-                    <Typography fontWeight={500}>$154.99</Typography>
+                    <Typography fontWeight={500}>${appointmentDetail.appointment?.total}</Typography>
                 </Box>
                 <Box my={1}>
                     <Typography variant="body2" fontWeight={500} mb={0.5}>
                         Staff
                     </Typography>
-                    {/* <Typography>Dr. Michael Chen</Typography> */}
-                    <Box display="flex" alignItems="center" gap={2}>
+                    <Typography>
+                        {appointmentDetail.appointment.employee_id === 0
+                            ? 'Waiting for assignment'
+                            : appointmentDetail.appointment.employee_id}
+                    </Typography>
+                    {/* <Box display="flex" alignItems="center" gap={2}>
                         <Avatar>
                             <Person />
                         </Avatar>
@@ -61,12 +89,12 @@ const ViewMode = ({ setEditMode }) => {
                                 Veterinarian
                             </Typography>
                         </Box>
-                    </Box>
+                    </Box> */}
                 </Box>
                 <Typography variant="body2" fontWeight={500}>
                     Notes
                 </Typography>
-                <Typography variant="body2">Please bring vaccination records</Typography>
+                <Typography variant="body2">{note}</Typography>
             </DialogContent>
             <DialogActions sx={{ p: 2, justifyContent: 'space-between' }}>
                 <Button
@@ -74,7 +102,10 @@ const ViewMode = ({ setEditMode }) => {
                     variant="outlined"
                     startIcon={<Close />}
                     sx={{ textTransform: 'none' }}
-                    onClick={() => setEditMode((p) => !p)}
+                    onClick={() => {
+                        setEditMode((p) => !p);
+                        cancelAppointment(id);
+                    }}
                 >
                     Cancel Appointment
                 </Button>
@@ -89,6 +120,13 @@ const ViewMode = ({ setEditMode }) => {
                     Edit
                 </Button>
             </DialogActions>
+            <ConfirmDialog
+                open={openConfirmDialog}
+                onClose={() => setOpenConfirmDialog(false)}
+                onConfirm={() => cancelAppointment(id)}
+                title="Cancel appointment?"
+                description="Do you really want to cancel this appointment? This action cannot be undone."
+            />
         </>
     );
 };

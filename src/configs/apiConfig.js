@@ -4,7 +4,7 @@ import Cookies from 'js-cookie';
 const apiPrefixUrl = import.meta.env.VITE_API_PREFIX_URL;
 console.log(apiPrefixUrl);
 
-const api = axios.create({ baseURL: apiPrefixUrl, timeout: 5000 });
+const api = axios.create({ baseURL: apiPrefixUrl });
 
 const headerConfig = (more) => ({
     'Content-Type': 'application/json',

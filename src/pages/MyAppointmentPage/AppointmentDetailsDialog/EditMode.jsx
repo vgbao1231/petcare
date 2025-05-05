@@ -10,9 +10,9 @@ import dayjs from 'dayjs';
 import { useMemo, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
-const EditMode = ({ setEditMode }) => {
+const EditMode = ({ setEditMode, appointmentDetail }) => {
     const [servingType, setServingType] = useState(0);
-    const methods = useForm({ mode: 'all' });
+    const methods = useForm({ defaultValues: appointmentDetail, mode: 'all' });
     const date = methods.watch('date');
 
     const { data: branchesData } = useQuery({

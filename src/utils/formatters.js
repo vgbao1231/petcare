@@ -9,10 +9,10 @@ export const capitalizeWords = (str) => {
 
 export const trimWords = (str) => str.trim();
 export const getNumbersFromString = (str) => (str.match(/\d+/g) || []).join('');
-export const convertToCurrency = (value) => new Intl.NumberFormat('vi-VN').format(Number(value.replace(/[^\d]/g, '')));
-export const formatTime = (time) => {
-    // time insecond
-    const minutes = Math.floor(time / 60);
-    const seconds = time % 60;
-    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-};
+export const convertToCurrency = (value) => new Intl.NumberFormat('en-US').format(Number(value.replace(/[^\d]/g, '')));
+
+export const ISOtoLocale = (d) => new Date(d).toLocaleString('en-US', {
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit',
+    hour12: true
+}).replace(',', ' at');

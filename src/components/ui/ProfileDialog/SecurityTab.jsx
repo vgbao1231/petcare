@@ -87,13 +87,7 @@ const SecurityTab = () => {
                         rules={{ validate: (v) => v === currentPass || "New password doesn't match" }}
                     />
 
-                    <Button
-                        fullWidth
-                        variant="contained"
-                        size="small"
-                        sx={{ py: 1, textTransform: 'none' }}
-                        type="submit"
-                    >
+                    <Button fullWidth variant="contained" size="small" sx={{ textTransform: 'none' }} type="submit">
                         Send Verification Code
                     </Button>
                 </Box>
