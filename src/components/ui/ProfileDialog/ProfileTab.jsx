@@ -60,7 +60,7 @@ const ProfileTab = () => {
                         label="Phone"
                         name="phoneNumber"
                         fullWidth
-                        rules={{ validate: (v) => checkIsPhoneNumber(v) || 'Invalid Phone Number' }}
+                        rules={{ validate: (v) => (v ? checkIsPhoneNumber(v) || 'Invalid Phone Number' : null) }}
                     />
                     <FormInput label="Address" name="address" fullWidth />
                     <Button

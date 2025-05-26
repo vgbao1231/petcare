@@ -25,6 +25,7 @@ const TableHead = ({ rowIds, allChecked, indeterminate, filterData, sortData }) 
         columns,
         columnsWidth,
         handleMouseDown,
+        features,
         tableMethods: { toggleSelectAll, setFilterData, setSortData, setSelectedRows },
     } = useContext(TableDataContext);
     const { register, handleSubmit, setValue } = useForm({ defaultValues: filterData });
@@ -74,7 +75,7 @@ const TableHead = ({ rowIds, allChecked, indeterminate, filterData, sortData }) 
 
     return (
         // Header Row
-        <Box sx={{ display: 'flex', borderBottom: 1, minHeight: 40, overflow: 'hidden' }}>
+        <Box sx={{ display: 'flex', borderBottom: 1, borderColor: 'divider', minHeight: 40, overflow: 'hidden' }}>
             {columns.map((column, index) => {
                 return (
                     <Box key={index} sx={{ ...centerSx, position: 'relative' }}>
@@ -114,12 +115,14 @@ const TableHead = ({ rowIds, allChecked, indeterminate, filterData, sortData }) 
                                                     )}
                                                 </IconButton>
                                             )}
-                                            <IconButton
-                                                size="small"
-                                                onClick={(e) => handleOpenMenu(e, 1, column.field)}
-                                            >
-                                                <MoreVert fontSize="small" />
-                                            </IconButton>
+                                            {(features.filterable || features.sortable) && (
+                                                <IconButton
+                                                    size="small"
+                                                    onClick={(e) => handleOpenMenu(e, 1, column.field)}
+                                                >
+                                                    <MoreVert fontSize="small" />
+                                                </IconButton>
+                                            )}
                                         </Box>
                                     </>
                                 )}
@@ -154,30 +157,34 @@ const TableHead = ({ rowIds, allChecked, indeterminate, filterData, sortData }) 
                 anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
                 slotProps={{ paper: { elevation: 1 } }}
             >
-                <>
-                    <MenuItem onClick={() => handleSort(isSorted(currentField) ? !isAsc(currentField) : true)}>
-                        <ListItemIcon>
-                            {isAsc(currentField) ? (
-                                <ArrowDownward fontSize="small" />
-                            ) : (
-                                <ArrowUpward fontSize="small" />
-                            )}
-                        </ListItemIcon>
-                        <ListItemText>Sort by {isAsc(currentField) ? 'DESC' : 'ASC'}</ListItemText>
-                    </MenuItem>
-                    <MenuItem onClick={() => handleSort(isSorted(currentField) ? null : false)}>
-                        <ListItemIcon>{!isSorted(currentField) && <ArrowDownward fontSize="small" />}</ListItemIcon>
-                        <ListItemText>{isSorted(currentField) ? 'Unsort' : 'Sort by DESC'}</ListItemText>
-                    </MenuItem>
-                </>
+                {features.sortable && (
+                    <>
+                        <MenuItem onClick={() => handleSort(isSorted(currentField) ? !isAsc(currentField) : true)}>
+                            <ListItemIcon>
+                                {isAsc(currentField) ? (
+                                    <ArrowDownward fontSize="small" />
+                                ) : (
+                                    <ArrowUpward fontSize="small" />
+                                )}
+                            </ListItemIcon>
+                            <ListItemText>Sort by {isAsc(currentField) ? 'DESC' : 'ASC'}</ListItemText>
+                        </MenuItem>
+                        <MenuItem onClick={() => handleSort(isSorted(currentField) ? null : false)}>
+                            <ListItemIcon>{!isSorted(currentField) && <ArrowDownward fontSize="small" />}</ListItemIcon>
+                            <ListItemText>{isSorted(currentField) ? 'Unsort' : 'Sort by DESC'}</ListItemText>
+                        </MenuItem>
+                    </>
+                )}
 
-                <Divider />
-                <MenuItem onClick={() => handleOpenMenu(null, 2, currentField)}>
-                    <ListItemIcon>
-                        <FilterAlt fontSize="small" />
-                    </ListItemIcon>
-                    <ListItemText>Filter</ListItemText>
-                </MenuItem>
+                {features.filterable && features.sortable && <Divider />}
+                {features.filterable && (
+                    <MenuItem onClick={() => handleOpenMenu(null, 2, currentField)}>
+                        <ListItemIcon>
+                            <FilterAlt fontSize="small" />
+                        </ListItemIcon>
+                        <ListItemText>Filter</ListItemText>
+                    </MenuItem>
+                )}
             </Menu>
 
             <Menu

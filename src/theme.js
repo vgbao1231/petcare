@@ -2,11 +2,6 @@ import { createTheme } from '@mui/material';
 
 export const theme = createTheme({
     colorSchemeSelector: 'class',
-    // typography: {
-    //     body1: {
-    //         lineHeight: 1.2,
-    //     },
-    // },
     colorSchemes: {
         light: {
             palette: {
@@ -23,19 +18,19 @@ export const theme = createTheme({
                     dark: '#000000',         // đen đậm (có thể dùng cho border hoặc text nổi bật)
                     contrastText: '#ffffff', // chữ trên nền đậm (ví dụ nút đen)
                 },
-                blue: {
-                    main: '#1976d2',
-                    light: '#42a5f5',
-                    dark: '#1565c0',
-                    bgcolor: '#E3F2FD',
-                    contrastText: '#ffffff'
-                },
                 background: {
                     default: '#fafafa',
                     paper: '#ffffff',
                     hover: '#f4f4f4',
                     active: '#edf4fb',
                     contrast: '#111827',
+                },
+                blue: {
+                    main: '#1976d2',
+                    light: '#42a5f5',
+                    dark: '#1565c0',
+                    bgcolor: '#E3F2FD',
+                    contrastText: '#ffffff'
                 },
                 text: {
                     primary: '#000000',
@@ -80,7 +75,7 @@ export const theme = createTheme({
                 background: {
                     default: '#111111',
                     paper: '#161A23',
-                    hover: '#2d2f39',
+                    hover: '#1e2229',
                     active: '#1e2a39',
                 },
                 text: {
@@ -88,15 +83,37 @@ export const theme = createTheme({
                     secondary: '#aaaaaa',
                 },
                 success: {
-                    main: '#66bb6a',
-                    light: '#81c784',
-                    dark: '#388e3c',
-                    contrastText: '#ffffff',
+                    main: '#4caf50',
+                    light: '#22c55e',
+                    dark: '#1b5e20',
+                    bgcolor: '#DFF5E9',
+                    contrastText: '#fff',
                 },
+                warning: {
+                    main: '#ed6c02',
+                    light: '#ff9800',
+                    dark: '#e65100',
+                    bgcolor: '#fff7eb',
+                    contrastText: '#fff',
+                },
+                info: {
+                    main: '#0288d1',
+                    light: '#03a9f4',
+                    dark: '#01579b',
+                    bgcolor: '#E3F2FD',
+                    contrastText: '#fff',
+                }
             },
         },
     },
 });
+
+export const getTheme = (mode = 'light') => ({
+    palette: {
+        ...theme.palette,
+        mode,
+    },
+})
 
 export const centerSx = {
     display: 'flex',

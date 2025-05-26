@@ -13,9 +13,9 @@ export function useTable(tableConfig) {
     } = configRef.current;
     const features = useMemo(
         () => ({
-            filterable: true,
-            sortable: true,
-            selectable: true,
+            filterable: false,
+            sortable: false,
+            selectable: false,
             editable: false,
             dragable: false,
             enableClipboard: false,

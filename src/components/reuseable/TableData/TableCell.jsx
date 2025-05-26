@@ -33,6 +33,8 @@ const TableCell = ({ column, row, columnWidth, setCellEditing, cellEditing, rowE
                 return (
                     <Typography sx={{ ...textEllipsisSx }}>{new Date(value).toLocaleDateString('vi-VN')}</Typography>
                 );
+            case 'custom':
+                return column.renderCell(row);
             default:
                 return <Typography sx={{ ...textEllipsisSx }}>{value}</Typography>;
         }

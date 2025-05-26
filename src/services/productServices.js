@@ -11,7 +11,7 @@ const getAllProducts = async () => {
 };
 
 // Food/Medicine/Accessory
-const getProductsByType = async (type) => {
+const getProductsByType = async (type = '') => {
     try {
         const response = await api.get(`products${type}`);
         return response.data;

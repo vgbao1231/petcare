@@ -4,7 +4,7 @@ import TableHead from './TableHead';
 import TableBody from './TableBody';
 import { TableDataContext } from './TableDataContext';
 
-const TableData = ({ columns, tableInfo, createRowProps, createCellProps, sx, ...props }) => {
+const TableData = ({ columns, tableInfo, createRowProps = () => ({}), createCellProps = () => ({}), sx, ...props }) => {
     console.log('table data');
 
     const {
@@ -122,12 +122,11 @@ const TableData = ({ columns, tableInfo, createRowProps, createCellProps, sx, ..
                 sx={{
                     display: 'flex',
                     flexDirection: 'column',
-                    gap: 1,
+                    gap: 2,
                     ...sx,
                 }}
                 {...props}
             >
-                <Box>Toolbar</Box>
                 <Box
                     ref={tableRef}
                     sx={{
@@ -135,7 +134,6 @@ const TableData = ({ columns, tableInfo, createRowProps, createCellProps, sx, ..
                         flexDirection: 'column',
                         alignItems: 'flex-start',
                         overflow: 'auto',
-                        border: 1,
                     }}
                 >
                     <TableHead
@@ -159,7 +157,7 @@ const TableData = ({ columns, tableInfo, createRowProps, createCellProps, sx, ..
                     onChange={(_, newPage) => setCurrentPage(newPage)}
                     variant="outlined"
                     shape="rounded"
-                    sx={{ m: '10px auto' }}
+                    sx={{ alignSelf: 'center' }}
                 />
                 <Menu
                     open={!!contextMenu}

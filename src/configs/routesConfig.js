@@ -1,20 +1,23 @@
-import { BarChart, HelpOutlineOutlined, TrendingUp } from '@mui/icons-material';
-import { HeaderLayout } from '@src/layout/HeaderLayout';
-import { SidebarLayout } from '@src/layout/SidebarLayout';
-import AppointmentPage from '@src/pages/AppointmentPage/AppointmentPage';
-import ForgotPasswordPage from '@src/pages/ForgotPasswordPage/ForgotPasswordPage';
-import LandingPage from '@src/pages/LandingPage/LandingPage';
-import LoginPage from '@src/pages/LoginPage/LoginPage';
-import MyAppointmentPage from '@src/pages/MyAppointmentPage/MyAppointmentPage';
-import PetTrackingPage from '@src/pages/PetTrackingPage/PetTrackingPage';
-import ProductPage from '@src/pages/ProductPage/ProductPage';
-import RegisterPage from '@src/pages/RegisterPage/RegisterPage';
-import TestPage from '@src/pages/TestPage/TestPage';
-import VerifyPage from '@src/pages/VerifyPage/VerifyPage';
-import ResetPasswordPage from '@src/pages/ResetPasswordPage/ResetPasswordPage';
-import CartPage from '@src/pages/CartPage/CartPage';
-import MyOrderPage from '@src/pages/MyOrderPage/MyOrderPage';
-import CheckoutPage from '@src/pages/CheckoutPage/CheckoutPage';
+import { CalendarMonthOutlined, Dashboard, Person } from '@mui/icons-material';
+import { HeaderLayout } from '@src/layout/HeaderLayout/HeaderLayout';
+import { HeaderSidebarLayout } from '@src/layout/HeaderSidebarLayout/HeaderSidebarLayout';
+import LoginPage from '../pages/Public/LoginPage/LoginPage';
+import RegisterPage from '@src/pages/Public/RegisterPage/RegisterPage';
+import VerifyPage from '@src/pages/Public/VerifyPage/VerifyPage';
+import ForgotPasswordPage from '@src/pages/Public/ForgotPasswordPage/ForgotPasswordPage';
+import ResetPasswordPage from '@src/pages/Public/ResetPasswordPage/ResetPasswordPage';
+import DashboardPage from '@src/pages/Admin/DashboardPage/DashboardPage';
+import LandingPage from '@src/pages/Customer/LandingPage/LandingPage';
+import ProductPage from '@src/pages/Customer/ProductPage/ProductPage';
+import CustomerAppointmentPage from '@src/pages/Customer/AppointmentPage/AppointmentPage';
+import AdminAppointmentPage from '@src/pages/Admin/AppointmentPage/AppointmentPage';
+import CartPage from '@src/pages/Customer/CartPage/CartPage';
+import PetTrackingPage from '@src/pages/Customer/PetTrackingPage/PetTrackingPage';
+import MyOrderPage from '@src/pages/Customer/MyOrderPage/MyOrderPage';
+import MyAppointmentPage from '@src/pages/Customer/MyAppointmentPage/MyAppointmentPage';
+import CheckoutPage from '@src/pages/Customer/CheckoutPage/CheckoutPage';
+import UserPage from '@src/pages/Admin/UserPage/UserPage';
+import TestPage from '@src/pages/TestPage';
 
 export const routesConfig = {
     // Example
@@ -26,22 +29,16 @@ export const routesConfig = {
         { path: '/reset-password', component: ResetPasswordPage },
     ],
     admin: [
-        { path: '/', component: TestPage, icon: HelpOutlineOutlined, label: 'Help', layout: SidebarLayout },
-        {
-            label: 'Statistics',
-            icon: BarChart,
-            children: [
-                { path: '/income', component: TestPage, label: 'Income', icon: TrendingUp, layout: SidebarLayout },
-                { path: '/report', component: TestPage, label: 'Report', icon: BarChart, layout: SidebarLayout },
-            ],
-        },
+        { path: '/', component: DashboardPage, icon: Dashboard, label: 'Dashboard', layout: HeaderSidebarLayout },
+        { path: '/users', component: UserPage, icon: Person, label: 'Users', layout: HeaderSidebarLayout },
+        { path: '/appointment', component: AdminAppointmentPage, icon: CalendarMonthOutlined, label: 'Appointment', layout: HeaderSidebarLayout },
+        { path: '/test', component: TestPage, icon: Dashboard, label: 'Users', layout: HeaderSidebarLayout },
     ],
-    employee: [{ path: '/', component: TestPage, icon: HelpOutlineOutlined, label: 'Help', layout: SidebarLayout }],
     customer: [
         { path: '/', component: LandingPage, label: 'Home', layout: HeaderLayout },
         { path: '/product', component: ProductPage, label: 'Shop', layout: HeaderLayout },
         { path: '/service', component: ProductPage, label: 'Services', layout: HeaderLayout },
-        { path: '/appointment', component: AppointmentPage, label: 'Appointment', layout: HeaderLayout },
+        { path: '/appointment', component: CustomerAppointmentPage, label: 'Appointment', layout: HeaderLayout },
         { path: '/cart', component: CartPage, label: 'Cart', layout: HeaderLayout },
         { path: '/pet-tracking', component: PetTrackingPage, label: 'Pet Tracking', layout: HeaderLayout },
         { path: '/my-order', component: MyOrderPage, label: 'My Order', layout: HeaderLayout },

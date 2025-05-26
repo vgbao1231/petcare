@@ -17,9 +17,7 @@ const register = async (formData) => {
 
 const verify = async (token) => {
     try {
-        const response = await api.get(`auth/verify`, {
-            params: { token },
-        });
+        const response = await api.post(`auth/verify`, { token });
         return response.data;
     } catch (error) {
         console.error(error);

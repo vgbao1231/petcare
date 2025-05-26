@@ -12,6 +12,7 @@ export function AuthProvider({ children }) {
 
     const { data: userInfo = {} } = useQuery({
         queryKey: ['userInfo'],
+        enabled: !!token,
         queryFn: userServices.getSelfInfo,
         onError: () => toast.error('Failed to fetch user info'),
         refetchInterval: 1000 * 60 * 5, // Thời gian refetch lại sau mỗi 5 phút

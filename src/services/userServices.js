@@ -14,7 +14,7 @@ const getSelfInfo = async () => {
 
 const changeUserInfo = async (formData) => {
     try {
-        const response = await api.put(`users/change-info`, formData);
+        const response = await api.put(`users/me`, formData);
         return response.data;
     } catch (error) {
         console.error(error);
@@ -24,7 +24,7 @@ const changeUserInfo = async (formData) => {
 
 const changePassword = async (formData) => {
     try {
-        const response = await api.put(`users/change-password`, formData);
+        const response = await api.put(`users/me/password`, formData);
         return response.data;
     } catch (error) {
         console.error(error);
