@@ -2,10 +2,10 @@ import { Box, Button, Typography } from '@mui/material';
 import { userServices } from '@services/userServices';
 import FormInput from '@src/components/reuseable/FormRHF/FormInput';
 import { useAuth } from '@src/hooks/useAuth';
+import { toast } from 'react-toastify';
 import { checkIsAlphabetic, checkIsEmail, checkIsPhoneNumber } from '@src/utils/validators';
 import { memo, useCallback } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import { toast } from 'react-toastify';
 
 const ProfileTab = () => {
     const { userInfo } = useAuth();

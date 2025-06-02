@@ -11,10 +11,10 @@ function App() {
     const { token } = useAuth();
     const role = getTokenPayload(token).role;
 
-    // const role = 3;
+    // const role = 0;
 
     const routes = useMemo(() => {
-        switch (role) {
+        switch (Number(role)) {
             case 1:
                 return routesConfig.admin;
             case 2:
@@ -27,7 +27,7 @@ function App() {
     }, [role]);
 
     const themeByRole = useMemo(() => {
-        switch (role) {
+        switch (Number(role)) {
             case 1:
                 return theme;
             case 2:

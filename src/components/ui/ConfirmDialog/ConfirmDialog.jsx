@@ -19,7 +19,10 @@ const ConfirmDialog = ({
                 <Button
                     size="small"
                     sx={{ textTransform: 'none' }}
-                    onClick={onConfirm}
+                    onClick={() => {
+                        onConfirm();
+                        onClose();
+                    }}
                     color="error"
                     variant="contained"
                 >

@@ -18,6 +18,8 @@ import { useCallback, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { Link as RouterLink } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { useMutation } from '@tanstack/react-query';
+import { capitalizeWords } from '@src/utils/formatters';
 
 const lightTheme = createTheme({
     palette: {
@@ -34,21 +36,25 @@ const lightTheme = createTheme({
 const RegisterPage = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-    const [loading, setLoading] = useState(false);
     const methods = useForm({ mode: 'all' });
     const password = methods.watch('password');
 
-    const handleSubmit = useCallback(async (data) => {
-        try {
-            setLoading(true);
-            await authServices.register(data);
+    const { mutate: register, isLoading } = useMutation({
+        mutationFn: authServices.register,
+        onSuccess: () => {
             toast.success('Register Successfully! Please check your email');
-        } catch {
-            toast.error('Register Failed!');
-        } finally {
-            setLoading(false);
-        }
-    }, []);
+        },
+        onError: (error) => {
+            toast.error(capitalizeWords(error?.response?.data?.error) || 'Register Failed!');
+        },
+    });
+
+    const handleSubmit = useCallback(
+        (data) => {
+            register(data);
+        },
+        [register]
+    );
 
     return (
         <ThemeProvider theme={lightTheme}>
@@ -175,7 +181,7 @@ const RegisterPage = () => {
                                 fullWidth
                                 variant="contained"
                                 color="black"
-                                loading={loading}
+                                loading={isLoading}
                                 loadingPosition="end"
                                 sx={{ mt: 2, py: 1 }}
                                 type="submit"

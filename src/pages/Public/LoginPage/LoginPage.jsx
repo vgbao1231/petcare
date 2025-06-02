@@ -14,14 +14,14 @@ import {
 } from '@mui/material';
 import { authServices } from '@services/authServices';
 import loginBgr from '@src/assets/login-background/login3.png';
-import FormInput from '@src/components/reuseable/FormRHF/FormInput';
 import { useAuth } from '@src/hooks/useAuth';
 import { centerSx } from '@src/theme';
 import { checkIsEmail } from '@src/utils/validators';
 import { useCallback, useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useLocation, Link as RouterLink } from 'react-router-dom';
-import { toast } from 'react-toastify';
+import { FieldFactory } from '@src/components/reuseable/FormRHF/FormFieldFactory';
+import ToastService from '@src/utils/toast';
 
 const lightTheme = createTheme({
     palette: {
@@ -42,6 +42,14 @@ const LoginPage = () => {
     const { setToken } = useAuth();
     const location = useLocation();
 
+    const toast = ToastService.getInstance();
+
+    const factoryManager = new FieldFactory();
+    const createField = (type, props) => {
+        const factory = factoryManager.getField(type);
+        return factory.create(props);
+    };
+
     const handleSubmit = useCallback(
         async (data) => {
             try {
@@ -55,7 +63,7 @@ const LoginPage = () => {
                 setLoading(false);
             }
         },
-        [setToken]
+        [setToken, toast]
     );
 
     useEffect(() => {
@@ -71,7 +79,7 @@ const LoginPage = () => {
                 });
             }
         }
-    }, [location]);
+    }, [location, toast]);
 
     return (
         <ThemeProvider theme={lightTheme}>
@@ -111,26 +119,27 @@ const LoginPage = () => {
                     </Typography>
                     <FormProvider {...methods}>
                         <Box component="form" onSubmit={methods.handleSubmit(handleSubmit)}>
-                            <FormInput
-                                fullWidth
-                                size="medium"
-                                name="email"
-                                label="Email"
-                                rules={{
+                            {createField('input', {
+                                fullWidth: true,
+                                size: 'medium',
+                                name: 'email',
+                                label: 'Email',
+                                rules: {
                                     required: 'Please enter your email',
                                     validate: (v) => checkIsEmail(v) || 'Invalid Email',
-                                }}
-                                sx={{ mb: methods.formState.errors.email ? 0.5 : 2.5 }}
-                                slotProps={{ htmlInput: { sx: { fontSize: 17, p: 1.8 } } }}
-                                placeholder="Enter your Email"
-                            />
-                            <FormInput
-                                fullWidth
-                                size="medium"
-                                name="password"
-                                label="Password"
-                                type={showPassword ? 'text' : 'password'}
-                                slotProps={{
+                                },
+                                sx: { mb: methods.formState.errors.email ? 0.5 : 2.5 },
+                                slotProps: { htmlInput: { sx: { fontSize: 17, p: 1.8 } } },
+                                placeholder: 'Enter your Email',
+                            })}
+
+                            {createField('input', {
+                                fullWidth: true,
+                                size: 'medium',
+                                name: 'password',
+                                label: 'Password',
+                                type: showPassword ? 'text' : 'password',
+                                slotProps: {
                                     htmlInput: { sx: { fontSize: 17, p: 1.8 } },
                                     input: {
                                         endAdornment: (
@@ -141,11 +150,12 @@ const LoginPage = () => {
                                             </InputAdornment>
                                         ),
                                     },
-                                }}
-                                placeholder="Enter your Password"
-                                rules={{ required: 'Please enter your password' }}
-                                sx={{ mb: methods.formState.errors.password ? 0 : 1 }}
-                            />
+                                },
+                                placeholder: 'Enter your Password',
+                                rules: { required: 'Please enter your password' },
+                                sx: { mb: methods.formState.errors.password ? 0 : 1 },
+                            })}
+
                             <Box display="flex" justifyContent="space-between" alignItems="center">
                                 <Box {...centerSx}>
                                     <Checkbox size="small" />

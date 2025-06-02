@@ -1,4 +1,4 @@
-import { NotificationsOutlined, Pets, ShoppingCartOutlined } from '@mui/icons-material';
+import { Pets, ShoppingCartOutlined } from '@mui/icons-material';
 import { Avatar, Badge, Box, IconButton, Link, Paper, Typography } from '@mui/material';
 import { routesConfig } from '@src/configs/routesConfig';
 import { useAuth } from '@src/hooks/useAuth';
@@ -46,7 +46,7 @@ const Header = () => {
                 <Box {...centerSx} gap={4}>
                     {routesConfig.customer.map(
                         ({ path, label }, index) =>
-                            index < 4 && (
+                            index < 3 && (
                                 <Link
                                     component={RouterLink}
                                     key={path}
@@ -80,7 +80,7 @@ const Header = () => {
                     )}
                 </Box>
                 <Box {...centerSx} ml="auto" gap={2}>
-                    <IconButton size="small">
+                    {/* <IconButton size="small">
                         <Badge
                             badgeContent={44}
                             color="primary"
@@ -95,7 +95,7 @@ const Header = () => {
                         >
                             <NotificationsOutlined sx={{ color: '#111' }} />
                         </Badge>
-                    </IconButton>
+                    </IconButton> */}
                     <IconButton size="small" onClick={(e) => setCartAnchorEl(e.currentTarget)}>
                         <Badge
                             badgeContent={totalItems}

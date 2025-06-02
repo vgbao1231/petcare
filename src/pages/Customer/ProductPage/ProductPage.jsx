@@ -158,7 +158,7 @@ const ProductPage = () => {
                                 imgUrl={product.imgUrl}
                                 name={product.name}
                                 price={product.price}
-                                type={capitalizeWords(product.type) || productTypes[currentTab].singular}
+                                type={capitalizeWords(product.productType) || productTypes[currentTab].singular}
                             />
                         ))}
                     </Box>

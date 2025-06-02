@@ -7,14 +7,35 @@ import {
     Table,
     TableBody,
     TableCell,
-    TableContainer,
     TableHead,
+    TablePagination,
     TableRow,
     Typography,
 } from '@mui/material';
+import { vaccinationServices } from '@services/vaccinationServices';
+import { useQuery } from '@tanstack/react-query';
+import { useMemo, useState } from 'react';
 
-const VaccineHistoryTab = ({ upcomingVaccines, vaccinationHistory }) => {
-    console.log(vaccinationHistory);
+const VaccineHistoryTab = ({ currentPetId }) => {
+    const [page, setPage] = useState(0); // page index (bắt đầu từ 0)
+    const [rowsPerPage, setRowsPerPage] = useState(5);
+    const { data: vaccinations } = useQuery({
+        queryKey: ['vaccinations', currentPetId],
+        queryFn: () => vaccinationServices.getVaccinationsByPetId(currentPetId),
+        enabled: !!currentPetId,
+    });
+
+    const upcomingVaccines = useMemo(() => {
+        if (!vaccinations) return [];
+        return vaccinations.filter((v) => !!v.next_dose);
+    }, [vaccinations]);
+
+    const pageData = (vaccinations ?? []).slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+    const handleChangePage = (_, newPage) => setPage(newPage);
+    const handleChangeRowsPerPage = (event) => {
+        setRowsPerPage(parseInt(event.target.value, 10));
+        setPage(0);
+    };
 
     return (
         <>
@@ -32,7 +53,7 @@ const VaccineHistoryTab = ({ upcomingVaccines, vaccinationHistory }) => {
                 {upcomingVaccines.map((v, i) => (
                     <Grid2 key={i} size={6} sx={{ border: 1, borderColor: 'divider', borderRadius: 2, p: 2 }}>
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                            <Typography fontWeight={500}>{v.vaccine}</Typography>
+                            <Typography fontWeight={500}>{v.vaccine_name}</Typography>
                             <Chip
                                 label="Up Coming"
                                 size="small"
@@ -42,14 +63,11 @@ const VaccineHistoryTab = ({ upcomingVaccines, vaccinationHistory }) => {
                         </Box>
                         <Typography variant="body2" color="text.secondary">
                             <CalendarTodayOutlined sx={{ fontSize: 14, verticalAlign: 'middle', mb: 0.2, mr: 0.5 }} />
-                            {new Date(v.lastVaccinatedDate).toLocaleDateString('vi-VN')}
+                            {new Date(v.date).toLocaleDateString('vi-VN')}
                         </Typography>
                         <Typography variant="body2" color="error.main">
                             <CalendarTodayOutlined sx={{ fontSize: 14, verticalAlign: 'middle', mb: 0.2, mr: 0.5 }} />
-                            Due: {new Date(v.date).toLocaleDateString('vi-VN')}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                            Annual booster required by law
+                            Due: {new Date(v.next_dose).toLocaleDateString('vi-VN')}
                         </Typography>
                     </Grid2>
                 ))}
@@ -62,35 +80,37 @@ const VaccineHistoryTab = ({ upcomingVaccines, vaccinationHistory }) => {
                         Vaccination History
                     </Typography>
                 </Box>
-                <TableContainer>
-                    <Table>
-                        <TableHead>
-                            <TableRow>
-                                <TableCell sx={{ color: 'text.secondary' }}>Date</TableCell>
-                                <TableCell sx={{ color: 'text.secondary' }}>Vaccine</TableCell>
-                                <TableCell sx={{ color: 'text.secondary', textAlign: 'center' }}>Status</TableCell>
-                                <TableCell sx={{ color: 'text.secondary' }}>Notes</TableCell>
+                <Table size="small">
+                    <TableHead>
+                        <TableRow>
+                            <TableCell sx={{ color: 'text.secondary' }}>Vaccine Name</TableCell>
+                            <TableCell sx={{ color: 'text.secondary' }}>Date</TableCell>
+                            <TableCell sx={{ color: 'text.secondary' }}>Next Dose</TableCell>
+                            <TableCell sx={{ color: 'text.secondary' }}>Veterinarian</TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {pageData.map((item, index) => (
+                            <TableRow key={index}>
+                                <TableCell>{item.vaccine_name}</TableCell>
+                                <TableCell>{new Date(item.date).toLocaleDateString('vi-VN')}</TableCell>
+                                <TableCell>
+                                    {item.next_dose ? new Date(item.next_dose).toLocaleDateString('vi-VN') : 'None'}
+                                </TableCell>
+                                <TableCell>{item.vet_name}</TableCell>
                             </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {vaccinationHistory.map((item, index) => (
-                                <TableRow key={index}>
-                                    <TableCell>{item.date}</TableCell>
-                                    <TableCell>{item.treatment}</TableCell>
-                                    <TableCell sx={{ textAlign: 'center' }}>
-                                        <Chip
-                                            size="small"
-                                            label="Completed"
-                                            variant="outlined"
-                                            sx={{ color: 'success.dark', bgcolor: 'success.bgcolor' }}
-                                        />
-                                    </TableCell>
-                                    <TableCell>{item.note}</TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
+                        ))}
+                    </TableBody>
+                </Table>
+                <TablePagination
+                    component="div"
+                    count={vaccinations?.length || 0}
+                    page={page}
+                    onPageChange={handleChangePage}
+                    rowsPerPage={rowsPerPage}
+                    rowsPerPageOptions={[2, 5, 10, 20]}
+                    onRowsPerPageChange={handleChangeRowsPerPage}
+                />
             </Box>
         </>
     );

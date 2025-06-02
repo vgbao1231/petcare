@@ -4,8 +4,12 @@ import PaymentIcon from '@mui/icons-material/Payment';
 import { Done } from '@mui/icons-material';
 import { centerSx } from '@src/theme';
 import { Link } from 'react-router-dom';
+import { useBranch } from '@src/hooks/useBranch';
 
-const ConfirmStep = () => {
+const ConfirmStep = ({ methods }) => {
+    const { address, branch, email, firstName, lastName, phone, total } = methods.getValues();
+    const { branches } = useBranch();
+
     return (
         <>
             {/* Success Icon */}
@@ -33,16 +37,12 @@ const ConfirmStep = () => {
                 </Stack>
                 <Stack direction="row" justifyContent="space-between">
                     <Typography>Order Date:</Typography>
-                    <Typography>21/4/2025</Typography>
-                </Stack>
-                <Stack direction="row" justifyContent="space-between">
-                    <Typography>Payment Method:</Typography>
-                    <Typography>Payment on delivery/pickup</Typography>
+                    <Typography>{new Date().toLocaleDateString('vi-VN')}</Typography>
                 </Stack>
                 <Divider sx={{ my: 1 }} />
                 <Stack direction="row" justifyContent="space-between">
                     <Typography fontWeight={600}>Total:</Typography>
-                    <Typography fontWeight={700}>$149.96</Typography>
+                    <Typography fontWeight={700}>${Number(total).toFixed(2)}</Typography>
                 </Stack>
             </Paper>
 
@@ -51,13 +51,25 @@ const ConfirmStep = () => {
                 <Typography variant="subtitle1" fontWeight={600} mb={1}>
                     Delivery Information
                 </Typography>
-                <Typography fontWeight={600}>Bao Vo Gia</Typography>
-                <Typography>0112333444 | root@gmail.com</Typography>
+                <Typography fontWeight={600}>
+                    {lastName} {firstName}
+                </Typography>
+                <Typography>
+                    {phone} | {email}
+                </Typography>
 
                 <Box mt={2}>
-                    <Typography fontWeight={600}>Store Pickup:</Typography>
-                    <Typography>Eastside Branch</Typography>
-                    <Typography>456 East Ave, East District</Typography>
+                    {address ? (
+                        <>
+                            <Typography fontWeight={600}>Staff Delivery:</Typography>
+                            <Typography>{address}</Typography>
+                        </>
+                    ) : (
+                        <>
+                            <Typography fontWeight={600}>Store Pickup:</Typography>
+                            <Typography>{branches.find((b) => b.id === branch).location}</Typography>
+                        </>
+                    )}
                 </Box>
             </Paper>
 

@@ -12,10 +12,12 @@ import { Box, Button, Typography } from '@mui/material';
 import { productServices } from '@services/productServices';
 import landingImg from '@src/assets/login-background/login9.png';
 import { centerSx } from '@src/theme';
+import { capitalizeWords } from '@src/utils/formatters';
 import { useQuery } from '@tanstack/react-query';
 import PolicyCard from '@ui/PolicyCard/PolicyCard';
 import ProductCard from '@ui/ProductCard/ProductCard';
 import ServiceCard from '@ui/ServiceCard/ServiceCard';
+import { Link } from 'react-router-dom';
 
 const LandingPage = () => {
     const { data: products = [] } = useQuery({
@@ -23,6 +25,9 @@ const LandingPage = () => {
         queryFn: () => productServices.getProductsByType(),
         keepPreviousData: true, // giữ data cũ khi đổi tab
     });
+
+    console.log(products);
+
     return (
         <Box>
             {/* First Section */}
@@ -122,33 +127,16 @@ const LandingPage = () => {
                     {products.slice(0, 4).map((p, index) => (
                         <ProductCard
                             key={index}
-                            imgUrl="/src/assets/login-background/login1.png"
-                            name="Thức ăn cho chó cao cấp chó cao cấp"
-                            type="Food"
-                            price="$29.99"
+                            imgUrl={p.imgUrl}
+                            name={p.name}
+                            type={capitalizeWords(p.productType)}
+                            price={`${Number(p.price).toFixed(2)}`}
                         />
                     ))}
-
-                    <ProductCard
-                        imgUrl="/src/assets/login-background/login2.png"
-                        name="Veterinary Care"
-                        type="Food"
-                        price="$29.99"
-                    />
-                    <ProductCard
-                        imgUrl="/src/assets/login-background/login3.png"
-                        name="Vaccinations"
-                        type="Food"
-                        price="$29.99"
-                    />
-                    <ProductCard
-                        imgUrl="/src/assets/login-background/login4.png"
-                        name="Home Services"
-                        type="Food"
-                        price="$29.99"
-                    />
                 </Box>
                 <Button
+                    component={Link}
+                    to="/product"
                     variant="outlined"
                     sx={{
                         textTransform: 'none',

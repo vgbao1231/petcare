@@ -1,4 +1,4 @@
-import { CalendarMonthOutlined, Dashboard, Person } from '@mui/icons-material';
+import { CalendarMonthOutlined, Dashboard, Inventory2Outlined, Person, ShoppingCartOutlined } from '@mui/icons-material';
 import { HeaderLayout } from '@src/layout/HeaderLayout/HeaderLayout';
 import { HeaderSidebarLayout } from '@src/layout/HeaderSidebarLayout/HeaderSidebarLayout';
 import LoginPage from '../pages/Public/LoginPage/LoginPage';
@@ -9,6 +9,7 @@ import ResetPasswordPage from '@src/pages/Public/ResetPasswordPage/ResetPassword
 import DashboardPage from '@src/pages/Admin/DashboardPage/DashboardPage';
 import LandingPage from '@src/pages/Customer/LandingPage/LandingPage';
 import ProductPage from '@src/pages/Customer/ProductPage/ProductPage';
+import AdminProductPage from '@src/pages/Admin/ProductPage/ProductPage';
 import CustomerAppointmentPage from '@src/pages/Customer/AppointmentPage/AppointmentPage';
 import AdminAppointmentPage from '@src/pages/Admin/AppointmentPage/AppointmentPage';
 import CartPage from '@src/pages/Customer/CartPage/CartPage';
@@ -18,6 +19,7 @@ import MyAppointmentPage from '@src/pages/Customer/MyAppointmentPage/MyAppointme
 import CheckoutPage from '@src/pages/Customer/CheckoutPage/CheckoutPage';
 import UserPage from '@src/pages/Admin/UserPage/UserPage';
 import TestPage from '@src/pages/TestPage';
+import OrderPage from '@src/pages/Admin/OrderPage/OrderPage';
 
 export const routesConfig = {
     // Example
@@ -31,14 +33,16 @@ export const routesConfig = {
     admin: [
         { path: '/', component: DashboardPage, icon: Dashboard, label: 'Dashboard', layout: HeaderSidebarLayout },
         { path: '/users', component: UserPage, icon: Person, label: 'Users', layout: HeaderSidebarLayout },
-        { path: '/appointment', component: AdminAppointmentPage, icon: CalendarMonthOutlined, label: 'Appointment', layout: HeaderSidebarLayout },
-        { path: '/test', component: TestPage, icon: Dashboard, label: 'Users', layout: HeaderSidebarLayout },
+        { path: '/appointments', component: AdminAppointmentPage, icon: CalendarMonthOutlined, label: 'Appointment', layout: HeaderSidebarLayout },
+        { path: '/orders', component: OrderPage, icon: ShoppingCartOutlined, label: 'Orders', layout: HeaderSidebarLayout },
+        { path: '/products', component: AdminProductPage, icon: Inventory2Outlined, label: 'Products & Services', layout: HeaderSidebarLayout },
+        { path: '/test', component: TestPage, icon: Dashboard, label: 'Test', layout: HeaderSidebarLayout },
     ],
     customer: [
         { path: '/', component: LandingPage, label: 'Home', layout: HeaderLayout },
         { path: '/product', component: ProductPage, label: 'Shop', layout: HeaderLayout },
-        { path: '/service', component: ProductPage, label: 'Services', layout: HeaderLayout },
         { path: '/appointment', component: CustomerAppointmentPage, label: 'Appointment', layout: HeaderLayout },
+        { path: '/service', component: ProductPage, label: 'Services', layout: HeaderLayout },
         { path: '/cart', component: CartPage, label: 'Cart', layout: HeaderLayout },
         { path: '/pet-tracking', component: PetTrackingPage, label: 'Pet Tracking', layout: HeaderLayout },
         { path: '/my-order', component: MyOrderPage, label: 'My Order', layout: HeaderLayout },

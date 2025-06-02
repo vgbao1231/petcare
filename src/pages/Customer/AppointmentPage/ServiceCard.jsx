@@ -29,6 +29,7 @@ const ServiceCard = ({ service, selected, setSelectedServices }) => {
     return (
         <Card
             sx={{
+                minHeight: 90,
                 display: 'flex',
                 alignItems: 'center',
                 py: selected ? 0.5 : 1,

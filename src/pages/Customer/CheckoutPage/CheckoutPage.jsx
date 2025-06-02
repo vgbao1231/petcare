@@ -52,17 +52,16 @@ const CustomConnector = (props) => (
 const CheckoutPage = () => {
     const [activeStep, setActiveStep] = useState(0);
     const { cart } = useCart();
-    const methods = useForm({ mode: 'all' });
-
     const subTotal = useMemo(() => cart.reduce((sum, item) => sum + item.price * item.quantity, 0), [cart]);
     const shippingCost = 0;
     const tax = 0;
     const total = useMemo(() => subTotal + shippingCost + tax, [subTotal, shippingCost, tax]);
+    const methods = useForm({ mode: 'all', defaultValues: { total } });
 
     const stepsContent = [
         <InformationStep key={0} activeStep={activeStep} />,
         <DeliveryStep key={1} activeStep={activeStep} setActiveStep={setActiveStep} />,
-        <ConfirmStep key={2} activeStep={activeStep} />,
+        <ConfirmStep key={2} activeStep={activeStep} methods={methods} />,
     ];
 
     const handleSubmit = (formData) => {

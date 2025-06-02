@@ -11,7 +11,6 @@ import { FormProvider, useForm } from 'react-hook-form';
 import ProductCard from './ProductCard';
 import ServiceCard from './ServiceCard';
 import FormSelect from '@src/components/reuseable/FormRHF/FormSelect';
-import { toast } from 'react-toastify';
 import { checkPastDate } from '@src/utils/validators';
 import FormTimePicker from '@src/components/reuseable/FormRHF/FormTimePicker';
 import dayjs from 'dayjs';
@@ -21,6 +20,8 @@ import { useBranch } from '@src/hooks/useBranch';
 import { useQueries } from '@tanstack/react-query';
 import { serviceServices } from '@services/serviceServices';
 import { productServices } from '@services/productServices';
+import { adaptAppointmentPayload } from '@src/adapters/appointmentAdapter';
+import ToastService from '@src/utils/toast';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -35,6 +36,7 @@ const AppointmentPage = () => {
     const methods = useForm({ mode: 'all' });
     const date = methods.watch('date');
     const { branches } = useBranch();
+    const toast = ToastService.getInstance();
 
     const subTotal = [...selectedProducts, ...selectedServices].reduce(
         (sum, item) => sum + item.price * item.quantity,
@@ -42,56 +44,37 @@ const AppointmentPage = () => {
     );
 
     const handleSubmit = useCallback(
-        async ({ date, time, address, branch, note }) => {
+        async (formData) => {
             try {
-                const customer_id = parseInt(getTokenPayload(token).user_id);
-                const scheduleTime = date
-                    .hour(time.hour())
-                    .minute(time.minute())
-                    .tz('Asia/Bangkok', true)
-                    .format('YYYY-MM-DDTHH:mm:ssZ');
+                const { appointmentPayload, orderPayload, hasService, hasProduct } = adaptAppointmentPayload({
+                    formData,
+                    selectedServices,
+                    selectedProducts,
+                    token: getTokenPayload(token),
+                    servingType,
+                });
 
-                const serviceData = selectedServices.map((s) => ({ service_id: s.serviceId, quantity: s.quantity }));
-                const productData = selectedProducts.map((p) => ({
-                    product_id: p.product_id,
-                    product_name: p.name,
-                    product_type: p.product_type,
-                    quantity: p.quantity,
-                    unit_price: p.price,
-                }));
-
-                const appointmentData = {
-                    customer_id,
-                    ...(servingType === 0 ? { customer_address: address } : { branch_id: branch }),
-                    scheduled_time: scheduleTime,
-                    note,
-                    services: serviceData,
-                };
-
-                if (serviceData.length === 0) {
+                if (!hasService) {
                     toast.error('Please select at least 1 service!');
-                } else {
-                    const appointmentRes = await appointmentServices.createAppointment(appointmentData);
-
-                    if (productData.length > 0) {
-                        const orderData = {
-                            customer_id,
-                            ...(servingType === 0 ? { customer_address: address } : { branch_id: branch }),
-                            appointment_id: appointmentRes.appointment_id,
-                            items: productData,
-                        };
-                        await orderServices.createOrder(orderData);
-                    }
-
-                    toast.success('Successful appointment schedule');
+                    return;
                 }
+
+                const appointmentRes = await appointmentServices.createAppointment(appointmentPayload);
+
+                if (hasProduct) {
+                    await orderServices.createOrder({
+                        ...orderPayload,
+                        appointment_id: appointmentRes.appointment_id,
+                    });
+                }
+
+                toast.success('Successful appointment schedule');
             } catch (e) {
                 console.log(e);
                 toast.error('Failed to make an appointment!');
             }
         },
-
-        [selectedServices, selectedProducts, token, servingType]
+        [selectedServices, selectedProducts, token, servingType, toast]
     );
 
     const [{ data: services = [] }, { data: products = [] }] = useQueries({
@@ -110,7 +93,7 @@ const AppointmentPage = () => {
     });
 
     return (
-        <Box sx={{ pt: 14, px: 20, pb: 5 }}>
+        <Box sx={{ pt: 12, px: 20, pb: 5 }}>
             <Box sx={{ display: 'flex', gap: 3 }}>
                 {/* Left Panel */}
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, flex: 1 }}>
@@ -170,7 +153,15 @@ const AppointmentPage = () => {
                                     Available {itemTab === 0 ? 'Services' : 'Products'}
                                 </Typography>
                             </Box>
-                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    gap: 2,
+                                    overflowY: 'auto',
+                                    maxHeight: 420,
+                                }}
+                            >
                                 {itemTab === 0
                                     ? services
                                           .filter(({ name }) => name.toUpperCase().includes(searchValue.toUpperCase()))
