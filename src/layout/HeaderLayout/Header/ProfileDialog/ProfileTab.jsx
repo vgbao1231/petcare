@@ -18,7 +18,7 @@ const ProfileTab = () => {
         try {
             console.log(data);
 
-            await userServices.changeUserInfo(data);
+            await userServices.changeSelfInfo(data);
             toast.success('Update info successfully');
         } catch {
             toast.error('Update info failed');

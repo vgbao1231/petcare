@@ -233,3 +233,77 @@ status: 'Pending',
 ],
 },
 ];
+
+const orders = [
+{
+id: 'ORD-12345',
+dateTime: '2023-07-15T10:23:00Z',
+status: 'COMPLETED',
+items: [
+{
+id: '1',
+name: 'Premium Dog Food',
+price: 29.99,
+quantity: 2,
+image: '/src/assets/gura.jpg',
+},
+{
+id: '4',
+name: 'Flea & Tick Medicine',
+price: 19.99,
+quantity: 1,
+image: '/src/assets/gura.jpg',
+},
+],
+note: 'Please leave at the front door if no one answers',
+deliveredOn: '2023-07-17',
+summary: {
+subtotal: 79.97,
+total: 79.97,
+},
+},
+{
+id: 'ORD-12346',
+dateTime: '2023-07-10T15:45:00Z',
+status: 'PAID',
+items: [
+{
+id: '2',
+name: 'Cat Scratching Post',
+price: 49.99,
+quantity: 1,
+image: '/src/assets/gura.jpg',
+},
+{
+id: '5',
+name: 'Interactive Dog Toy',
+price: 14.99,
+quantity: 1,
+image: '/src/assets/gura.jpg',
+},
+],
+note: 'Call before delivery',
+summary: {
+subtotal: 64.98,
+total: 64.98,
+},
+},
+{
+id: 'ORD-12347',
+dateTime: '2023-06-28T09:15:00Z',
+status: 'PENDING',
+items: [
+{
+id: '6',
+name: 'Cat Litter Box',
+price: 34.99,
+quantity: 1,
+image: '/src/assets/gura.jpg',
+},
+],
+summary: {
+subtotal: 34.99,
+total: 34.99,
+},
+},
+];

@@ -1,4 +1,4 @@
-import { CalendarMonthOutlined, Dashboard, Inventory2Outlined, Person, ShoppingCartOutlined } from '@mui/icons-material';
+import { AssignmentOutlined, CalendarMonthOutlined, CalendarTodayOutlined, CreditCardOutlined, Dashboard, EventAvailableOutlined, HomeOutlined, Inventory2Outlined, Payment, Person, PetsOutlined, ShoppingCartOutlined, StorefrontOutlined } from '@mui/icons-material';
 import { HeaderLayout } from '@src/layout/HeaderLayout/HeaderLayout';
 import { HeaderSidebarLayout } from '@src/layout/HeaderSidebarLayout/HeaderSidebarLayout';
 import LoginPage from '../pages/Public/LoginPage/LoginPage';
@@ -16,10 +16,12 @@ import CartPage from '@src/pages/Customer/CartPage/CartPage';
 import PetTrackingPage from '@src/pages/Customer/PetTrackingPage/PetTrackingPage';
 import MyOrderPage from '@src/pages/Customer/MyOrderPage/MyOrderPage';
 import MyAppointmentPage from '@src/pages/Customer/MyAppointmentPage/MyAppointmentPage';
-import CheckoutPage from '@src/pages/Customer/CheckoutPage/CheckoutPage';
 import UserPage from '@src/pages/Admin/UserPage/UserPage';
-import TestPage from '@src/pages/TestPage';
-import OrderPage from '@src/pages/Admin/OrderPage/OrderPage';
+import OrderPage from '@src/pages/Customer/OrderPage/OrderPage';
+import AdminOrderPage from '@src/pages/Admin/OrderPage/OrderPage';
+import PetPage from '@src/pages/Admin/PaymentPage/PaymentPage';
+import PaymentSuccess from '@src/pages/Customer/PaymentPage/PaymentSuccess';
+import PaymentFailed from '@src/pages/Customer/PaymentPage/PaymentFailed';
 
 export const routesConfig = {
     // Example
@@ -29,24 +31,29 @@ export const routesConfig = {
         { path: '/verify', component: VerifyPage },
         { path: '/forgot-password', component: ForgotPasswordPage },
         { path: '/reset-password', component: ResetPasswordPage },
+        { path: '/payments/success', component: PaymentSuccess, icon: CreditCardOutlined, label: 'Payment' },
+        { path: '/payments/cancel', component: PaymentFailed, icon: CreditCardOutlined, label: 'Payment' },
     ],
     admin: [
         { path: '/', component: DashboardPage, icon: Dashboard, label: 'Dashboard', layout: HeaderSidebarLayout },
         { path: '/users', component: UserPage, icon: Person, label: 'Users', layout: HeaderSidebarLayout },
         { path: '/appointments', component: AdminAppointmentPage, icon: CalendarMonthOutlined, label: 'Appointment', layout: HeaderSidebarLayout },
-        { path: '/orders', component: OrderPage, icon: ShoppingCartOutlined, label: 'Orders', layout: HeaderSidebarLayout },
+        { path: '/orders', component: AdminOrderPage, icon: ShoppingCartOutlined, label: 'Orders', layout: HeaderSidebarLayout },
         { path: '/products', component: AdminProductPage, icon: Inventory2Outlined, label: 'Products & Services', layout: HeaderSidebarLayout },
-        { path: '/test', component: TestPage, icon: Dashboard, label: 'Test', layout: HeaderSidebarLayout },
+        { path: '/payments', component: PetPage, icon: Payment, label: 'Payments', layout: HeaderSidebarLayout },
+        { path: '/payments/success', component: PaymentSuccess, icon: CreditCardOutlined, label: 'Payment' },
+        { path: '/payments/cancel', component: PaymentFailed, icon: CreditCardOutlined, label: 'Payment' },
     ],
     customer: [
-        { path: '/', component: LandingPage, label: 'Home', layout: HeaderLayout },
-        { path: '/product', component: ProductPage, label: 'Shop', layout: HeaderLayout },
-        { path: '/appointment', component: CustomerAppointmentPage, label: 'Appointment', layout: HeaderLayout },
-        { path: '/service', component: ProductPage, label: 'Services', layout: HeaderLayout },
-        { path: '/cart', component: CartPage, label: 'Cart', layout: HeaderLayout },
-        { path: '/pet-tracking', component: PetTrackingPage, label: 'Pet Tracking', layout: HeaderLayout },
-        { path: '/my-order', component: MyOrderPage, label: 'My Order', layout: HeaderLayout },
-        { path: '/my-appointment', component: MyAppointmentPage, label: 'My Appointment', layout: HeaderLayout },
-        { path: '/checkout', component: CheckoutPage, label: 'My Appointment', layout: HeaderLayout },
-    ],
+        { path: '/', component: LandingPage, icon: HomeOutlined, label: 'Home', layout: HeaderLayout },
+        { path: '/product', component: ProductPage, icon: StorefrontOutlined, label: 'Shop', layout: HeaderLayout },
+        { path: '/appointment', component: CustomerAppointmentPage, icon: EventAvailableOutlined, label: 'Appointment', layout: HeaderLayout },
+        { path: '/pet-tracking', component: PetTrackingPage, icon: PetsOutlined, label: 'Pet Tracking', layout: HeaderLayout },
+        { path: '/cart', component: CartPage, icon: ShoppingCartOutlined, label: 'Cart', layout: HeaderLayout },
+        { path: '/my-order', component: MyOrderPage, icon: AssignmentOutlined, label: 'My Order', layout: HeaderLayout },
+        { path: '/my-appointment', component: MyAppointmentPage, icon: CalendarTodayOutlined, label: 'My Appointment', layout: HeaderLayout },
+        { path: '/order', component: OrderPage, icon: AssignmentOutlined, label: 'Order', layout: HeaderLayout },
+        { path: '/payments/success', component: PaymentSuccess, icon: CreditCardOutlined, label: 'Payment' },
+        { path: '/payments/cancel', component: PaymentFailed, icon: CreditCardOutlined, label: 'Payment' },
+    ]
 };

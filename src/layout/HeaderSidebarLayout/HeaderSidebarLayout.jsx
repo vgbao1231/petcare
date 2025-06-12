@@ -7,7 +7,7 @@ export function HeaderSidebarLayout({ children }) {
     return (
         <Container disableGutters maxWidth={false} sx={{ display: 'flex', maxWidth: 1, height: '100vh' }}>
             <Box sx={{ display: 'flex', flex: 1 }}>
-                <Sidebar sidebarItems={routesConfig.admin} />
+                <Sidebar sidebarItems={routesConfig.admin.slice(0, -2)} />
                 <Box sx={{ flex: 1 }}>
                     <Header />
                     {children}

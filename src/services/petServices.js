@@ -40,9 +40,20 @@ const deletePet = async (id) => {
     }
 };
 
+const getPetCount = async () => {
+    try {
+        const response = await api.get(`/pets/count`);
+        return response.data;
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+};
+
 export const petServices = {
     getPetsByOwner,
     createPet,
     updatePet,
-    deletePet
+    deletePet,
+    getPetCount
 };

@@ -11,7 +11,6 @@ import {
     InputAdornment,
     Menu,
     MenuItem,
-    Stack,
     Table,
     TableBody,
     TableCell,
@@ -21,122 +20,75 @@ import {
     TextField,
     Typography,
 } from '@mui/material';
+import { appointmentServices } from '@services/appointmentServices';
+import { useBranch } from '@src/hooks/useBranch';
+import { formatUnixToLocale } from '@src/utils/formatters';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
+import AddAppointmentDialog from './AddAppointmentDialog/AddAppointmentDialog';
+import AssignStaffDialog from './AssignStaffDialog/AssignStaffDialog';
 
 const statusColors = {
-    PENDING: 'info',
-    IN_PROGRESS: 'warning',
-    COMPLETED: 'success',
-    CANCELLED: 'error',
+    1: 'warning',
+    2: 'success',
+    3: 'error',
+    4: 'info',
 };
 
 const statusLabels = {
-    PENDING: 'Pending',
-    IN_PROGRESS: 'In Progress',
-    COMPLETED: 'Completed',
-    CANCELLED: 'Canceled',
+    1: 'In Progress',
+    2: 'Completed',
+    3: 'Cancelled',
+    4: 'Pending',
 };
-
-const appointments = [
-    {
-        id: 'APT001',
-        customerName: 'Nguyễn Văn A',
-        phone: '0901234567',
-        dateTime: '2023-05-20 10:00',
-        status: 'PENDING',
-        branch: 'Chi nhánh Quận 1',
-        assignedTo: null,
-    },
-    {
-        id: 'APT002',
-        customerName: 'Trần Thị B',
-        phone: '0912345678',
-        dateTime: '2023-05-20 14:30',
-        status: 'IN_PROGRESS',
-        location: '123 Nguyễn Huệ, Quận 1, TP.HCM',
-        assignedTo: 'Lê Văn C',
-    },
-    {
-        id: 'APT003',
-        customerName: 'Phạm Văn D',
-        phone: '0923456789',
-        dateTime: '2023-05-21 09:00',
-        status: 'COMPLETED',
-        branch: 'Chi nhánh Quận 3',
-        assignedTo: 'Bác sĩ Hùng',
-    },
-    {
-        id: 'APT004',
-        customerName: 'Lê Thị E',
-        phone: '0934567890',
-        dateTime: '2023-05-22 16:00',
-        status: 'CANCELLED',
-        location: '456 Lê Lợi, Quận 5, TP.HCM',
-        assignedTo: null,
-    },
-    {
-        id: 'APT005',
-        customerName: 'Hoàng Văn F',
-        phone: '0945678901',
-        dateTime: '2023-05-23 11:30',
-        status: 'PENDING',
-        branch: 'Chi nhánh Quận 7',
-        assignedTo: 'Bác sĩ Lan',
-    },
-];
 
 const statusOptions = [
     { label: 'Tất cả trạng thái', value: 'all' },
-    { label: 'Chờ xử lý', value: 'PENDING' },
-    { label: 'Đang thực hiện', value: 'IN_PROGRESS' },
-    { label: 'Hoàn thành', value: 'COMPLETED' },
-    { label: 'Đã huỷ', value: 'CANCELLED' },
+    { label: 'Chờ xử lý', value: '1' },
+    { label: 'Đang thực hiện', value: '2' },
+    { label: 'Hoàn thành', value: '3' },
+    { label: 'Đã huỷ', value: '4' },
 ];
-
-const typeOptions = [
-    { label: 'Tất cả loại', value: 'all' },
-    { label: 'Chi nhánh', value: 'branch' },
-    { label: 'Tại nhà', value: 'location' },
-];
-
-const fetchAppointments = ({ page = 1, limit = 10 }) => {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            const start = (page - 1) * limit;
-            const end = start + limit;
-            const paginatedAppointments = appointments.slice(start, end);
-            resolve({
-                data: paginatedAppointments,
-                total: appointments.length,
-                page,
-                limit,
-            });
-        }, 400); // delay mô phỏng
-    });
-};
 
 const AppointmentPage = () => {
     const [page, setPage] = useState(0); // page index (bắt đầu từ 0)
     const [rowsPerPage, setRowsPerPage] = useState(5);
     const [anchorEl, setAnchorEl] = useState(null);
-    const [selectedAppointment, setSelectedAppointment] = useState(null);
+    const [selectedRow, setSelectedRow] = useState(null);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [openAdd, setOpenAdd] = useState(false);
+    const [openAssign, setOpenAssign] = useState(false);
+    const { branches } = useBranch();
 
-    const handleMenuOpen = (event, userId) => {
+    const handleMenuOpen = (event, row) => {
         setAnchorEl(event.currentTarget);
-        setSelectedAppointment(userId);
+        setSelectedRow(row);
     };
 
     const handleMenuClose = () => {
         setAnchorEl(null);
-        setSelectedAppointment(null);
     };
 
     const { data, isLoading } = useQuery({
-        queryKey: ['appointments', page, rowsPerPage],
-        queryFn: () => fetchAppointments({ page: page + 1, limit: rowsPerPage }),
+        queryKey: ['appointments'],
+        queryFn: () => appointmentServices.getAllAppointments(),
         keepPreviousData: true,
     });
+
+    const filteredData = (data || []).filter((appointment) => {
+        const searchLower = searchQuery.toLowerCase();
+        const matchesSearch =
+            String(appointment.id).toLowerCase().includes(searchLower) ||
+            String(appointment.customerName).toLowerCase().includes(searchLower) ||
+            String(appointment.assignedTo || '')
+                .toLowerCase()
+                .includes(searchLower) ||
+            String(appointment.phone).toLowerCase().includes(searchLower);
+
+        return matchesSearch;
+    });
+
+    const pageData = filteredData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
     const handleChangePage = (_, newPage) => setPage(newPage);
     const handleChangeRowsPerPage = (event) => {
@@ -152,15 +104,21 @@ const AppointmentPage = () => {
                         <Typography variant="h6" fontWeight={600}>
                             Appointments
                         </Typography>
-                        <Button variant="contained" size="small" sx={{ textTransform: 'none' }}>
+                        <Button
+                            variant="contained"
+                            size="small"
+                            sx={{ textTransform: 'none' }}
+                            onClick={() => setOpenAdd(true)}
+                        >
                             + Add Appointment
                         </Button>
                     </Box>
-                    <Stack direction="row" spacing={2} sx={{ mb: 2 }}>
+                    <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 2 }}>
                         <TextField
-                            placeholder="Tìm theo tên, số điện thoại, ID..."
+                            placeholder="Search appointments..."
                             size="small"
-                            sx={{ flex: 1 }}
+                            sx={{ mr: 'auto', minWidth: 500 }}
+                            onChange={(e) => setSearchQuery(e.target.value)}
                             slotProps={{
                                 input: {
                                     startAdornment: (
@@ -184,24 +142,15 @@ const AppointmentPage = () => {
                             <MenuItem value="Chi nhánh Quận 3">Chi nhánh Quận 3</MenuItem>
                             <MenuItem value="Chi nhánh Quận 7">Chi nhánh Quận 7</MenuItem>
                         </TextField>
-                        <TextField select size="small" defaultValue="all">
-                            {typeOptions.map((opt) => (
-                                <MenuItem key={opt.value} value={opt.value}>
-                                    {opt.label}
-                                </MenuItem>
-                            ))}
-                        </TextField>
-                    </Stack>
+                    </Box>
                     <Table size="small">
                         <TableHead>
                             <TableRow>
                                 <TableCell align="center">ID</TableCell>
                                 <TableCell align="center">Customer Name</TableCell>
-                                <TableCell align="center">Type</TableCell>
                                 <TableCell align="center">Location</TableCell>
                                 <TableCell align="center">Date & Time</TableCell>
                                 <TableCell align="center">Status</TableCell>
-                                <TableCell align="center">Location</TableCell>
                                 <TableCell align="center">Staff</TableCell>
                                 <TableCell align="center">Actions</TableCell>
                             </TableRow>
@@ -214,44 +163,62 @@ const AppointmentPage = () => {
                                     </TableCell>
                                 </TableRow>
                             ) : (
-                                data?.data.map((a) => (
-                                    <TableRow key={a.id}>
-                                        <TableCell align="center">{a.id}</TableCell>
+                                pageData.map((a) => (
+                                    <TableRow key={a.appointment.id}>
+                                        <TableCell align="center">{a.appointment.id}</TableCell>
+
                                         <TableCell align="center">
-                                            <Typography>{a.customerName}</Typography>
+                                            <Typography>{a.customer_name}</Typography>
                                             <Typography variant="body2" color="text.secondary">
-                                                {a.phone}
+                                                {a.customer_email}
                                             </Typography>
                                         </TableCell>
+
+                                        {a.appointment.customer_address ? (
+                                            <TableCell align="center">
+                                                <Typography>{a.appointment.customer_address}</Typography>
+                                            </TableCell>
+                                        ) : (
+                                            <TableCell align="center">
+                                                <Typography>
+                                                    {branches.find((b) => b.id === a.appointment.branch_id)?.name}
+                                                </Typography>
+                                                <Typography variant="body2" color="text.secondary">
+                                                    {branches.find((b) => b.id === a.appointment.branch_id)?.location}
+                                                </Typography>
+                                            </TableCell>
+                                        )}
+
+                                        <TableCell align="center">
+                                            <Typography>
+                                                {formatUnixToLocale(a.appointment.scheduled_time.seconds)}
+                                            </Typography>
+                                        </TableCell>
+
                                         <TableCell align="center">
                                             <Chip
                                                 size="small"
                                                 variant="outlined"
-                                                label={a.branch ? 'Store' : 'Home'}
-                                                color={a.branch ? 'info' : 'success'}
+                                                label={statusLabels[a.appointment.status]}
+                                                color={statusColors[a.appointment.status]}
                                             />
                                         </TableCell>
-                                        <TableCell align="center">{a.phone}</TableCell>
-                                        <TableCell align="center">{a.dateTime}</TableCell>
+
                                         <TableCell align="center">
-                                            <Chip
-                                                size="small"
-                                                variant="outlined"
-                                                label={statusLabels[a.status]}
-                                                color={statusColors[a.status]}
-                                            />
-                                        </TableCell>
-                                        <TableCell align="center">{a.branch ? a.branch : a.location}</TableCell>
-                                        <TableCell align="center">
-                                            {a.assignedTo ? (
-                                                a.assignedTo
+                                            {a.employee_name ? (
+                                                <>
+                                                    <Typography>{a.employee_name}</Typography>
+                                                    <Typography variant="body2" color="text.secondary">
+                                                        {a.employee_email}
+                                                    </Typography>
+                                                </>
                                             ) : (
                                                 <Chip size="small" variant="outlined" label="Chưa giao" color="error" />
                                             )}
                                         </TableCell>
 
                                         <TableCell align="center">
-                                            <IconButton size="small" onClick={(e) => handleMenuOpen(e, a.id)}>
+                                            <IconButton size="small" onClick={(e) => handleMenuOpen(e, a)}>
                                                 <MoreVert fontSize="small" />
                                             </IconButton>
                                         </TableCell>
@@ -262,7 +229,7 @@ const AppointmentPage = () => {
                     </Table>
                     <TablePagination
                         component="div"
-                        count={data?.total || 0}
+                        count={filteredData.length}
                         page={page}
                         onPageChange={handleChangePage}
                         rowsPerPage={rowsPerPage}
@@ -272,10 +239,30 @@ const AppointmentPage = () => {
                     <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
                         <Typography sx={{ px: 2, pb: 1, fontWeight: 500 }}>Actions</Typography>
                         <Divider />
-                        <MenuItem onClick={handleMenuClose}>View Details</MenuItem>
                         <MenuItem onClick={handleMenuClose}>Edit Appointment</MenuItem>
-                        <MenuItem onClick={handleMenuClose}>Assign Staff</MenuItem>
+                        <MenuItem
+                            onClick={() => {
+                                handleMenuClose();
+                                setOpenAssign(true);
+                            }}
+                        >
+                            Assign Staff
+                        </MenuItem>
                     </Menu>
+                    {openAdd && (
+                        <AddAppointmentDialog
+                            open={openAdd}
+                            onClose={() => setOpenAdd(false)}
+                            defaultValues={selectedRow?.appointment}
+                        />
+                    )}
+                    {openAssign && (
+                        <AssignStaffDialog
+                            open={openAssign}
+                            onClose={() => setOpenAssign(false)}
+                            defaultValues={selectedRow}
+                        />
+                    )}
                 </CardContent>
             </Card>
         </Box>

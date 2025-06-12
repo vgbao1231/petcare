@@ -1,5 +1,4 @@
 import {
-    Autorenew,
     CalendarTodayOutlined,
     KeyboardArrowDown,
     LocalShippingOutlined,
@@ -8,23 +7,32 @@ import {
     Storefront,
     TaskAltOutlined,
 } from '@mui/icons-material';
-import { Box, Button, Card, CardContent, CardMedia, Chip, Collapse, Divider, Stack, Typography } from '@mui/material';
-import { capitalizeWords } from '@src/utils/formatters';
+import { Box, Button, Card, Chip, Collapse, Divider, Stack, Typography } from '@mui/material';
+import { useBranch } from '@src/hooks/useBranch';
+import { capitalizeWords, ISOtoLocale } from '@src/utils/formatters';
 import { useState } from 'react';
 
 const statusColors = {
-    PENDING: 'info',
-    PAID: 'warning',
-    COMPLETED: 'success',
-    CANCELLED: 'error',
+    1: 'info',
+    2: 'warning',
+    3: 'success',
+    4: 'error',
+};
+
+const statusNames = {
+    1: 'Pending',
+    2: 'Paid',
+    3: 'Completed',
+    4: 'Cancelled',
 };
 
 const OrderCard = ({ order }) => {
-    const { id, dateTime, status, items, note, deliveredOn, summary } = order;
+    const { id, created_at, status, items, branch_id, pickup_time, total_price } = order;
     const [open, setOpen] = useState(false);
+    const { branches } = useBranch();
 
     const itemNames = items.slice(0, 2).map((item) => {
-        return `${item.name}${item.quantity > 1 ? ` x${item.quantity}` : ''}`;
+        return `${item.product_name}${item.quantity > 1 ? ` x${item.quantity}` : ''}`;
     });
 
     if (items.length > 2) {
@@ -49,7 +57,7 @@ const OrderCard = ({ order }) => {
                             Order #{id}
                         </Typography>
                         <Chip
-                            label={capitalizeWords(status)}
+                            label={capitalizeWords(statusNames[status])}
                             size="small"
                             variant="outlined"
                             sx={{ bgcolor: `${statusColors[status]}.bgcolor`, color: `${statusColors[status]}.main` }}
@@ -57,17 +65,11 @@ const OrderCard = ({ order }) => {
                     </Box>
                     <Typography fontSize={14} color="text.secondary">
                         <CalendarTodayOutlined sx={{ fontSize: 12, verticalAlign: 'text-top', mr: 0.5 }} />
-                        {`Placed on ${new Date(dateTime).toISOString().slice(0, 10)} at ${new Date(
-                            dateTime
-                        ).toLocaleTimeString('vi-VN', {
-                            hour: 'numeric',
-                            minute: '2-digit',
-                            hour12: true,
-                        })}`}
+                        Placed on {ISOtoLocale(created_at)}
                     </Typography>
                 </Box>
                 <Box>
-                    <Typography fontWeight={500}>${summary.total}</Typography>
+                    <Typography fontWeight={500}>${total_price}</Typography>
                     <Typography fontSize={13} color="text.secondary">
                         {items.length} items
                     </Typography>
@@ -100,23 +102,15 @@ const OrderCard = ({ order }) => {
                 <Box sx={{ flex: 1 }}>
                     <Typography fontWeight={500}>{itemNames.join(', ')}</Typography>
 
-                    {deliveredOn && (
+                    {pickup_time && (
                         <Stack direction="row" alignItems="center" spacing={0.5}>
                             <TaskAltOutlined fontSize="small" sx={{ color: 'success.light' }} />
                             <Typography variant="body2" color="text.secondary">
-                                Delivered on {deliveredOn}
+                                Pickup on {ISOtoLocale(pickup_time)}
                             </Typography>
                         </Stack>
                     )}
                 </Box>
-                <Button
-                    variant="outlined"
-                    color="common"
-                    startIcon={<Autorenew />}
-                    sx={{ textTransform: 'none', borderColor: 'divider' }}
-                >
-                    Reorder
-                </Button>
             </Box>
 
             {/* Card Details */}
@@ -141,35 +135,26 @@ const OrderCard = ({ order }) => {
                                 gap: 3,
                             }}
                         >
-                            {/* Image */}
-                            <CardMedia
-                                component="img"
-                                image={item.image}
-                                sx={{
-                                    width: 70,
-                                    height: 70,
-                                    borderRadius: 1,
-                                    bgcolor: '#f5f5f5',
-                                }}
-                            />
-
                             {/* Product Info */}
-                            <CardContent sx={{ flex: 1, p: 0 }}>
-                                <Typography variant="subtitle1" fontWeight={500}>
-                                    {item.name}
-                                </Typography>
-                                <Typography variant="body2" color="text.secondary">
-                                    Qty: {item.quantity} &nbsp; ${item.price} each
-                                </Typography>
-                                <Typography fontWeight={500}>${item.price * item.quantity}</Typography>
-                            </CardContent>
-
-                            {/* Review Button */}
-                            {status === 'Delivered' && (
-                                <Button variant="outlined" size="small">
-                                    Review
-                                </Button>
-                            )}
+                            <Box
+                                sx={{
+                                    flex: 1,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    p: 0,
+                                }}
+                            >
+                                <Box>
+                                    <Typography variant="subtitle1" fontWeight={500}>
+                                        {item.product_name}
+                                    </Typography>
+                                    <Typography variant="body2" color="text.secondary">
+                                        Qty: {item.quantity} &nbsp; ${item.unit_price} each
+                                    </Typography>
+                                </Box>
+                                <Typography fontWeight={500}>${item.unit_price * item.quantity}</Typography>
+                            </Box>
                         </Card>
                     ))}
                 </Stack>
@@ -181,17 +166,17 @@ const OrderCard = ({ order }) => {
                                 <PaymentOutlined
                                     sx={{ fontSize: 24, color: 'primary.main', verticalAlign: 'top', mr: 1 }}
                                 />
-                                Order Summary & Payment
+                                Order Summary
                             </Typography>
                             <Box sx={{ pl: 4 }}>
                                 <Stack direction="row" justifyContent="space-between">
                                     <Typography color="text.secondary">Subtotal</Typography>
-                                    <Typography>${summary.subtotal}</Typography>
+                                    <Typography>${total_price}</Typography>
                                 </Stack>
                                 <Divider sx={{ my: 1 }} />
                                 <Stack direction="row" justifyContent="space-between">
                                     <Typography fontWeight={500}>Total</Typography>
-                                    <Typography fontWeight={500}>${summary.total}</Typography>
+                                    <Typography fontWeight={500}>${total_price}</Typography>
                                 </Stack>
                             </Box>
                         </Box>
@@ -201,26 +186,26 @@ const OrderCard = ({ order }) => {
                             <LocalShippingOutlined
                                 sx={{ fontSize: 24, color: 'primary.main', verticalAlign: 'top', mr: 1 }}
                             />
-                            Delivery Information
+                            Pickup Information
                         </Typography>
                         <Box sx={{ pl: 4 }}>
-                            {note && (
+                            {branch_id && (
                                 <>
                                     <Typography variant="body2" fontWeight={500}>
-                                        Delivery Note
+                                        Location
                                     </Typography>
                                     <Typography variant="body2" color="text.secondary">
-                                        {note}
+                                        {branches.find((branch) => branch.id === branch_id)?.name || 'At Home'}
                                     </Typography>
                                 </>
                             )}
-                            {deliveredOn && (
+                            {pickup_time && (
                                 <>
-                                    <Typography variant="body2" fontWeight={500} mt={2}>
-                                        Delivered On
+                                    <Typography variant="body2" fontWeight={500} mt={1}>
+                                        Pickup Time
                                     </Typography>
                                     <Typography variant="body2" color="text.secondary">
-                                        {deliveredOn}
+                                        {ISOtoLocale(pickup_time)}
                                     </Typography>
                                 </>
                             )}

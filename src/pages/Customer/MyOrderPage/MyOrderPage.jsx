@@ -1,93 +1,56 @@
-import { Box, Stack, Typography } from '@mui/material';
+import { Box, Button, Stack, Typography } from '@mui/material';
 import { centerSx } from '@src/theme';
 import { useCallback, useMemo, useState } from 'react';
 import OrderCard from './OrderCard';
-
-const orders = [
-    {
-        id: 'ORD-12345',
-        dateTime: '2023-07-15T10:23:00Z',
-        status: 'COMPLETED',
-        items: [
-            {
-                id: '1',
-                name: 'Premium Dog Food',
-                price: 29.99,
-                quantity: 2,
-                image: '/src/assets/gura.jpg',
-            },
-            {
-                id: '4',
-                name: 'Flea & Tick Medicine',
-                price: 19.99,
-                quantity: 1,
-                image: '/src/assets/gura.jpg',
-            },
-        ],
-        note: 'Please leave at the front door if no one answers',
-        deliveredOn: '2023-07-17',
-        summary: {
-            subtotal: 79.97,
-            total: 79.97,
-        },
-    },
-    {
-        id: 'ORD-12346',
-        dateTime: '2023-07-10T15:45:00Z',
-        status: 'PAID',
-        items: [
-            {
-                id: '2',
-                name: 'Cat Scratching Post',
-                price: 49.99,
-                quantity: 1,
-                image: '/src/assets/gura.jpg',
-            },
-            {
-                id: '5',
-                name: 'Interactive Dog Toy',
-                price: 14.99,
-                quantity: 1,
-                image: '/src/assets/gura.jpg',
-            },
-        ],
-        note: 'Call before delivery',
-        summary: {
-            subtotal: 64.98,
-            total: 64.98,
-        },
-    },
-    {
-        id: 'ORD-12347',
-        dateTime: '2023-06-28T09:15:00Z',
-        status: 'PENDING',
-        items: [
-            {
-                id: '6',
-                name: 'Cat Litter Box',
-                price: 34.99,
-                quantity: 1,
-                image: '/src/assets/gura.jpg',
-            },
-        ],
-        summary: {
-            subtotal: 34.99,
-            total: 34.99,
-        },
-    },
-];
+import { orderServices } from '@services/orderServices';
+import { useQuery } from '@tanstack/react-query';
+import { useAuth } from '@src/hooks/useAuth';
+import { ShoppingCartOutlined } from '@mui/icons-material';
+import { Link } from 'react-router-dom';
 
 const MyOrderPage = () => {
     const [currentTab, setCurrentTab] = useState(0);
     const handleClick = useCallback((index) => setCurrentTab(index), []);
+    const { userInfo } = useAuth();
+
+    const { data: orders } = useQuery({
+        queryKey: ['myOrders', userInfo.userId],
+        queryFn: () => orderServices.getOrdersById(userInfo.userId),
+        enabled: !!userInfo.userId, // chỉ gọi API nếu có userId
+    });
 
     const getFilteredOrders = useMemo(() => {
-        if (currentTab === 1) return orders.filter((a) => a.status === 'PENDING');
-        if (currentTab === 2) return orders.filter((a) => a.status === 'PAID');
-        if (currentTab === 3) return orders.filter((a) => a.status === 'COMPLETED');
-        if (currentTab === 4) return orders.filter((a) => a.status === 'CANCELLED');
-        return orders; // All Orders
-    }, [currentTab]);
+        const validOrders = (orders || []).filter((a) => !!a.pickup_time);
+        if (currentTab === 1) return validOrders.filter((a) => a.status === 1);
+        if (currentTab === 2) return validOrders.filter((a) => a.status === 2);
+        if (currentTab === 3) return validOrders.filter((a) => a.status === 3);
+        if (currentTab === 4) return validOrders.filter((a) => a.status === 4);
+        return validOrders; // All Orders
+    }, [currentTab, orders]);
+
+    if (!orders)
+        return (
+            <Box sx={{ pt: 12, px: 25, pb: 5, height: '100vh' }}>
+                <Typography fontSize={24} fontWeight={600}>
+                    My Orders
+                </Typography>
+
+                <Box sx={{ ...centerSx, flexDirection: 'column', gap: 1.5, height: '50vh' }}>
+                    <Box sx={{ ...centerSx, p: 2, bgcolor: '#f0f0f0', borderRadius: '50%' }}>
+                        <ShoppingCartOutlined sx={{ fontSize: 50, color: '#78716c' }} />
+                    </Box>
+
+                    <Typography variant="h5" fontWeight={500}>
+                        You have no orders yet
+                    </Typography>
+                    <Typography color="text.secondary">{"Looks like you haven't placed any orders yet."}</Typography>
+
+                    <Button component={Link} to="/product" variant="contained" sx={{ textTransform: 'none' }}>
+                        Browse Products
+                    </Button>
+                </Box>
+            </Box>
+        );
 
     return (
         <Box

@@ -1,5 +1,6 @@
 import { ShoppingCartOutlined } from '@mui/icons-material';
 import { Box, Button, Popover, Typography, Chip } from '@mui/material';
+import { useBranch } from '@src/hooks/useBranch';
 import { useCart } from '@src/hooks/useCart';
 import { centerSx, textEllipsisSx } from '@src/theme';
 import { Link } from 'react-router-dom';
@@ -7,8 +8,11 @@ import { Link } from 'react-router-dom';
 const CartPopover = ({ anchorEl, setAnchorEl }) => {
     const handleClose = () => setAnchorEl(null);
     const { cart } = useCart();
-    const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-    const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    const { selectedBranch } = useBranch();
+    const currentItems = cart[selectedBranch]?.items || [];
+
+    const totalItems = currentItems.reduce((sum, item) => sum + item.quantity, 0);
+    const total = currentItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
     return (
         <Popover
@@ -46,7 +50,7 @@ const CartPopover = ({ anchorEl, setAnchorEl }) => {
                         overflowY: 'auto',
                     }}
                 >
-                    {cart.length === 0 ? (
+                    {currentItems.length === 0 ? (
                         <Box sx={{ ...centerSx, flexDirection: 'column' }}>
                             <Box sx={{ ...centerSx, p: 1.5, bgcolor: '#f5f5f5', borderRadius: '50%' }}>
                                 <ShoppingCartOutlined sx={{ fontSize: 26, color: '#78716c' }} />
@@ -68,7 +72,7 @@ const CartPopover = ({ anchorEl, setAnchorEl }) => {
                             </Button>
                         </Box>
                     ) : (
-                        cart.map((item, index) => (
+                        currentItems.map((item, index) => (
                             <Box key={index} sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                                 <Box
                                     component="img"
@@ -90,7 +94,7 @@ const CartPopover = ({ anchorEl, setAnchorEl }) => {
                         ))
                     )}
                 </Box>
-                {cart.length !== 0 && (
+                {currentItems.length !== 0 && (
                     <Box sx={{ p: 2 }}>
                         <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                             <Typography fontWeight={500}>Total: </Typography>
@@ -111,7 +115,7 @@ const CartPopover = ({ anchorEl, setAnchorEl }) => {
                         </Button>
                         <Button
                             component={Link}
-                            to="/checkout"
+                            to="/order"
                             fullWidth
                             variant="outlined"
                             size="small"

@@ -14,7 +14,6 @@ const ViewMode = ({ onClose, appointmentDetail }) => {
     const branch = branches.find((b) => b.id == branch_id) || {};
     const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
     const queryClient = useQueryClient();
-    console.log(appointmentDetail);
 
     const { mutate: cancelAppointment } = useMutation({
         mutationFn: appointmentServices.cancelAppointment,
@@ -50,42 +49,46 @@ const ViewMode = ({ onClose, appointmentDetail }) => {
                     </>
                 )}
                 <Divider sx={{ my: 1 }} />
-                <Stack spacing={0.5} mb={1}>
-                    <Typography variant="body2" fontWeight={500}>
-                        Services
-                    </Typography>
-                    {appointmentDetail.details.map((ad, index) => (
-                        <Box key={index} display="flex" justifyContent="space-between">
-                            <Typography variant="body2">
-                                {ad.service_name} x {ad.quantity}
-                            </Typography>
-                            <Typography variant="body2">${ad.service_price * ad.quantity}</Typography>
+                {appointmentDetail.details.length > 0 && (
+                    <Stack spacing={0.5} mb={1}>
+                        <Typography variant="body2" fontWeight={500}>
+                            Services
+                        </Typography>
+                        {appointmentDetail.details.map((ad, index) => (
+                            <Box key={index} display="flex" justifyContent="space-between">
+                                <Typography variant="body2">
+                                    {ad.service_name} x {ad.quantity}
+                                </Typography>
+                                <Typography variant="body2">${ad.service_price * ad.quantity}</Typography>
+                            </Box>
+                        ))}
+                        <Divider sx={{ my: 1 }} />
+                        <Box display="flex" justifyContent="space-between">
+                            <Typography fontWeight={500}>Total</Typography>
+                            <Typography fontWeight={500}>${appointmentDetail.appointment?.total}</Typography>
                         </Box>
-                    ))}
-                    <Divider sx={{ my: 1 }} />
-                    <Box display="flex" justifyContent="space-between">
-                        <Typography fontWeight={500}>Total</Typography>
-                        <Typography fontWeight={500}>${appointmentDetail.appointment?.total}</Typography>
-                    </Box>
-                </Stack>
-                <Stack spacing={0.5}>
-                    <Typography variant="body2" fontWeight={500}>
-                        Products
-                    </Typography>
-                    {appointmentDetail.order?.items.map((p, index) => (
-                        <Box key={index} display="flex" justifyContent="space-between">
-                            <Typography variant="body2">
-                                {p.product_name} x {p.quantity}
-                            </Typography>
-                            <Typography variant="body2">${p.unit_price * p.quantity}</Typography>
+                    </Stack>
+                )}
+                {appointmentDetail.order?.length > 0 && (
+                    <Stack spacing={0.5}>
+                        <Typography variant="body2" fontWeight={500}>
+                            Products
+                        </Typography>
+                        {appointmentDetail.order?.items.map((p, index) => (
+                            <Box key={index} display="flex" justifyContent="space-between">
+                                <Typography variant="body2">
+                                    {p.product_name} x {p.quantity}
+                                </Typography>
+                                <Typography variant="body2">${p.unit_price * p.quantity}</Typography>
+                            </Box>
+                        ))}
+                        <Divider sx={{ my: 1 }} />
+                        <Box display="flex" justifyContent="space-between">
+                            <Typography fontWeight={500}>Total</Typography>
+                            <Typography fontWeight={500}>${appointmentDetail.order?.total_price}</Typography>
                         </Box>
-                    ))}
-                    <Divider sx={{ my: 1 }} />
-                    <Box display="flex" justifyContent="space-between">
-                        <Typography fontWeight={500}>Total</Typography>
-                        <Typography fontWeight={500}>${appointmentDetail.order?.total_price}</Typography>
-                    </Box>
-                </Stack>
+                    </Stack>
+                )}
                 <Box my={1}>
                     <Typography variant="body2" fontWeight={500} mb={0.5}>
                         Staff

@@ -3,48 +3,65 @@ import ProductCard from './ProductCard';
 import { useMemo } from 'react';
 import { ArrowBack, DeleteForeverOutlined, ShoppingCartOutlined } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
-import { centerSx } from '@src/theme';
 import { useCart } from '@src/hooks/useCart';
+import { useBranch } from '@src/hooks/useBranch';
 
 const CartPage = () => {
     const { cart, setCart } = useCart();
+    const { selectedBranch } = useBranch();
+    const currentItems = cart[selectedBranch]?.items || [];
 
-    const subTotal = useMemo(() => cart.reduce((sum, item) => sum + item.price * item.quantity, 0), [cart]);
+    const subTotal = currentItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
     const shippingCost = 0;
     const tax = 0;
     const total = useMemo(() => subTotal + shippingCost + tax, [subTotal, shippingCost, tax]);
 
-    if (cart.length === 0)
+    const clearBranchCart = (setCart) => {
+        setCart((prev) => {
+            const updated = { ...prev };
+            delete updated[selectedBranch];
+            return updated;
+        });
+    };
+
+    if (currentItems.length === 0)
         return (
             <Box sx={{ pt: 12, px: 25, pb: 5, height: '100vh' }}>
                 <Typography fontSize={24} fontWeight={600}>
                     Shopping Cart
                 </Typography>
-                <Box sx={{ ...centerSx, flexDirection: 'column', gap: 1.5, height: '50vh' }}>
-                    <Box sx={{ ...centerSx, p: 2, bgcolor: '#f0f0f0', borderRadius: '50%' }}>
+                <Box
+                    sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        gap: 1.5,
+                        height: '50vh',
+                        justifyContent: 'center',
+                    }}
+                >
+                    <Box sx={{ p: 2, bgcolor: '#f0f0f0', borderRadius: '50%' }}>
                         <ShoppingCartOutlined sx={{ fontSize: 50, color: '#78716c' }} />
                     </Box>
-
                     <Typography variant="h5" fontWeight={500}>
                         Your cart is empty
                     </Typography>
-                    <Typography color="text.secondary">
-                        {"Looks like you haven't added anything to your cart yet."}
-                    </Typography>
+                    <Typography color="text.secondary">{"You haven't added any products to your cart yet."}</Typography>
                     <Button component={Link} to="/product" variant="contained" sx={{ textTransform: 'none' }}>
-                        Start Shopping
+                        Browse Products
                     </Button>
                 </Box>
             </Box>
         );
+
     return (
-        <Box sx={{ pt: 12, px: 25, pb: 5, height: '100vh' }}>
+        <Box sx={{ pt: 12, px: 30, pb: 5, height: '100vh' }}>
             <Typography fontSize={24} fontWeight={600}>
                 Shopping Cart
             </Typography>
             <Box sx={{ display: 'flex', justifyContent: 'center', gap: 4, mt: 2 }}>
                 {/* Left Panel */}
-                <Box>
+                <Box sx={{ flex: 1 }}>
                     <Box
                         sx={{
                             display: 'flex',
@@ -57,7 +74,7 @@ const CartPage = () => {
                             overflowY: 'auto',
                         }}
                     >
-                        {cart.map((product, index) => (
+                        {currentItems.map((product, index) => (
                             <ProductCard
                                 key={index}
                                 product={product}
@@ -83,7 +100,7 @@ const CartPage = () => {
                             Continue Shopping
                         </Button>
                         <Button
-                            onClick={() => setCart([])}
+                            onClick={() => clearBranchCart(setCart)}
                             color="common"
                             startIcon={<DeleteForeverOutlined />}
                             sx={{
@@ -137,7 +154,7 @@ const CartPage = () => {
                             <TextField size="small" placeholder="Promo code" />
                             <Button variant="outlined">Apply</Button>
                         </Box> */}
-                        <Button component={Link} to="/checkout" variant="contained" sx={{ mt: 1 }}>
+                        <Button component={Link} to="/order" variant="contained" sx={{ mt: 1 }}>
                             Proceed to Checkout
                         </Button>
                     </Box>

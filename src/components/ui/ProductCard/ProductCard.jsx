@@ -1,39 +1,59 @@
 import { Check } from '@mui/icons-material';
-import { Button, Card, CardActions, CardContent, CardMedia, Grow, Typography } from '@mui/material';
+import { Box as LucideBox } from 'lucide-react';
+
+import { Box, Button, Card, CardActions, CardContent, CardMedia, Chip, Grow, Typography } from '@mui/material';
+import { useBranch } from '@src/hooks/useBranch';
 import { useCart } from '@src/hooks/useCart';
 import { textEllipsisSx } from '@src/theme';
 import { useCallback, useState } from 'react';
 
-const ProductCard = ({ id, imgUrl, name, price, type }) => {
+const ProductCard = ({ id, imgUrl, name, price, stock, type }) => {
     const [added, setAdded] = useState(false);
     const { cart, setCart } = useCart();
+    const { selectedBranch } = useBranch();
 
     const handleClick = useCallback(
-        (product) => {
+        (newItem) => {
             setAdded(true);
 
-            const index = cart.findIndex((item) => item.id === product.id && item.type === product.type);
-            if (index !== -1) {
-                cart[index].quantity += product.quantity;
-            } else {
-                cart.push(product);
-            }
-            setCart([...cart]);
+            const branchCart = cart[selectedBranch]?.items || [];
+            const existingIndex = branchCart.findIndex((item) => item.id === newItem.id && item.type === newItem.type);
 
-            setTimeout(() => setAdded(false), 1000); // 2s sau về trạng thái cũ
+            let updatedItems;
+            if (existingIndex !== -1) {
+                updatedItems = [...branchCart];
+                updatedItems[existingIndex].quantity += 1;
+            } else {
+                updatedItems = [...branchCart, newItem];
+            }
+
+            setCart({ ...cart, [selectedBranch]: { items: updatedItems } });
+
+            setTimeout(() => setAdded(false), 1000);
         },
-        [cart, setCart]
+        [cart, setCart, selectedBranch]
     );
 
     return (
-        <Card sx={{ flex: 1, borderRadius: 2, boxShadow: 1, height: 280, ':hover': { boxShadow: 3 } }}>
-            <CardMedia sx={{ height: 140 }} image={imgUrl} title="gura" />
-            <CardContent sx={{ pt: 1 }}>
+        <Card sx={{ flex: 1, borderRadius: 2, boxShadow: 1, height: 300, ':hover': { boxShadow: 3 } }}>
+            <CardMedia sx={{ height: 140 }} component="img" image={imgUrl} title="Product Image" />
+            <CardContent sx={{ py: 1 }}>
+                <Chip
+                    label={type}
+                    size="small"
+                    variant="outlined"
+                    sx={{
+                        height: 18,
+                        fontSize: 12,
+                        px: 0.5,
+                    }}
+                />
                 <Typography sx={{ fontWeight: 600, ...textEllipsisSx }}>{name}</Typography>
-                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                    {type}
-                </Typography>
-                <Typography fontWeight={600}>${price}</Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 1 }}>
+                    <LucideBox size={12} />
+                    <Typography fontSize={12}>Stock: {stock}</Typography>
+                </Box>
+                <Typography fontWeight={600}>${`${Number(price).toFixed(2)}`}</Typography>
             </CardContent>
             <CardActions sx={{ px: 2, pt: 0, pb: 0 }}>
                 <Button

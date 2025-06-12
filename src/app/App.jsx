@@ -16,11 +16,11 @@ function App() {
     const routes = useMemo(() => {
         switch (Number(role)) {
             case 1:
-                return routesConfig.admin;
+                return routesConfig.customer;
             case 2:
                 return routesConfig.employee;
             case 3:
-                return routesConfig.customer;
+                return routesConfig.admin;
             default:
                 return routesConfig.public;
         }
@@ -29,11 +29,11 @@ function App() {
     const themeByRole = useMemo(() => {
         switch (Number(role)) {
             case 1:
-                return theme;
+                return createTheme(getTheme('light'));
             case 2:
                 return theme;
             case 3:
-                return createTheme(getTheme('light'));
+                return theme;
             default:
                 return createTheme(getTheme('light'));
         }

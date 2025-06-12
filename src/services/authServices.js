@@ -5,7 +5,7 @@ const register = async (formData) => {
     try {
         const response = await api.post(`auth/register`, {
             email: formData.email,
-            name: formData.firstName + formData.lastName,
+            name: formData.lastName + ' ' + formData.firstName,
             password: formData.password,
         });
         return response.data;

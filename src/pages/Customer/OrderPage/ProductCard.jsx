@@ -2,8 +2,7 @@ import { Card, CardContent, CardMedia, Typography } from '@mui/material';
 import { memo } from 'react';
 
 const ProductCard = ({ product }) => {
-    const { id, type, imgUrl, name, price, quantity } = product;
-    console.log(id, type);
+    const { imgUrl, name, price, quantity } = product;
 
     return (
         <Card

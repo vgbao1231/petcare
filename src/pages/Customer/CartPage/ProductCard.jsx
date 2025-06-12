@@ -1,25 +1,56 @@
 import { Add, DeleteForeverOutlined, Remove } from '@mui/icons-material';
 import { Box, Card, CardContent, CardMedia, IconButton, Typography } from '@mui/material';
+import { useBranch } from '@src/hooks/useBranch';
 import { useCart } from '@src/hooks/useCart';
 import { textEllipsisSx } from '@src/theme';
 
 const ProductCard = ({ product, sx }) => {
     const { setCart } = useCart();
     const { id, type, imgUrl, name, description, price, quantity } = product;
+    const { selectedBranch } = useBranch();
+    console.log(product);
 
     const removeProduct = () => {
-        setCart((prev) => prev.filter((item) => item.id !== id || item.type !== type));
+        setCart((prev) => {
+            const updatedBranch = prev[selectedBranch]?.items.filter((item) => item.id !== id || item.type !== type);
+            return {
+                ...prev,
+                [selectedBranch]: {
+                    ...prev[selectedBranch],
+                    items: updatedBranch,
+                },
+            };
+        });
     };
 
     const handleIncrease = () => {
-        setCart((prev) =>
-            prev.map((item) => (item.id === id && item.type === type ? { ...item, quantity: item.quantity + 1 } : item))
-        );
+        setCart((prev) => {
+            const updatedItems = prev[selectedBranch]?.items.map((item) =>
+                item.id === id && item.type === type ? { ...item, quantity: item.quantity + 1 } : item
+            );
+            return {
+                ...prev,
+                [selectedBranch]: {
+                    ...prev[selectedBranch],
+                    items: updatedItems,
+                },
+            };
+        });
     };
+
     const handleDecrease = () => {
-        setCart((prev) =>
-            prev.map((item) => (item.id === id && item.type === type ? { ...item, quantity: item.quantity - 1 } : item))
-        );
+        setCart((prev) => {
+            const updatedItems = prev[selectedBranch]?.items.map((item) =>
+                item.id === id && item.type === type ? { ...item, quantity: item.quantity - 1 } : item
+            );
+            return {
+                ...prev,
+                [selectedBranch]: {
+                    ...prev[selectedBranch],
+                    items: updatedItems,
+                },
+            };
+        });
     };
 
     return (

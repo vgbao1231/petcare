@@ -43,9 +43,31 @@ const cancelAppointment = async (id) => {
     }
 };
 
+const getAllAppointments = async () => {
+    try {
+        const response = await api.get(`/appointments`);
+        return response.data;
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+};
+
+const assignStaff = async (data) => {
+    try {
+        const response = await api.put(`/appointments/update-employee`, data);
+        return response.data;
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+};
+
 export const appointmentServices = {
     createAppointment,
     myAppointment,
     getAppointmentDetail,
-    cancelAppointment
+    cancelAppointment,
+    getAllAppointments,
+    assignStaff
 };

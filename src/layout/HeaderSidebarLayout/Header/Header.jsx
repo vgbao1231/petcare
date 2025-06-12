@@ -3,7 +3,7 @@ import { Box, IconButton, Typography } from '@mui/material';
 import { routesConfig } from '@src/configs/routesConfig';
 import { memo, useCallback, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import MenuSetting from '../Sidebar/MenuSetting';
+import MenuSetting from './MenuSetting';
 
 const Header = () => {
     const [anchorEl, setAnchorEl] = useState(null);

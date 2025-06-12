@@ -1,6 +1,6 @@
-import { createTheme } from '@mui/material';
+import { extendTheme } from '@mui/material';
 
-export const theme = createTheme({
+export const theme = extendTheme({
     colorSchemeSelector: 'class',
     colorSchemes: {
         light: {
@@ -45,10 +45,10 @@ export const theme = createTheme({
                     contrastText: '#fff',
                 },
                 success: {
-                    main: '#4caf50',
+                    main: '#16a34a',
                     light: '#22c55e',
-                    dark: '#1b5e20',
-                    bgcolor: '#DFF5E9',
+                    dark: '#257e2b',
+                    bgcolor: '#dcfce7',
                     contrastText: '#fff',
                 },
                 warning: {
@@ -73,7 +73,7 @@ export const theme = createTheme({
                     main: '#90caf9',
                 },
                 background: {
-                    default: '#111111',
+                    default: '#10151e',
                     paper: '#161A23',
                     hover: '#1e2229',
                     active: '#1e2a39',

@@ -22,10 +22,10 @@ import {
 import { useAuth } from '@src/hooks/useAuth';
 import { centerSx, textEllipsisSx } from '@src/theme';
 import { genAvatarColor } from '@src/utils/helpers';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import VaccineHistoryTab from './VaccineHistoryTab';
 import ExaminationRecordTab from './ExaminationRecordTab';
-import { Calendar, Dog, Edit, Palette, Ruler, Syringe, Weight } from 'lucide-react';
+import { Calendar, Dog, Edit, IdCard, Palette, Syringe, Weight } from 'lucide-react';
 import PetInformationDialog from './PetInformationDialog';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { petServices } from '@services/petServices';
@@ -47,7 +47,8 @@ const PetTrackingPage = () => {
         enabled: !!userInfo.userId,
     });
 
-    const currentPet = petsArray[currentPetIndex] ?? null;
+    const currentPet = petsArray.map((p) => ({ ...p, dob: p.Dob }))[currentPetIndex] ?? null;
+    console.log(currentPet);
 
     const { mutate: deletePet } = useMutation({
         mutationFn: (petId) => petServices.deletePet(petId),
@@ -55,19 +56,16 @@ const PetTrackingPage = () => {
         onSuccess: () => {
             toast.success('Delete pet successfully');
             queryClient.invalidateQueries({ queryKey: ['pets', userInfo.userId] });
+            setCurrentPetIndex(0);
         },
     });
-
-    useEffect(() => {
-        if (currentPetIndex >= petsArray.length) setCurrentPetIndex(0);
-    }, [petsArray, currentPetIndex]);
 
     return (
         <Box sx={{ pt: 12, px: 20, pb: 5 }}>
             {/* Header */}
             <Box sx={{ display: 'flex', mb: 2.5 }}>
                 <Typography fontSize={24} fontWeight="bold">
-                    Pet Tracking Dashboard
+                    Pet Tracking
                 </Typography>
 
                 {/* Pets Selection */}
@@ -111,7 +109,7 @@ const PetTrackingPage = () => {
                     alignItems="center"
                     justifyContent="center"
                     textAlign="center"
-                    sx={{ py: 8 }}
+                    sx={{ py: 4 }}
                 >
                     {/* Icon vòng tròn */}
                     <Box
@@ -206,15 +204,19 @@ const PetTrackingPage = () => {
                                 </Stack>
 
                                 {[
-                                    { label: 'Age', value: currentPet.age, icon: Calendar },
+                                    {
+                                        label: 'Dob',
+                                        value: new Date(currentPet.Dob).toLocaleDateString('vi-vn'),
+                                        icon: Calendar,
+                                    },
                                     { label: 'Species', value: currentPet.species, icon: Dog },
                                     { label: 'Color', value: currentPet.color, icon: Palette },
                                     {
                                         label: 'Weight',
-                                        value: `${Number(currentPet.weight.toFixed(1))} kg`,
+                                        value: `${Number(currentPet.weight.toFixed(1))} (kg)`,
                                         icon: Weight,
                                     },
-                                    { label: 'Size', value: currentPet.size, icon: Ruler },
+                                    { label: 'Identity Mark', value: currentPet.identity_mark, icon: IdCard },
                                 ].map(({ label, value, icon }) => {
                                     const IconCompo = icon;
                                     return (
@@ -250,7 +252,7 @@ const PetTrackingPage = () => {
                                 </ListItemAvatar>
                                 <ListItemText
                                     primary={userInfo?.name || 'Customer'}
-                                    secondary={userInfo?.phone || '0123123123'}
+                                    secondary={userInfo?.email || 'customer@gmail.com'}
                                     slotProps={{
                                         primary: { sx: { fontWeight: 500, ...textEllipsisSx, lineHeight: 1.2 } },
                                         secondary: { sx: textEllipsisSx },

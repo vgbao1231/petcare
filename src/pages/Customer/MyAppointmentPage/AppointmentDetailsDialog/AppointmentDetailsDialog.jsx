@@ -13,7 +13,7 @@ const AppointmentDetailsDialog = ({ open, onClose, appointmentDetail }) => {
             <DialogTitle component="div" sx={{ position: 'relative' }}>
                 <Typography variant="h6">Appointment Details</Typography>
                 <Typography variant="body2" color="text.secondary">
-                    Appointment · {appointmentDetail.appointment.id}
+                    Appointment · #{appointmentDetail.appointment.id}
                 </Typography>
                 <IconButton onClick={onClose} size="small" sx={{ position: 'absolute', right: 10, top: 10 }}>
                     <Close fontSize="small" />

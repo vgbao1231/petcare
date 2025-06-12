@@ -1,34 +1,16 @@
-import { AddCircleOutlineOutlined, FileUploadOutlined, SaveOutlined } from '@mui/icons-material';
-import {
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
-    Button,
-    Grid2,
-    Typography,
-    Avatar,
-    Box,
-} from '@mui/material';
+import { AddCircleOutlineOutlined, SaveOutlined } from '@mui/icons-material';
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Grid2, Typography, Box } from '@mui/material';
 import { petServices } from '@services/petServices';
-import FormFile from '@src/components/reuseable/FormRHF/FormFile';
 import FormInput from '@src/components/reuseable/FormRHF/FormInput';
 import { useAuth } from '@src/hooks/useAuth';
-import { centerSx } from '@src/theme';
 import { toast } from 'react-toastify';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
 const PetInformationDialog = ({ formData, open, onClose }) => {
     const methods = useForm({ defaultValues: formData, mode: 'all' });
-    const [previewUrl, setPreviewUrl] = useState();
     const { userInfo } = useAuth();
     const queryClient = useQueryClient();
-
-    const handleFileChange = (file) => {
-        setPreviewUrl(file.type.startsWith('image/') ? URL.createObjectURL(file) : null);
-    };
 
     const { mutate: createPet } = useMutation({
         mutationFn: (data) => petServices.createPet(data),
@@ -59,11 +41,10 @@ const PetInformationDialog = ({ formData, open, onClose }) => {
             });
         } else {
             // Add
-            delete newData.image;
+            // delete newData.image;
             createPet({
                 ...newData,
                 owner_id: '' + userInfo.userId,
-                age: Number(newData.age),
                 weight: Number(newData.weight),
             });
         }
@@ -72,11 +53,11 @@ const PetInformationDialog = ({ formData, open, onClose }) => {
 
     const formFields = [
         { name: 'name', label: 'Pet Name', placeholder: 'Enter pet name', type: 'text' },
-        { name: 'age', label: 'Age', placeholder: 'Enter age', type: 'number' },
+        { name: 'dob', label: 'Date of Birth', placeholder: 'Enter dob', type: 'date' },
         { name: 'species', label: 'Species', placeholder: 'Enter species', type: 'text' },
         { name: 'color', label: 'Color', placeholder: 'Enter color', type: 'text' },
         { name: 'weight', label: 'Weight', placeholder: 'Enter weight (kg)', type: 'number' },
-        { name: 'size', label: 'Size', placeholder: 'Enter size', type: 'text' },
+        { name: 'identity_mark', label: 'Identity Mark ', placeholder: 'Enter indentity mark', type: 'text' },
     ];
 
     return (
@@ -85,19 +66,6 @@ const PetInformationDialog = ({ formData, open, onClose }) => {
                 <Box component="form" onSubmit={methods.handleSubmit(handleSubmit)}>
                     <DialogTitle>{formData ? 'Edit Pet Information' : 'Add New Pet'}</DialogTitle>
                     <DialogContent sx={{ py: 0 }}>
-                        <Box {...centerSx} flexDirection="column" gap={2} mb={2}>
-                            <Avatar src={previewUrl} sx={{ width: 100, height: 100 }} />
-                            <FormFile
-                                color="common"
-                                size="small"
-                                label="Upload Image"
-                                name="image"
-                                variant="outlined"
-                                sx={{ textTransform: 'none' }}
-                                startIcon={<FileUploadOutlined />}
-                                onFileChange={handleFileChange}
-                            />
-                        </Box>
                         <Grid2 container spacing={2}>
                             {formFields.map(({ name, label, placeholder, type }) => (
                                 <Grid2 key={name} size={6}>

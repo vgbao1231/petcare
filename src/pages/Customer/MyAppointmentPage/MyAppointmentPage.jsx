@@ -1,10 +1,12 @@
-import { Box, Stack, Typography } from '@mui/material';
+import { Box, Button, Stack, Typography } from '@mui/material';
 import { centerSx } from '@src/theme';
 import { useCallback, useMemo, useState } from 'react';
 import AppointmentCard from './AppointmentCard';
 import { appointmentServices } from '@services/appointmentServices';
 import { useAuth } from '@src/hooks/useAuth';
 import { useQuery } from '@tanstack/react-query';
+import { EventBusy } from '@mui/icons-material';
+import { Link } from 'react-router-dom';
 
 const MyAppointmentPage = () => {
     const [currentTab, setCurrentTab] = useState(0);
@@ -24,6 +26,32 @@ const MyAppointmentPage = () => {
         if (currentTab === 3) return appointments.filter((a) => a.status === 'CANCELLED');
         return appointments; // All Appointments
     }, [currentTab, appointments]);
+
+    if (appointments.length === 0)
+        return (
+            <Box sx={{ pt: 12, px: 25, pb: 5, height: '100vh' }}>
+                <Typography fontSize={24} fontWeight={600}>
+                    My Appointments
+                </Typography>
+
+                <Box sx={{ ...centerSx, flexDirection: 'column', gap: 1.5, height: '50vh' }}>
+                    <Box sx={{ ...centerSx, p: 2, bgcolor: '#f0f0f0', borderRadius: '50%' }}>
+                        <EventBusy sx={{ fontSize: 50, color: '#78716c' }} />
+                    </Box>
+
+                    <Typography variant="h5" fontWeight={500}>
+                        You have no appointments
+                    </Typography>
+                    <Typography color="text.secondary">
+                        {"Looks like you haven't booked any appointments yet."}
+                    </Typography>
+
+                    <Button component={Link} to="/appointment" variant="contained" sx={{ textTransform: 'none' }}>
+                        Book Appointment
+                    </Button>
+                </Box>
+            </Box>
+        );
 
     return (
         <Box

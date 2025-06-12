@@ -34,7 +34,6 @@ const ProfileDialog = ({ open, onClose }) => {
                 >
                     <Tab sx={{ minHeight: 32, p: 0.5, textTransform: 'none' }} label="Personal Info" />
                     <Tab sx={{ minHeight: 32, p: 0.5, textTransform: 'none' }} label="Security" />
-                    <Tab sx={{ minHeight: 32, p: 0.5, textTransform: 'none' }} label="Payment Methods" />
                 </Tabs>
 
                 {/* Nội dung của từng tab */}

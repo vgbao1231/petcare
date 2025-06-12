@@ -11,7 +11,6 @@ import {
     InputAdornment,
     Menu,
     MenuItem,
-    Stack,
     Table,
     TableBody,
     TableCell,
@@ -21,186 +20,65 @@ import {
     TextField,
     Typography,
 } from '@mui/material';
+import { orderServices } from '@services/orderServices';
+import { useBranch } from '@src/hooks/useBranch';
 import { capitalizeWords, ISOtoLocale } from '@src/utils/formatters';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
+import AddOrderDialog from './AddOrderDialog/AddOrderDialog';
 
-const statusColors = {
-    PENDING: 'info',
-    PAID: 'warning',
-    COMPLETED: 'success',
-    CANCELLED: 'error',
+const statusMapping = {
+    1: 'Pending',
+    2: 'Paid',
+    3: 'Completed',
+    4: 'Cancelled',
 };
 
-const orders = [
-    {
-        id: 1,
-        customerId: 101,
-        branchId: 1,
-        appointmentId: 201,
-        totalPrice: 1200000,
-        status: 'COMPLETED',
-        createdAt: '2025-05-20T08:15:00Z',
-        updatedAt: '2025-05-20T10:00:00Z',
-        location: '123 Lý Thường Kiệt, Q.10, TP.HCM',
-        items: [
-            {
-                orderId: 1,
-                productId: 501,
-                productType: 'service',
-                quantity: 1,
-                unitPrice: 800000,
-                productName: 'Gói khám tổng quát',
-            },
-            {
-                orderId: 1,
-                productId: 502,
-                productType: 'service',
-                quantity: 1,
-                unitPrice: 400000,
-                productName: 'Xét nghiệm máu',
-            },
-        ],
-    },
-    {
-        id: 2,
-        customerId: 102,
-        branchId: 2,
-        appointmentId: null,
-        totalPrice: 600000,
-        status: 'PENDING',
-        createdAt: '2025-05-25T10:45:00Z',
-        updatedAt: '2025-05-25T10:45:00Z',
-        location: '234 Nguyễn Trãi, Q.5, TP.HCM',
-        items: [
-            {
-                orderId: 2,
-                productId: 503,
-                productType: 'service',
-                quantity: 1,
-                unitPrice: 600000,
-                productName: 'Gói xét nghiệm máu',
-            },
-        ],
-    },
-    {
-        id: 3,
-        customerId: 103,
-        branchId: 1,
-        appointmentId: 202,
-        totalPrice: 850000,
-        status: 'PAID',
-        createdAt: '2025-05-27T09:00:00Z',
-        updatedAt: '2025-05-27T10:00:00Z',
-        location: '456 CMT8, Q.3, TP.HCM',
-        items: [
-            {
-                orderId: 3,
-                productId: 504,
-                productType: 'service',
-                quantity: 1,
-                unitPrice: 850000,
-                productName: 'Khám chuyên khoa nội',
-            },
-            {
-                orderId: 3,
-                productId: 505,
-                productType: 'service',
-                quantity: 1,
-                unitPrice: 500000,
-                productName: 'Tư vấn dinh dưỡng',
-            },
-        ],
-    },
-    {
-        id: 4,
-        customerId: 104,
-        branchId: 3,
-        appointmentId: 203,
-        totalPrice: 500000,
-        status: 'CANCELLED',
-        createdAt: '2025-05-18T14:30:00Z',
-        updatedAt: '2025-05-19T08:00:00Z',
-        location: '789 Trường Chinh, Q.Tân Bình, TP.HCM',
-        items: [
-            {
-                orderId: 4,
-                productId: 505,
-                productType: 'service',
-                quantity: 1,
-                unitPrice: 500000,
-                productName: 'Tư vấn dinh dưỡng',
-            },
-        ],
-    },
-    {
-        id: 5,
-        customerId: 105,
-        branchId: 1,
-        appointmentId: 204,
-        totalPrice: 2500000,
-        status: 'COMPLETED',
-        createdAt: '2025-05-22T16:00:00Z',
-        updatedAt: '2025-05-23T08:00:00Z',
-        location: '101 Điện Biên Phủ, Q.Bình Thạnh, TP.HCM',
-        items: [
-            {
-                orderId: 5,
-                productId: 506,
-                productType: 'service',
-                quantity: 1,
-                unitPrice: 2500000,
-                productName: 'Gói khám VIP',
-            },
-        ],
-    },
-];
-
-const statusOptions = [
-    { label: 'Tất cả trạng thái', value: 'all' },
-    { label: 'Chờ xử lý', value: 'PENDING' },
-    { label: 'Đã thanh toán', value: 'PAID' },
-    { label: 'Hoàn thành', value: 'COMPLETED' },
-    { label: 'Đã huỷ', value: 'CANCELLED' },
-];
-
-const fetchOrders = ({ page = 1, limit = 10 }) => {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            const start = (page - 1) * limit;
-            const end = start + limit;
-            const paginatedOrders = orders.slice(start, end);
-            resolve({
-                data: paginatedOrders,
-                total: orders.length,
-                page,
-                limit,
-            });
-        }, 400); // delay mô phỏng
-    });
+const statusColors = {
+    1: 'info',
+    2: 'warning',
+    3: 'success',
+    4: 'error',
 };
 
 const OrderPage = () => {
     const [page, setPage] = useState(0); // page index (bắt đầu từ 0)
     const [rowsPerPage, setRowsPerPage] = useState(5);
     const [anchorEl, setAnchorEl] = useState(null);
-    const [selectedOrder, setSelectedOrder] = useState(null);
+    const [selectedRow, setSelectedRow] = useState(null);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [statusFilter, setStatusFilter] = useState('all');
+    const { branches } = useBranch();
+    const [openAdd, setOpenAdd] = useState(false);
 
-    const handleMenuOpen = (event, userId) => {
+    const handleMenuOpen = (event, row) => {
         setAnchorEl(event.currentTarget);
-        setSelectedOrder(userId);
+        setSelectedRow(row);
     };
 
     const handleMenuClose = () => {
         setAnchorEl(null);
-        setSelectedOrder(null);
     };
 
     const { data, isLoading } = useQuery({
-        queryKey: ['orders', page, rowsPerPage],
-        queryFn: () => fetchOrders({ page: page + 1, limit: rowsPerPage }),
+        queryKey: ['orders'],
+        queryFn: () => orderServices.getAllOrders(),
         keepPreviousData: true,
     });
+
+    const filteredData = (data || []).filter((row) => {
+        const searchLower = searchQuery.toLowerCase();
+        const matchesSearch =
+            String(row.order.id).toLowerCase().includes(searchLower) ||
+            String(row.customer_name).toLowerCase().includes(searchLower) ||
+            String(row.customer_email).toLowerCase().includes(searchLower);
+
+        const matchesStatus = statusFilter === 'all' || statusFilter === row.status;
+
+        return matchesSearch && matchesStatus;
+    });
+
+    const pageData = filteredData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
     const handleChangePage = (_, newPage) => setPage(newPage);
     const handleChangeRowsPerPage = (event) => {
@@ -216,15 +94,21 @@ const OrderPage = () => {
                         <Typography variant="h6" fontWeight={600}>
                             Orders
                         </Typography>
-                        <Button variant="contained" size="small" sx={{ textTransform: 'none' }}>
+                        <Button
+                            variant="contained"
+                            size="small"
+                            sx={{ textTransform: 'none' }}
+                            onClick={() => setOpenAdd(true)}
+                        >
                             + Add Order
                         </Button>
                     </Box>
-                    <Stack direction="row" spacing={2} sx={{ mb: 2 }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
                         <TextField
-                            placeholder="Tìm theo tên, số điện thoại, ID..."
+                            placeholder="Search orders..."
                             size="small"
-                            sx={{ flex: 1 }}
+                            sx={{ mr: 'auto', minWidth: 500 }}
+                            onChange={(e) => setSearchQuery(e.target.value)}
                             slotProps={{
                                 input: {
                                     startAdornment: (
@@ -235,23 +119,28 @@ const OrderPage = () => {
                                 },
                             }}
                         />
-                        <TextField select size="small" defaultValue="all">
-                            {statusOptions.map((opt) => (
-                                <MenuItem key={opt.value} value={opt.value}>
-                                    {opt.label}
-                                </MenuItem>
-                            ))}
+                        <TextField
+                            select
+                            size="small"
+                            defaultValue="all"
+                            onChange={(e) => setStatusFilter(e.target.value)}
+                        >
+                            <MenuItem value="all">All Status</MenuItem>
+                            <MenuItem value="0">Pending</MenuItem>
+                            <MenuItem value="1">Paid</MenuItem>
+                            <MenuItem value="2">Complete</MenuItem>
+                            <MenuItem value="3">Cancelled</MenuItem>
                         </TextField>
-                    </Stack>
+                    </Box>
                     <Table size="small">
                         <TableHead>
                             <TableRow>
                                 <TableCell align="center">ID</TableCell>
                                 <TableCell align="center">Customer Name</TableCell>
                                 <TableCell align="center">Items</TableCell>
-                                <TableCell align="center">Total</TableCell>
+                                <TableCell align="center">Total ($)</TableCell>
                                 <TableCell align="center">Status</TableCell>
-                                <TableCell align="center">Location</TableCell>
+                                <TableCell align="center">Pickup Location</TableCell>
                                 <TableCell align="center">Order Date</TableCell>
                                 <TableCell align="center">Actions</TableCell>
                             </TableRow>
@@ -264,37 +153,49 @@ const OrderPage = () => {
                                     </TableCell>
                                 </TableRow>
                             ) : (
-                                data?.data.map((o) => (
-                                    <TableRow key={o.id}>
-                                        <TableCell align="center">{o.id}</TableCell>
+                                pageData.map(({ order, customer_name, customer_email }) => (
+                                    <TableRow key={order.id}>
+                                        <TableCell align="center">{order.id}</TableCell>
                                         <TableCell align="center">
-                                            <Typography>{o.customerId}</Typography>
+                                            <Typography>{customer_name}</Typography>
                                             <Typography variant="body2" color="text.secondary">
-                                                {o.customerId}
+                                                {customer_email}
                                             </Typography>
                                         </TableCell>
                                         <TableCell align="center">
-                                            <Typography>{o.items[0].productName}</Typography>
-                                            {o.items.length - 1 !== 0 && (
+                                            <Typography>{order.items[0].product_name}</Typography>
+                                            {order.items.length > 1 && (
                                                 <Typography variant="body2" color="text.secondary">
-                                                    +{o.items.length - 1} items
+                                                    +{order.items.length - 1} items
                                                 </Typography>
                                             )}
                                         </TableCell>
-                                        <TableCell align="center">{o.totalPrice}</TableCell>
+                                        <TableCell align="center">{order.total_price}</TableCell>
                                         <TableCell align="center">
                                             <Chip
                                                 size="small"
                                                 variant="outlined"
-                                                label={capitalizeWords(o.status)}
-                                                color={statusColors[o.status]}
+                                                label={capitalizeWords(statusMapping[order.status])}
+                                                color={statusColors[order.status]}
                                             />
                                         </TableCell>
-                                        <TableCell align="center">{o.branch ? o.branch : o.location}</TableCell>
-                                        <TableCell align="center">{ISOtoLocale(o.createdAt)}</TableCell>
+                                        <TableCell align="center">
+                                            <Typography>
+                                                {branches.find((b) => b.id === order.branch_id)?.name}
+                                            </Typography>
+                                            <Typography variant="body2" color="text.secondary">
+                                                {branches.find((b) => b.id === order.branch_id)?.location}
+                                            </Typography>
+                                        </TableCell>
+                                        <TableCell align="center">
+                                            <Typography>{ISOtoLocale(order.created_at, 'date')}</Typography>
+                                            <Typography variant="body2" color="text.secondary">
+                                                {ISOtoLocale(order.created_at, 'time')}
+                                            </Typography>
+                                        </TableCell>
 
                                         <TableCell align="center">
-                                            <IconButton size="small" onClick={(e) => handleMenuOpen(e, o.id)}>
+                                            <IconButton size="small" onClick={(e) => handleMenuOpen(e, order.id)}>
                                                 <MoreVert fontSize="small" />
                                             </IconButton>
                                         </TableCell>
@@ -305,7 +206,7 @@ const OrderPage = () => {
                     </Table>
                     <TablePagination
                         component="div"
-                        count={data?.total || 0}
+                        count={filteredData.length}
                         page={page}
                         onPageChange={handleChangePage}
                         rowsPerPage={rowsPerPage}
@@ -317,8 +218,14 @@ const OrderPage = () => {
                         <Divider />
                         <MenuItem onClick={handleMenuClose}>View Details</MenuItem>
                         <MenuItem onClick={handleMenuClose}>Edit Order</MenuItem>
-                        <MenuItem onClick={handleMenuClose}>Assign Staff</MenuItem>
+                        <Divider />
+                        <MenuItem onClick={handleMenuClose} sx={{ color: 'error.main' }}>
+                            Delete Order
+                        </MenuItem>
                     </Menu>
+                    {openAdd && (
+                        <AddOrderDialog open={openAdd} onClose={() => setOpenAdd(false)} defaultValues={selectedRow} />
+                    )}
                 </CardContent>
             </Card>
         </Box>

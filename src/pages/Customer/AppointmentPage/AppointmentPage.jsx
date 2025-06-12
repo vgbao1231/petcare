@@ -4,8 +4,6 @@ import { appointmentServices } from '@services/appointmentServices';
 import { orderServices } from '@services/orderServices';
 import FormInput from '@src/components/reuseable/FormRHF/FormInput';
 import { useAuth } from '@src/hooks/useAuth';
-import { getTokenPayload } from '@src/utils/helpers';
-import { useCallback } from 'react';
 import { useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import ProductCard from './ProductCard';
@@ -17,11 +15,10 @@ import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import { useBranch } from '@src/hooks/useBranch';
-import { useQueries } from '@tanstack/react-query';
+import { useMutation, useQueries, useQueryClient } from '@tanstack/react-query';
 import { serviceServices } from '@services/serviceServices';
 import { productServices } from '@services/productServices';
-import { adaptAppointmentPayload } from '@src/adapters/appointmentAdapter';
-import ToastService from '@src/utils/toast';
+import { toast } from 'react-toastify';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -31,51 +28,90 @@ const AppointmentPage = () => {
     const [selectedProducts, setSelectedProducts] = useState([]);
     const [itemTab, setItemTab] = useState(0); // 0: Mở ds sản phẩm, 1: Mở ds dịch vụ
     const [searchValue, setSearchValue] = useState('');
-    const { token } = useAuth();
+    const { userInfo } = useAuth();
     const [servingType, setServingType] = useState(0);
     const methods = useForm({ mode: 'all' });
     const date = methods.watch('date');
-    const { branches } = useBranch();
-    const toast = ToastService.getInstance();
+    const { branches, selectedBranch, setSelectedBranch } = useBranch();
+    const queryClient = useQueryClient();
+    methods.setValue('branch_id', selectedBranch);
+
+    console.log(userInfo);
 
     const subTotal = [...selectedProducts, ...selectedServices].reduce(
         (sum, item) => sum + item.price * item.quantity,
         0
     );
 
-    const handleSubmit = useCallback(
-        async (formData) => {
-            try {
-                const { appointmentPayload, orderPayload, hasService, hasProduct } = adaptAppointmentPayload({
-                    formData,
-                    selectedServices,
-                    selectedProducts,
-                    token: getTokenPayload(token),
-                    servingType,
-                });
+    const { mutate: createOrder } = useMutation({
+        mutationFn: (data) => orderServices.createOrder(data),
+        onSuccess: () => {
+            toast.success('Create order associated with appointment successfully');
+            queryClient.invalidateQueries(['orders']);
+        },
+        onError: () => {
+            toast.error('Failure to create order associated with appointment');
+        },
+    });
 
-                if (!hasService) {
-                    toast.error('Please select at least 1 service!');
-                    return;
-                }
+    const { mutate: createAppointment } = useMutation({
+        mutationFn: (data) => appointmentServices.createAppointment(data),
+        onSuccess: (appointmentRes, variables) => {
+            toast.success('Appointment created successfully');
+            queryClient.invalidateQueries(['appointments']);
 
-                const appointmentRes = await appointmentServices.createAppointment(appointmentPayload);
+            // Nếu có sản phẩm thì tạo order kèm theo
+            if (selectedProducts.length > 0) {
+                const orderPayload = {
+                    appointment_id: appointmentRes.appointment_id,
+                    branch_id: variables.branch_id || userInfo.branchId,
+                    customer_id: variables.customer_id,
+                    pickup_time: variables.scheduled_time,
+                    items: selectedProducts.map((p) => ({
+                        product_id: p.product_id,
+                        product_name: p.name,
+                        product_type: p.product_type,
+                        quantity: p.quantity || 1,
+                        unit_price: p.price,
+                    })),
+                };
 
-                if (hasProduct) {
-                    await orderServices.createOrder({
-                        ...orderPayload,
-                        appointment_id: appointmentRes.appointment_id,
-                    });
-                }
-
-                toast.success('Successful appointment schedule');
-            } catch (e) {
-                console.log(e);
-                toast.error('Failed to make an appointment!');
+                createOrder(orderPayload);
             }
         },
-        [selectedServices, selectedProducts, token, servingType, toast]
-    );
+        onError: () => {
+            toast.error('Failed to create appointment');
+        },
+    });
+
+    const handleSubmit = (data) => {
+        if (selectedServices.length === 0) {
+            toast.error('Please select at least one service');
+            return;
+        }
+
+        const { date, time, ...rest } = data;
+        const scheduled_time = dayjs(date).hour(time.hour()).minute(time.minute()).second(0).toISOString();
+
+        const servicePayload = {
+            ...rest,
+            customer_id: userInfo.userId,
+            scheduled_time,
+            branch_id: selectedBranch,
+            services: selectedServices.map((s) => ({
+                service_id: s.serviceId,
+                quantity: s.quantity || 1,
+            })),
+        };
+
+        if (servingType === 1) {
+            delete servicePayload.customer_address;
+        } else {
+            delete servicePayload.branch_id;
+        }
+
+        createAppointment(servicePayload);
+    };
 
     const [{ data: services = [] }, { data: products = [] }] = useQueries({
         queries: [
@@ -85,18 +121,31 @@ const AppointmentPage = () => {
                 onError: () => toast.error('Failed to load services'),
             },
             {
-                queryKey: ['products'],
-                queryFn: productServices.getAllProducts,
+                queryKey: ['attachableProducts'],
+                queryFn: productServices.getAllAttachableProduct,
                 onError: () => toast.error('Failed to load products'),
             },
         ],
     });
 
     return (
-        <Box sx={{ pt: 12, px: 20, pb: 5 }}>
-            <Box sx={{ display: 'flex', gap: 3 }}>
+        <Box sx={{ pt: 12, px: { xs: 2, sm: 4, md: 10, lg: 20 }, pb: 5 }}>
+            <Box
+                sx={{
+                    display: 'flex',
+                    flexDirection: { xs: 'column', md: 'row' },
+                    gap: { xs: 4, md: 3 },
+                }}
+            >
                 {/* Left Panel */}
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, flex: 1 }}>
+                <Box
+                    sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: 2,
+                        flex: 1,
+                    }}
+                >
                     {/* Các nút chọn thêm Services/Products */}
                     <Box sx={{ display: 'flex', gap: 2 }}>
                         {[
@@ -110,7 +159,6 @@ const AppointmentPage = () => {
                                 variant={index === itemTab ? 'contained' : 'outlined'}
                                 fullWidth
                                 onClick={() => setItemTab(index)}
-                                disableTouchRipple
                                 sx={{ bgcolor: index === itemTab ? 'none' : '#fff' }}
                             >
                                 Choose {label}
@@ -185,22 +233,26 @@ const AppointmentPage = () => {
                         </Box>
                     )}
                 </Box>
-
-                {/* Right Panel */}
                 <FormProvider {...methods}>
                     <Box
                         component="form"
-                        sx={{ width: 440, display: 'flex', flexDirection: 'column', gap: 2 }}
+                        sx={{
+                            width: { xs: '100%', sm: '100%', md: 440 },
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: 2,
+                        }}
                         onSubmit={methods.handleSubmit(handleSubmit)}
                     >
+                        {/* Appointment Details */}
                         <Box
                             sx={{
                                 borderRadius: 2,
                                 border: 1,
                                 borderColor: 'divider',
                                 bgcolor: 'background.paper',
-                                p: 2,
-                                px: 3,
+                                p: { xs: 2, sm: 2, md: 2 },
+                                px: { xs: 2, sm: 3 },
                             }}
                         >
                             <Typography variant="h6" fontWeight="bold" mb={2}>
@@ -239,7 +291,8 @@ const AppointmentPage = () => {
                                         'Please select a time at least 2 hours from now.',
                                 }}
                             />
-                            <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
+
+                            <Box sx={{ display: 'flex', gap: 2, mb: 2, flexWrap: 'wrap' }}>
                                 {[
                                     { label: 'At-Home Service', value: 'atHome' },
                                     { label: 'In-Store Visit', value: 'inStore' },
@@ -255,10 +308,11 @@ const AppointmentPage = () => {
                                     />
                                 ))}
                             </Box>
+
                             {servingType === 0 ? (
                                 <FormInput
                                     id="address"
-                                    name="address"
+                                    name="customer_address"
                                     label="Address"
                                     sx={{ mb: 2 }}
                                     fullWidth
@@ -268,14 +322,17 @@ const AppointmentPage = () => {
                                 />
                             ) : (
                                 <FormSelect
+                                    onChange={(e, value) => setSelectedBranch(value)}
                                     id="branch"
-                                    name="branch"
+                                    name="branch_id"
                                     fullWidth
                                     options={branches.map((b) => ({ value: b.id, label: b.location }))}
                                     sx={{ mb: 2 }}
+                                    rules={{ required: 'Please select branch' }}
                                     label="Branch"
                                 />
                             )}
+
                             <FormInput
                                 id="note"
                                 name="note"
@@ -283,7 +340,7 @@ const AppointmentPage = () => {
                                 sx={{ mb: 2 }}
                                 fullWidth
                                 slotProps={{ inputLabel: { shrink: true } }}
-                                placeholder="Any secial requests or information"
+                                placeholder="Any special requests or information"
                                 multiline
                                 rows={3}
                             />
@@ -296,13 +353,14 @@ const AppointmentPage = () => {
                                 border: 1,
                                 borderColor: 'divider',
                                 bgcolor: 'background.paper',
-                                p: 2,
-                                px: 3,
+                                p: { xs: 2, sm: 2, md: 2 },
+                                px: { xs: 2, sm: 3 },
                             }}
                         >
                             <Typography variant="h6" fontWeight="bold" mb={1}>
                                 Selected Items
                             </Typography>
+
                             {selectedProducts.length === 0 && selectedServices.length === 0 && (
                                 <Typography variant="body2" sx={{ m: 1, color: 'text.secondary', textAlign: 'center' }}>
                                     No items selected yet
@@ -326,6 +384,7 @@ const AppointmentPage = () => {
                                     </Box>
                                 </Box>
                             )}
+
                             {selectedProducts.length !== 0 && (
                                 <Box sx={{ bgcolor: 'background.paper', borderRadius: 2 }}>
                                     <Typography fontSize={12} mb={0.5} color="text.secondary">
@@ -343,6 +402,7 @@ const AppointmentPage = () => {
                                     </Box>
                                 </Box>
                             )}
+
                             <Divider sx={{ my: 2 }} />
                             <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                                 <Typography variant="body2" mb={0.5} color="text.secondary">
@@ -351,7 +411,7 @@ const AppointmentPage = () => {
                                 <Typography variant="body2">${subTotal.toFixed(2)}</Typography>
                             </Box>
                             <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                                <Typography fontWeight={500}>Total Amount: </Typography>
+                                <Typography fontWeight={500}>Total Amount:</Typography>
                                 <Typography fontWeight={500}>${subTotal.toFixed(2)}</Typography>
                             </Box>
                         </Box>

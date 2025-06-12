@@ -108,10 +108,14 @@ export default function Sidebar({ sidebarItems }) {
 
                             {/* Menu hiển thị khi nhấn vào Setting */}
                             <MenuSetting
+                                open={open}
                                 anchorEl={anchorEl}
                                 setAnchorEl={setAnchorEl}
-                                anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
-                                transformOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                                anchorOrigin={{
+                                    vertical: open ? 'top' : 'bottom',
+                                    horizontal: open ? 'left' : 'right',
+                                }}
+                                transformOrigin={{ vertical: 'bottom', horizontal: open ? 'right' : 'left' }}
                             />
                         </>
                     </Tooltip>

@@ -4,7 +4,6 @@ import {
     Button,
     Card,
     CardContent,
-    Chip,
     CircularProgress,
     Divider,
     IconButton,
@@ -20,98 +19,62 @@ import {
     TextField,
     Typography,
 } from '@mui/material';
+import { userServices } from '@services/userServices';
+import { useBranch } from '@src/hooks/useBranch';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
-
-const users = [
-    {
-        id: 'USR001',
-        name: 'Dr. John Smith',
-        role: '2',
-        email: 'john.smith@petcare.com',
-        phone: '+1-555-1234',
-        status: 'Active',
-    },
-    {
-        id: 'USR002',
-        name: 'Sarah Johnson',
-        role: '2',
-        email: 'sarah.j@petcare.com',
-        phone: '+1-555-5678',
-        status: 'Active',
-    },
-    {
-        id: 'USR003',
-        name: 'Michael Brown',
-        role: '1',
-        email: 'michael.b@petcare.com',
-        phone: '+1-555-8765',
-        status: 'Active',
-    },
-    {
-        id: 'USR004',
-        name: 'Emily Davis',
-        role: '2',
-        email: 'emily.d@petcare.com',
-        phone: '+1-555-4321',
-        status: 'Inactive',
-    },
-    {
-        id: 'USR005',
-        name: 'Robert Wilson',
-        role: '2',
-        email: 'robert.w@petcare.com',
-        phone: '+1-555-7890',
-        status: 'Active',
-    },
-];
+import EditUserDialog from './EditUserDialog';
+import AddUserDialog from './AddUserDialog';
 
 // Chuyển role id thành tên role nếu cần
 const ROLE_MAP = {
-    1: 'Admin',
-    2: 'Veterinarian',
-};
-
-const fetchUsers = ({ page = 1, limit = 10 }) => {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            const start = (page - 1) * limit;
-            const end = start + limit;
-            const paginatedUsers = users.slice(start, end).map((u) => ({
-                ...u,
-                role: ROLE_MAP[u.role] || u.role,
-            }));
-            resolve({
-                data: paginatedUsers,
-                total: users.length,
-                page,
-                limit,
-            });
-        }, 400); // delay mô phỏng
-    });
+    3: 'Admin',
+    2: 'Employee',
+    1: 'Customer',
 };
 
 const UserPage = () => {
     const [page, setPage] = useState(0); // page index (bắt đầu từ 0)
     const [rowsPerPage, setRowsPerPage] = useState(5);
     const [anchorEl, setAnchorEl] = useState(null);
-    const [selectedUser, setSelectedUser] = useState(null);
+    const [selectedRow, setSelectedRow] = useState(null);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [branchFilter, setBranchFilter] = useState('all');
+    const [roleFilter, setRoleFilter] = useState('all');
+    const [openAdd, setOpenAdd] = useState(false);
+    const [openEdit, setOpenEdit] = useState(false);
+    const { branches } = useBranch();
 
-    const handleMenuOpen = (event, userId) => {
+    const handleMenuOpen = (event, row) => {
         setAnchorEl(event.currentTarget);
-        setSelectedUser(userId);
+        setSelectedRow(row);
     };
 
     const handleMenuClose = () => {
         setAnchorEl(null);
-        setSelectedUser(null);
     };
 
     const { data, isLoading } = useQuery({
-        queryKey: ['users', page, rowsPerPage],
-        queryFn: () => fetchUsers({ page: page + 1, limit: rowsPerPage }),
+        queryKey: ['users'],
+        queryFn: () => userServices.getAllUserWithRole(),
         keepPreviousData: true,
     });
+
+    const filteredData = (data || []).filter((user) => {
+        const searchLower = searchQuery.toLowerCase();
+        const matchesSearch =
+            String(user.userId).toLowerCase().includes(searchLower) ||
+            String(user.name).toLowerCase().includes(searchLower) ||
+            String(user.email).toLowerCase().includes(searchLower) ||
+            String(user.phoneNumber).toLowerCase().includes(searchLower);
+
+        const matchesBranch = branchFilter === 'all' || branchFilter === user.branchId;
+        const matchesRole = roleFilter === 'all' || roleFilter === ROLE_MAP[user.roleId];
+
+        return matchesSearch && matchesBranch && matchesRole;
+    });
+
+    const pageData = filteredData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
     const handleChangePage = (_, newPage) => setPage(newPage);
     const handleChangeRowsPerPage = (event) => {
@@ -127,25 +90,55 @@ const UserPage = () => {
                         <Typography variant="h6" fontWeight={600}>
                             Users
                         </Typography>
-                        <Box display="flex" alignItems="center" gap={2}>
-                            <TextField
-                                size="small"
-                                placeholder="Search users..."
-                                slotProps={{
-                                    input: {
-                                        startAdornment: (
-                                            <InputAdornment position="start">
-                                                <Search fontSize="small" />
-                                            </InputAdornment>
-                                        ),
-                                    },
-                                    htmlInput: { sx: { py: 0.6 } },
-                                }}
-                            />
-                            <Button variant="contained" size="small" sx={{ textTransform: 'none' }}>
-                                + Add User
-                            </Button>
-                        </Box>
+                        <Button
+                            variant="contained"
+                            size="small"
+                            sx={{ textTransform: 'none' }}
+                            onClick={() => setOpenAdd(true)}
+                        >
+                            + Add User
+                        </Button>
+                    </Box>
+                    <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 2 }}>
+                        <TextField
+                            placeholder="Search users..."
+                            size="small"
+                            sx={{ mr: 'auto', minWidth: 500 }}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            slotProps={{
+                                input: {
+                                    startAdornment: (
+                                        <InputAdornment position="start">
+                                            <Search fontSize="small" />
+                                        </InputAdornment>
+                                    ),
+                                },
+                            }}
+                        />
+                        <TextField
+                            select
+                            size="small"
+                            defaultValue="all"
+                            onChange={(e) => setRoleFilter(e.target.value)}
+                        >
+                            <MenuItem value="all">All Role</MenuItem>
+                            <MenuItem value="Admin">Admin</MenuItem>
+                            <MenuItem value="Employee">Employee</MenuItem>
+                            <MenuItem value="Customer">Customer</MenuItem>
+                        </TextField>
+                        <TextField
+                            select
+                            size="small"
+                            defaultValue="all"
+                            onChange={(e) => setBranchFilter(e.target.value)}
+                        >
+                            <MenuItem value="all">All Branches</MenuItem>
+                            {branches.map((branch) => (
+                                <MenuItem key={branch.id} value={branch.id}>
+                                    {branch.name}
+                                </MenuItem>
+                            ))}
+                        </TextField>
                     </Box>
                     <Table size="small">
                         <TableHead>
@@ -154,8 +147,9 @@ const UserPage = () => {
                                 <TableCell align="center">Name</TableCell>
                                 <TableCell align="center">Role</TableCell>
                                 <TableCell align="center">Email</TableCell>
+                                <TableCell align="center">Address</TableCell>
                                 <TableCell align="center">Phone</TableCell>
-                                <TableCell align="center">Status</TableCell>
+                                <TableCell align="center">Branch</TableCell>
                                 <TableCell align="center">Actions</TableCell>
                             </TableRow>
                         </TableHead>
@@ -167,23 +161,30 @@ const UserPage = () => {
                                     </TableCell>
                                 </TableRow>
                             ) : (
-                                data?.data.map((user) => (
-                                    <TableRow key={user.id}>
-                                        <TableCell align="center">{user.id}</TableCell>
+                                pageData.map((user) => (
+                                    <TableRow key={user.userId}>
+                                        <TableCell align="center">{user.userId}</TableCell>
                                         <TableCell align="center">{user.name}</TableCell>
-                                        <TableCell align="center">{user.role}</TableCell>
+                                        <TableCell align="center">{ROLE_MAP[user.roleId]}</TableCell>
                                         <TableCell align="center">{user.email}</TableCell>
-                                        <TableCell align="center">{user.phone}</TableCell>
+                                        <TableCell align="center">{user.address || 'None'}</TableCell>
+                                        <TableCell align="center">{user.phoneNumber || 'None'}</TableCell>
                                         <TableCell align="center">
-                                            <Chip
-                                                size="small"
-                                                label={user.status}
-                                                color={user.status === 'Active' ? 'success' : 'error'}
-                                                variant="outlined"
-                                            />
+                                            {user.branchId === 0 ? (
+                                                'None'
+                                            ) : (
+                                                <>
+                                                    <Typography>
+                                                        {branches.find((b) => b.id === user.branchId)?.name}
+                                                    </Typography>
+                                                    <Typography variant="body2" color="text.secondary">
+                                                        {branches.find((b) => b.id === user.branchId)?.location}
+                                                    </Typography>
+                                                </>
+                                            )}
                                         </TableCell>
                                         <TableCell align="center">
-                                            <IconButton size="small" onClick={(e) => handleMenuOpen(e, user.id)}>
+                                            <IconButton size="small" onClick={(e) => handleMenuOpen(e, user)}>
                                                 <MoreVert fontSize="small" />
                                             </IconButton>
                                         </TableCell>
@@ -194,7 +195,7 @@ const UserPage = () => {
                     </Table>
                     <TablePagination
                         component="div"
-                        count={data?.total || 0}
+                        count={filteredData.length}
                         page={page}
                         onPageChange={handleChangePage}
                         rowsPerPage={rowsPerPage}
@@ -204,13 +205,25 @@ const UserPage = () => {
                     <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
                         <Typography sx={{ px: 2, pb: 1, fontWeight: 500 }}>Actions</Typography>
                         <Divider />
-                        <MenuItem onClick={handleMenuClose}>View Details</MenuItem>
-                        <MenuItem onClick={handleMenuClose}>Edit User</MenuItem>
-                        <Divider />
-                        <MenuItem onClick={handleMenuClose} sx={{ color: 'red' }}>
-                            Deactivate User
+                        <MenuItem
+                            onClick={() => {
+                                setOpenEdit(true);
+                                handleMenuClose();
+                            }}
+                        >
+                            Edit User
                         </MenuItem>
                     </Menu>
+                    {openEdit && (
+                        <EditUserDialog
+                            open={openEdit}
+                            onClose={() => setOpenEdit(false)}
+                            defaultValues={selectedRow}
+                        />
+                    )}
+                    {openAdd && (
+                        <AddUserDialog open={openAdd} onClose={() => setOpenAdd(false)} defaultValues={selectedRow} />
+                    )}
                 </CardContent>
             </Card>
         </Box>

@@ -1,13 +1,13 @@
-import { CalendarMonth, Logout, PersonOutline, PetsOutlined, Settings, ShoppingBagOutlined } from '@mui/icons-material';
+import { CalendarMonth, Logout, PersonOutline, PetsOutlined, ShoppingBagOutlined } from '@mui/icons-material';
 import { Avatar, Divider, ListItemAvatar, ListItemIcon, ListItemText, Menu, MenuItem } from '@mui/material';
 import { authServices } from '@services/authServices';
 import { useAuth } from '@src/hooks/useAuth';
 import { textEllipsisSx } from '@src/theme';
 import { genAvatarColor } from '@src/utils/helpers';
-import ProfileDialog from '@ui/ProfileDialog/ProfileDialog';
 import { useCallback, useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import ProfileDialog from './ProfileDialog/ProfileDialog';
 
 const ProfilePopover = ({ anchorEl, setAnchorEl }) => {
     const { setToken, userInfo } = useAuth();
@@ -76,13 +76,6 @@ const ProfilePopover = ({ anchorEl, setAnchorEl }) => {
                     <CalendarMonth fontSize="small" />
                 </ListItemIcon>
                 My Appointment
-            </MenuItem>
-
-            <MenuItem sx={{ fontSize: '14px' }}>
-                <ListItemIcon>
-                    <Settings fontSize="small" />
-                </ListItemIcon>
-                Settings
             </MenuItem>
             <Divider />
             <MenuItem onClick={handleLogout} sx={{ color: 'error.main', fontSize: '14px' }}>
