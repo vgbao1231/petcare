@@ -77,6 +77,16 @@ const PetInformationDialog = ({ formData, open, onClose }) => {
                                         placeholder={placeholder}
                                         type={type}
                                         fullWidth
+                                        rules={{
+                                            required: `${label} is required`,
+                                            ...(type === 'number' && {
+                                                valueAsNumber: true,
+                                                min: {
+                                                    value: 1,
+                                                    message: `${label} must be greater than 0`,
+                                                },
+                                            }),
+                                        }}
                                         autoFocus={name === 'name'} // chỉ input đầu tiên focus
                                     />
                                 </Grid2>

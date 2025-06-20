@@ -12,18 +12,11 @@ import {
     TableRow,
     Typography,
 } from '@mui/material';
-import { vaccinationServices } from '@services/vaccinationServices';
-import { useQuery } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
 
-const VaccineHistoryTab = ({ currentPetId }) => {
+const VaccineHistoryTab = ({ vaccinations }) => {
     const [page, setPage] = useState(0); // page index (bắt đầu từ 0)
     const [rowsPerPage, setRowsPerPage] = useState(5);
-    const { data: vaccinations } = useQuery({
-        queryKey: ['vaccinations', currentPetId],
-        queryFn: () => vaccinationServices.getVaccinationsByPetId(currentPetId),
-        enabled: !!currentPetId,
-    });
 
     const upcomingVaccines = useMemo(() => {
         if (!vaccinations) return [];

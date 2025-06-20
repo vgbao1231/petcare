@@ -49,7 +49,6 @@ const PaymentTable = () => {
     const [rowsPerPage, setRowsPerPage] = useState(5);
     const [anchorEl, setAnchorEl] = useState(null);
     const [selectedRow, setSelectedRow] = useState();
-    const [open, setOpen] = useState(false);
     const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
     const queryClient = useQueryClient();
 
@@ -62,11 +61,13 @@ const PaymentTable = () => {
         setAnchorEl(null);
     };
 
-    const { data = [], isLoading } = useQuery({
+    const { data, isLoading } = useQuery({
         queryKey: ['payments'],
         queryFn: () => paymentServices.getAllPayments(),
         keepPreviousData: true,
     });
+
+    const pageData = (data || []).slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
     const { mutate: deletePayment } = useMutation({
         mutationFn: () => paymentServices.deletePayment(selectedRow?.payment_id),
@@ -83,23 +84,13 @@ const PaymentTable = () => {
         setPage(0);
     };
 
-    const pageData = data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
-
     return (
         <Box p={4}>
             <Card sx={{ border: 1, borderColor: 'divider', bgcolor: 'background.paper' }} elevation={0}>
                 <CardContent>
                     <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
                         <Typography variant="h6">Payments</Typography>
-                        <Button
-                            variant="contained"
-                            size="small"
-                            sx={{ textTransform: 'none' }}
-                            onClick={() => {
-                                setSelectedRow();
-                                setOpen(true);
-                            }}
-                        >
+                        <Button variant="contained" size="small" sx={{ textTransform: 'none' }}>
                             + Add Payment
                         </Button>
                     </Box>
@@ -154,7 +145,7 @@ const PaymentTable = () => {
 
                     <TablePagination
                         component="div"
-                        count={data.length}
+                        count={(data || []).length}
                         page={page}
                         onPageChange={handleChangePage}
                         rowsPerPage={rowsPerPage}
@@ -165,14 +156,7 @@ const PaymentTable = () => {
                     <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
                         <Typography sx={{ px: 2, pb: 1, fontWeight: 500 }}>Actions</Typography>
                         <Divider />
-                        <MenuItem
-                            onClick={() => {
-                                setOpen(true);
-                                handleMenuClose();
-                            }}
-                        >
-                            Edit Payment
-                        </MenuItem>
+                        <MenuItem onClick={handleMenuClose}>Edit Payment</MenuItem>
                         <MenuItem
                             onClick={() => {
                                 setOpenConfirmDialog(true);

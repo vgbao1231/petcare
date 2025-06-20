@@ -2,17 +2,9 @@ import { Search } from '@mui/icons-material';
 import { InputAdornment, Stack, TextField, Typography } from '@mui/material';
 import { useMemo, useState } from 'react';
 import ExaminationCard from './ExaminationCard';
-import { useQuery } from '@tanstack/react-query';
-import { examinationServices } from '@services/examinationServices';
 
-const ExaminationRecordTab = ({ currentPetId }) => {
+const ExaminationRecordTab = ({ examinationHistory }) => {
     const [searchValue, setSearchValue] = useState('');
-
-    const { data: examinationHistory = [] } = useQuery({
-        queryKey: ['examination', currentPetId],
-        queryFn: () => examinationServices.getExaminationsByPetId(currentPetId),
-        enabled: !!currentPetId,
-    });
 
     // Đảm bảo examinationHistory là mảng
     const filteredHistory = useMemo(() => {

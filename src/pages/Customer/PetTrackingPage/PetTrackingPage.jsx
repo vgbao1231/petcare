@@ -31,6 +31,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { petServices } from '@services/petServices';
 import ConfirmDialog from '@ui/ConfirmDialog/ConfirmDialog';
 import { toast } from 'react-toastify';
+import { vaccinationServices } from '@services/vaccinationServices';
+import { examinationServices } from '@services/examinationServices';
 
 const PetTrackingPage = () => {
     const [currentPetIndex, setCurrentPetIndex] = useState(0);
@@ -47,11 +49,22 @@ const PetTrackingPage = () => {
         enabled: !!userInfo.userId,
     });
 
-    const currentPet = petsArray.map((p) => ({ ...p, dob: p.Dob }))[currentPetIndex] ?? null;
-    console.log(currentPet);
+    const currentPet = petsArray.map((p) => ({ ...p, dob: p.Dob }))[currentPetIndex] ?? {};
+
+    const { data: vaccinations } = useQuery({
+        queryKey: ['vaccinations', currentPet.id],
+        queryFn: () => vaccinationServices.getVaccinationsByPetId(currentPet.id),
+        enabled: !!currentPet.id,
+    });
+
+    const { data: examinationHistory } = useQuery({
+        queryKey: ['examination', currentPet.id],
+        queryFn: () => examinationServices.getExaminationsByPetId(currentPet.id),
+        enabled: !!currentPet.id,
+    });
 
     const { mutate: deletePet } = useMutation({
-        mutationFn: (petId) => petServices.deletePet(petId),
+        mutationFn: () => petServices.deletePet(currentPet.id),
         onError: () => toast.error('Failed to delete pet'),
         onSuccess: () => {
             toast.success('Delete pet successfully');
@@ -59,6 +72,15 @@ const PetTrackingPage = () => {
             setCurrentPetIndex(0);
         },
     });
+
+    const handleDeletePet = () => {
+        if ((vaccinations?.length || 0) > 0 || (examinationHistory?.length || 0) > 0) {
+            toast.error('Cannot delete pet with medical history');
+            return;
+        }
+
+        deletePet();
+    };
 
     return (
         <Box sx={{ pt: 12, px: 20, pb: 5 }}>
@@ -206,29 +228,36 @@ const PetTrackingPage = () => {
                                 {[
                                     {
                                         label: 'Dob',
-                                        value: new Date(currentPet.Dob).toLocaleDateString('vi-vn'),
+                                        value: currentPet.Dob
+                                            ? new Date(currentPet.Dob).toLocaleDateString('vi-vn')
+                                            : null,
                                         icon: Calendar,
                                     },
                                     { label: 'Species', value: currentPet.species, icon: Dog },
                                     { label: 'Color', value: currentPet.color, icon: Palette },
                                     {
                                         label: 'Weight',
-                                        value: `${Number(currentPet.weight.toFixed(1))} (kg)`,
+                                        value:
+                                            typeof currentPet.weight === 'number'
+                                                ? `${Number(currentPet.weight.toFixed(1))} (kg)`
+                                                : null,
                                         icon: Weight,
                                     },
                                     { label: 'Identity Mark', value: currentPet.identity_mark, icon: IdCard },
-                                ].map(({ label, value, icon }) => {
-                                    const IconCompo = icon;
-                                    return (
-                                        <Stack key={label} direction="row" alignItems="center" spacing={1}>
-                                            <IconCompo size={14} color="#888" />
-                                            <Typography variant="body2" fontWeight={500}>
-                                                {label}:
-                                            </Typography>
-                                            <Typography variant="body2">{value}</Typography>
-                                        </Stack>
-                                    );
-                                })}
+                                ]
+                                    .filter((item) => item.value) // Chỉ giữ lại những item có value truthy
+                                    .map(({ label, value, icon }) => {
+                                        const IconCompo = icon;
+                                        return (
+                                            <Stack key={label} direction="row" alignItems="center" spacing={1}>
+                                                <IconCompo size={14} color="#888" />
+                                                <Typography variant="body2" fontWeight={500}>
+                                                    {label}:
+                                                </Typography>
+                                                <Typography variant="body2">{value}</Typography>
+                                            </Stack>
+                                        );
+                                    })}
                             </Box>
                         </Box>
                         <Divider sx={{ my: 2 }} />
@@ -284,8 +313,8 @@ const PetTrackingPage = () => {
                             <ConfirmDialog
                                 open={openConfirmDialog}
                                 onClose={() => setOpenConfirmDialog(false)}
-                                onConfirm={() => deletePet(currentPet.id)}
-                                title="Cancel appointment?"
+                                onConfirm={handleDeletePet}
+                                title="Delete pet?"
                                 description="Do you really want to delete this pet? This action cannot be undone."
                             />
                         </Box>
@@ -344,9 +373,9 @@ const PetTrackingPage = () => {
                             }}
                         >
                             {currentTab === 0 ? (
-                                <ExaminationRecordTab currentPetId={currentPet.id} />
+                                <ExaminationRecordTab examinationHistory={examinationHistory} />
                             ) : (
-                                <VaccineHistoryTab currentPetId={currentPet.id} />
+                                <VaccineHistoryTab vaccinations={vaccinations} />
                             )}
                         </Box>
                     </Stack>

@@ -1,4 +1,16 @@
-import { Alert, AlertTitle, Box, Button, Card, CardContent, Divider, Grid2, Stack, Typography } from '@mui/material';
+import {
+    Alert,
+    AlertTitle,
+    Box,
+    Button,
+    Card,
+    CardContent,
+    Checkbox,
+    Divider,
+    Grid2,
+    Stack,
+    Typography,
+} from '@mui/material';
 import { useCart } from '@src/hooks/useCart';
 import { FormProvider, useForm } from 'react-hook-form';
 import {
@@ -19,29 +31,32 @@ import { toast } from 'react-toastify';
 import { useMutation } from '@tanstack/react-query';
 import { checkPastDate } from '@src/utils/validators';
 import dayjs from 'dayjs';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import TermsDialog from './TermsDialog';
 
 const OrderPage = () => {
     const { cart: cartBranches, setCart } = useCart();
     const { selectedBranch, branches } = useBranch();
     const cart = cartBranches[selectedBranch]?.items || [];
-    const subTotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-    const shippingCost = 0;
-    const total = subTotal + shippingCost;
+    const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
     const methods = useForm({ mode: 'all' });
     const { userInfo } = useAuth();
     const date = methods.watch('date');
+    const [acceptTerms, setAcceptTerms] = useState(false);
+    const navigate = useNavigate();
 
     const { mutate: createOrder } = useMutation({
         mutationFn: (data) => orderServices.createOrder(data),
         onError: () => toast.error('Failed to create order'),
-        onSuccess: () => {
+        onSuccess: (data, variables) => {
             toast.success('Order created successfully');
             setCart((prev) => {
                 const updated = { ...prev };
                 delete updated[selectedBranch];
                 return updated;
             });
+            navigate('/order-success', { state: { data, variables, selectedProducts: cart, total } });
         },
     });
 
@@ -78,19 +93,17 @@ const OrderPage = () => {
                 </Typography>
                 <Box
                     sx={{
-                        display: 'flex',
+                        ...centerSx,
                         flexDirection: 'column',
-                        alignItems: 'center',
                         gap: 1.5,
                         height: '50vh',
-                        justifyContent: 'center',
                     }}
                 >
-                    <Box sx={{ p: 2, bgcolor: '#f0f0f0', borderRadius: '50%' }}>
+                    <Box sx={{ p: 2, bgcolor: '#f0f0f0', borderRadius: '50%', ...centerSx }}>
                         <ShoppingCartOutlined sx={{ fontSize: 50, color: '#78716c' }} />
                     </Box>
                     <Typography variant="h5" fontWeight={500}>
-                        Your cart is empty
+                        Your cart in this branch is empty
                     </Typography>
                     <Typography color="text.secondary">{"You haven't added any products to your cart yet."}</Typography>
                     <Button component={Link} to="/product" variant="contained" sx={{ textTransform: 'none' }}>
@@ -101,12 +114,12 @@ const OrderPage = () => {
         );
 
     return (
-        <Box sx={{ pt: 12, px: 32 }}>
+        <Box sx={{ pt: 14, px: 28 }}>
             <FormProvider {...methods}>
                 <Box
                     component="form"
                     onSubmit={methods.handleSubmit(handleSubmit)}
-                    sx={{ p: 3, display: 'flex', justifyContent: 'space-between', gap: 6 }}
+                    sx={{ display: 'flex', justifyContent: 'space-between', gap: 4 }}
                 >
                     {/* LEFT */}
                     <Grid2 sx={{ flex: 1 }}>
@@ -239,7 +252,7 @@ const OrderPage = () => {
                     </Grid2>
 
                     {/* RIGHT */}
-                    <Grid2 sx={{ minWidth: 320, maxWidth: 400 }}>
+                    <Grid2 sx={{ width: 400 }}>
                         <Card sx={{ border: 1, borderColor: 'divider' }} elevation={0}>
                             <CardContent>
                                 <Typography variant="h6" gutterBottom>
@@ -257,17 +270,38 @@ const OrderPage = () => {
                                 </Stack>
 
                                 <Divider sx={{ my: 2 }} />
-                                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                                {/* <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                                     <Typography>Shipping</Typography>
                                     <Typography>Free</Typography>
-                                </Box>
+                                </Box> */}
 
                                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1 }}>
                                     <Typography variant="h6">Total:</Typography>
                                     <Typography variant="h6">${total.toFixed(2)}</Typography>
                                 </Box>
 
-                                <Button type="submit" fullWidth variant="contained" sx={{ mt: 3 }}>
+                                <Box sx={{ display: 'flex', gap: 2, py: 1, alignItems: 'center' }}>
+                                    <Checkbox
+                                        checked={acceptTerms}
+                                        onChange={(e) => setAcceptTerms(e.target.checked)}
+                                        size="small"
+                                    />
+                                    <Box flex={1}>
+                                        <Typography fontSize={13} sx={{ fontWeight: 500, cursor: 'pointer' }}>
+                                            I agree to the <TermsDialog />
+                                        </Typography>
+                                        <Typography fontSize={10} color="text.secondary">
+                                            By checking this box, you agree to the terms and conditions.
+                                        </Typography>
+                                    </Box>
+                                </Box>
+                                <Button
+                                    type="submit"
+                                    fullWidth
+                                    variant="contained"
+                                    sx={{ mt: 1 }}
+                                    disabled={!acceptTerms}
+                                >
                                     Complete Order
                                 </Button>
                             </CardContent>

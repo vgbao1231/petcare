@@ -51,4 +51,25 @@ export const formatUnixToDateLocale = (seconds) =>
         day: '2-digit',
     });
 
+export function formatFullDate(isoString) {
+    const dateObj = new Date(isoString);
+    return dateObj.toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+    });
+}
+// Kết quả: "Wednesday, June 18, 2025"
+
+export function formatTimeWithAMPM(isoString) {
+    const dateObj = new Date(isoString);
+    return dateObj.toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true,
+    });
+}
+// Kết quả: "07:45 AM"
+
 

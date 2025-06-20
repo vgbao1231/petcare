@@ -22,6 +22,8 @@ import AdminOrderPage from '@src/pages/Admin/OrderPage/OrderPage';
 import PetPage from '@src/pages/Admin/PaymentPage/PaymentPage';
 import PaymentSuccess from '@src/pages/Customer/PaymentPage/PaymentSuccess';
 import PaymentFailed from '@src/pages/Customer/PaymentPage/PaymentFailed';
+import BookingSuccess from '@src/pages/Customer/AppointmentPage/BookingSuccess';
+import OrderSuccess from '@src/pages/Customer/OrderPage/OrderSuccess';
 
 export const routesConfig = {
     // Example
@@ -53,6 +55,8 @@ export const routesConfig = {
         { path: '/my-order', component: MyOrderPage, icon: AssignmentOutlined, label: 'My Order', layout: HeaderLayout },
         { path: '/my-appointment', component: MyAppointmentPage, icon: CalendarTodayOutlined, label: 'My Appointment', layout: HeaderLayout },
         { path: '/order', component: OrderPage, icon: AssignmentOutlined, label: 'Order', layout: HeaderLayout },
+        { path: '/order-success', component: OrderSuccess, icon: EventAvailableOutlined, label: 'Order Success' },
+        { path: '/booking-success', component: BookingSuccess, icon: EventAvailableOutlined, label: 'Booking Success' },
         { path: '/payments/success', component: PaymentSuccess, icon: CreditCardOutlined, label: 'Payment' },
         { path: '/payments/cancel', component: PaymentFailed, icon: CreditCardOutlined, label: 'Payment' },
     ]

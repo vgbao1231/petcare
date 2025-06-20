@@ -9,7 +9,9 @@ import ConfirmDialog from '@ui/ConfirmDialog/ConfirmDialog';
 import { useState } from 'react';
 
 const ViewMode = ({ onClose, appointmentDetail }) => {
-    const { customer_address, scheduled_time, branch_id, note, id } = appointmentDetail.appointment;
+    const { customer_address, scheduled_time, branch_id, note, id, status } = appointmentDetail.appointment;
+    console.log(appointmentDetail.appointment);
+
     const { branches } = useBranch();
     const branch = branches.find((b) => b.id == branch_id) || {};
     const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
@@ -90,7 +92,7 @@ const ViewMode = ({ onClose, appointmentDetail }) => {
                     </Stack>
                 )}
                 <Box my={1}>
-                    <Typography variant="body2" fontWeight={500} mb={0.5}>
+                    <Typography variant="body2" fontWeight={500}>
                         Staff
                     </Typography>
                     <Typography>
@@ -110,35 +112,41 @@ const ViewMode = ({ onClose, appointmentDetail }) => {
                         </Box>
                     </Box> */}
                 </Box>
-                <Typography variant="body2" fontWeight={500}>
-                    Notes
-                </Typography>
+                {note && (
+                    <Typography variant="body2" fontWeight={500}>
+                        Notes
+                    </Typography>
+                )}
                 <Typography variant="body2">{note}</Typography>
             </DialogContent>
             <DialogActions sx={{ p: 2, justifyContent: 'end' }}>
-                <Button
-                    size="small"
-                    variant="outlined"
-                    startIcon={<Close />}
-                    sx={{ textTransform: 'none' }}
-                    onClick={() => setOpenConfirmDialog(true)}
-                >
-                    Cancel Appointment
-                </Button>
+                {status !== 'CANCELLED' && (
+                    <Button
+                        size="small"
+                        variant="outlined"
+                        startIcon={<Close />}
+                        sx={{ textTransform: 'none' }}
+                        onClick={() => setOpenConfirmDialog(true)}
+                    >
+                        Cancel Appointment
+                    </Button>
+                )}
             </DialogActions>
-            <ConfirmDialog
-                open={openConfirmDialog}
-                onClose={() => {
-                    setOpenConfirmDialog(false);
-                    onClose();
-                }}
-                onConfirm={() => {
-                    cancelAppointment(id);
-                    onClose();
-                }}
-                title="Cancel appointment?"
-                description="Do you really want to cancel this appointment? This action cannot be undone."
-            />
+            {status !== 'CANCELLED' && (
+                <ConfirmDialog
+                    open={openConfirmDialog}
+                    onClose={() => {
+                        setOpenConfirmDialog(false);
+                        onClose();
+                    }}
+                    onConfirm={() => {
+                        cancelAppointment(id);
+                        onClose();
+                    }}
+                    title="Cancel appointment?"
+                    description="Do you really want to cancel this appointment? This action cannot be undone."
+                />
+            )}
         </>
     );
 };

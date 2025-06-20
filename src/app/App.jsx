@@ -8,8 +8,9 @@ import { useAuth } from '@src/hooks/useAuth';
 import { getTokenPayload } from '@src/utils/helpers';
 
 function App() {
-    const { token } = useAuth();
+    const { token, userInfo } = useAuth();
     const role = getTokenPayload(token).role;
+    console.log(userInfo);
 
     // const role = 0;
 

@@ -1,6 +1,6 @@
 import { Add, DeleteForeverOutlined, Remove } from '@mui/icons-material';
 import { Box, Card, CardContent, CardMedia, IconButton, Typography } from '@mui/material';
-const ServiceCard = ({ service, selected, setSelectedServices }) => {
+const ServiceCard = ({ service, selected, setSelectedServices, index }) => {
     const { serviceId, imgUrl, name, description, price, quantity } = service;
 
     const addService = () => {
@@ -63,22 +63,37 @@ const ServiceCard = ({ service, selected, setSelectedServices }) => {
                 </Typography>
             </CardContent>
             {selected ? (
-                <Box display="flex" alignItems="center">
-                    <IconButton size="small" sx={{ p: 0.25 }} onClick={handleDecrease} disabled={quantity === 1}>
+                <Box display="flex" alignItems="center" className="selected-item">
+                    <IconButton
+                        size="small"
+                        sx={{ p: 0.25 }}
+                        onClick={handleDecrease}
+                        disabled={quantity === 1}
+                        data-testid={`decrease-${index}`}
+                    >
                         <Remove fontSize="small" />
                     </IconButton>
-                    <Typography variant="body2" sx={{ minWidth: 24, textAlign: 'center' }}>
+                    <Typography
+                        variant="body2"
+                        sx={{ minWidth: 24, textAlign: 'center' }}
+                        data-testid={`quantity-${index}`}
+                    >
                         {quantity}
                     </Typography>
-                    <IconButton size="small" sx={{ p: 0.25 }} onClick={handleIncrease}>
+                    <IconButton size="small" sx={{ p: 0.25 }} onClick={handleIncrease} data-testid={`add-${index}`}>
                         <Add fontSize="small" />
                     </IconButton>
-                    <IconButton size="small" sx={{ marginLeft: 1 }} onClick={removeService}>
+                    <IconButton
+                        size="small"
+                        sx={{ marginLeft: 1 }}
+                        onClick={removeService}
+                        data-testid={`remove-${index}`}
+                    >
                         <DeleteForeverOutlined fontSize="small" />
                     </IconButton>
                 </Box>
             ) : (
-                <IconButton size="small" onClick={addService}>
+                <IconButton size="small" onClick={addService} data-testid={`add-${index}`}>
                     <Add fontSize="small" />
                 </IconButton>
             )}

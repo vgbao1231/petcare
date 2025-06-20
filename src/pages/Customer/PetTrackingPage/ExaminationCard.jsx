@@ -59,7 +59,7 @@ const ExaminationCard = ({ record }) => {
                     <Typography variant="body2" color="text.secondary">
                         Veterinarian
                     </Typography>
-                    <Typography>{record.vet_name}</Typography>
+                    <Typography>{record.vet_name || record.vet_id}</Typography>
                     <Typography variant="body2" color="text.secondary">
                         Notes
                     </Typography>

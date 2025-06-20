@@ -175,7 +175,7 @@ const DashboardPage = () => {
                                     <TableHead>
                                         <TableRow>
                                             <TableCell align="center">Customer</TableCell>
-                                            <TableCell align="center">Date & Time</TableCell>
+                                            <TableCell align="center">Date</TableCell>
                                             <TableCell align="center">Address</TableCell>
                                             <TableCell align="center">Staff</TableCell>
                                             <TableCell align="center">Status</TableCell>
@@ -189,7 +189,7 @@ const DashboardPage = () => {
                                                 </TableCell>
                                             </TableRow>
                                         ) : (
-                                            (appointment || []).slice(0, 8).map((item, index) => {
+                                            (appointment || []).slice(0, 6).map((item, index) => {
                                                 const appointment = item.appointment;
                                                 return (
                                                     <TableRow key={index}>

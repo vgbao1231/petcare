@@ -5,6 +5,7 @@ import { ArrowBack, DeleteForeverOutlined, ShoppingCartOutlined } from '@mui/ico
 import { Link } from 'react-router-dom';
 import { useCart } from '@src/hooks/useCart';
 import { useBranch } from '@src/hooks/useBranch';
+import { centerSx } from '@src/theme';
 
 const CartPage = () => {
     const { cart, setCart } = useCart();
@@ -32,19 +33,17 @@ const CartPage = () => {
                 </Typography>
                 <Box
                     sx={{
-                        display: 'flex',
+                        ...centerSx,
                         flexDirection: 'column',
-                        alignItems: 'center',
                         gap: 1.5,
                         height: '50vh',
-                        justifyContent: 'center',
                     }}
                 >
-                    <Box sx={{ p: 2, bgcolor: '#f0f0f0', borderRadius: '50%' }}>
+                    <Box sx={{ p: 2, bgcolor: '#f0f0f0', borderRadius: '50%', ...centerSx }}>
                         <ShoppingCartOutlined sx={{ fontSize: 50, color: '#78716c' }} />
                     </Box>
                     <Typography variant="h5" fontWeight={500}>
-                        Your cart is empty
+                        Your cart in this branch is empty
                     </Typography>
                     <Typography color="text.secondary">{"You haven't added any products to your cart yet."}</Typography>
                     <Button component={Link} to="/product" variant="contained" sx={{ textTransform: 'none' }}>

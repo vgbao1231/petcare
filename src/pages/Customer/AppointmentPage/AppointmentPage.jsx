@@ -1,12 +1,10 @@
 import { Search } from '@mui/icons-material';
-import { Box, Button, Chip, Divider, InputAdornment, TextField, Typography } from '@mui/material';
+import { Box, Button, Card, Checkbox, Chip, Divider, InputAdornment, TextField, Typography } from '@mui/material';
 import { appointmentServices } from '@services/appointmentServices';
-import { orderServices } from '@services/orderServices';
 import FormInput from '@src/components/reuseable/FormRHF/FormInput';
 import { useAuth } from '@src/hooks/useAuth';
 import { useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import ProductCard from './ProductCard';
 import ServiceCard from './ServiceCard';
 import FormSelect from '@src/components/reuseable/FormRHF/FormSelect';
 import { checkPastDate } from '@src/utils/validators';
@@ -15,18 +13,17 @@ import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import { useBranch } from '@src/hooks/useBranch';
-import { useMutation, useQueries, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { serviceServices } from '@services/serviceServices';
-import { productServices } from '@services/productServices';
 import { toast } from 'react-toastify';
+import TermsDialog from './TermsDialog';
+import { useNavigate } from 'react-router-dom';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
 const AppointmentPage = () => {
     const [selectedServices, setSelectedServices] = useState([]);
-    const [selectedProducts, setSelectedProducts] = useState([]);
-    const [itemTab, setItemTab] = useState(0); // 0: Mở ds sản phẩm, 1: Mở ds dịch vụ
     const [searchValue, setSearchValue] = useState('');
     const { userInfo } = useAuth();
     const [servingType, setServingType] = useState(0);
@@ -35,49 +32,17 @@ const AppointmentPage = () => {
     const { branches, selectedBranch, setSelectedBranch } = useBranch();
     const queryClient = useQueryClient();
     methods.setValue('branch_id', selectedBranch);
+    const [acceptTerms, setAcceptTerms] = useState(false);
+    const navigate = useNavigate();
 
-    console.log(userInfo);
-
-    const subTotal = [...selectedProducts, ...selectedServices].reduce(
-        (sum, item) => sum + item.price * item.quantity,
-        0
-    );
-
-    const { mutate: createOrder } = useMutation({
-        mutationFn: (data) => orderServices.createOrder(data),
-        onSuccess: () => {
-            toast.success('Create order associated with appointment successfully');
-            queryClient.invalidateQueries(['orders']);
-        },
-        onError: () => {
-            toast.error('Failure to create order associated with appointment');
-        },
-    });
+    const total = selectedServices.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
     const { mutate: createAppointment } = useMutation({
         mutationFn: (data) => appointmentServices.createAppointment(data),
-        onSuccess: (appointmentRes, variables) => {
+        onSuccess: (data, variables) => {
             toast.success('Appointment created successfully');
             queryClient.invalidateQueries(['appointments']);
-
-            // Nếu có sản phẩm thì tạo order kèm theo
-            if (selectedProducts.length > 0) {
-                const orderPayload = {
-                    appointment_id: appointmentRes.appointment_id,
-                    branch_id: variables.branch_id || userInfo.branchId,
-                    customer_id: variables.customer_id,
-                    pickup_time: variables.scheduled_time,
-                    items: selectedProducts.map((p) => ({
-                        product_id: p.product_id,
-                        product_name: p.name,
-                        product_type: p.product_type,
-                        quantity: p.quantity || 1,
-                        unit_price: p.price,
-                    })),
-                };
-
-                createOrder(orderPayload);
-            }
+            navigate('/booking-success', { state: { data, variables, selectedServices, total } });
         },
         onError: () => {
             toast.error('Failed to create appointment');
@@ -113,23 +78,14 @@ const AppointmentPage = () => {
         createAppointment(servicePayload);
     };
 
-    const [{ data: services = [] }, { data: products = [] }] = useQueries({
-        queries: [
-            {
-                queryKey: ['services'],
-                queryFn: serviceServices.getAllServices,
-                onError: () => toast.error('Failed to load services'),
-            },
-            {
-                queryKey: ['attachableProducts'],
-                queryFn: productServices.getAllAttachableProduct,
-                onError: () => toast.error('Failed to load products'),
-            },
-        ],
+    const { data: services = [] } = useQuery({
+        queryKey: ['services'],
+        queryFn: serviceServices.getAllServices,
+        onError: () => toast.error('Failed to load services'),
     });
 
     return (
-        <Box sx={{ pt: 12, px: { xs: 2, sm: 4, md: 10, lg: 20 }, pb: 5 }}>
+        <Box sx={{ pt: 13, px: { xs: 2, sm: 4, md: 10, lg: 20 }, pb: 5 }}>
             <Box
                 sx={{
                     display: 'flex',
@@ -146,31 +102,11 @@ const AppointmentPage = () => {
                         flex: 1,
                     }}
                 >
-                    {/* Các nút chọn thêm Services/Products */}
-                    <Box sx={{ display: 'flex', gap: 2 }}>
-                        {[
-                            { label: 'Services', value: 'serviceBtn' },
-                            { label: 'Product', value: 'productBtn' },
-                        ].map(({ label, value }, index) => (
-                            <Button
-                                data-selected={index === itemTab}
-                                id={value}
-                                key={index}
-                                variant={index === itemTab ? 'contained' : 'outlined'}
-                                fullWidth
-                                onClick={() => setItemTab(index)}
-                                sx={{ bgcolor: index === itemTab ? 'none' : '#fff' }}
-                            >
-                                Choose {label}
-                            </Button>
-                        ))}
-                    </Box>
-
                     {/* Search bar */}
                     <TextField
                         size="small"
                         variant="outlined"
-                        placeholder={itemTab ? 'Search products...' : 'Search services...'}
+                        placeholder="Search services..."
                         sx={{ bgcolor: '#fff' }}
                         value={searchValue}
                         onChange={(e) => setSearchValue(e.target.value)}
@@ -185,53 +121,42 @@ const AppointmentPage = () => {
                         }}
                     />
 
-                    {/* Danh sách item khả dụng */}
-                    {itemTab !== undefined && (
+                    {/* Danh sách dịch vụ khả dụng */}
+                    <Box
+                        sx={{
+                            bgcolor: 'background.paper',
+                            borderRadius: 2,
+                            border: 1,
+                            borderColor: 'divider',
+                            p: 2,
+                        }}
+                    >
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                            <Typography variant="h6" fontWeight="bold" mb={1.5}>
+                                Available Services
+                            </Typography>
+                        </Box>
                         <Box
                             sx={{
-                                bgcolor: 'background.paper',
-                                borderRadius: 2,
-                                border: 1,
-                                borderColor: 'divider',
-                                p: 2,
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: 2,
+                                overflowY: 'auto',
+                                maxHeight: 420,
                             }}
                         >
-                            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                                <Typography variant="h6" fontWeight="bold" mb={1.5}>
-                                    Available {itemTab === 0 ? 'Services' : 'Products'}
-                                </Typography>
-                            </Box>
-                            <Box
-                                sx={{
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    gap: 2,
-                                    overflowY: 'auto',
-                                    maxHeight: 420,
-                                }}
-                            >
-                                {itemTab === 0
-                                    ? services
-                                          .filter(({ name }) => name.toUpperCase().includes(searchValue.toUpperCase()))
-                                          .map((service) => (
-                                              <ServiceCard
-                                                  key={service.serviceId}
-                                                  service={service}
-                                                  setSelectedServices={setSelectedServices}
-                                              />
-                                          ))
-                                    : products
-                                          .filter(({ name }) => name.toUpperCase().includes(searchValue.toUpperCase()))
-                                          .map((product, index) => (
-                                              <ProductCard
-                                                  key={index}
-                                                  product={product}
-                                                  setSelectedProducts={setSelectedProducts}
-                                              />
-                                          ))}
-                            </Box>
+                            {services
+                                .filter(({ name }) => name.toUpperCase().includes(searchValue.toUpperCase()))
+                                .map((service, i) => (
+                                    <ServiceCard
+                                        key={service.serviceId}
+                                        service={service}
+                                        index={i}
+                                        setSelectedServices={setSelectedServices}
+                                    />
+                                ))}
                         </Box>
-                    )}
+                    </Box>
                 </Box>
                 <FormProvider {...methods}>
                     <Box
@@ -240,7 +165,6 @@ const AppointmentPage = () => {
                             width: { xs: '100%', sm: '100%', md: 440 },
                             display: 'flex',
                             flexDirection: 'column',
-                            gap: 2,
                         }}
                         onSubmit={methods.handleSubmit(handleSubmit)}
                     >
@@ -253,6 +177,7 @@ const AppointmentPage = () => {
                                 bgcolor: 'background.paper',
                                 p: { xs: 2, sm: 2, md: 2 },
                                 px: { xs: 2, sm: 3 },
+                                mb: 2,
                             }}
                         >
                             <Typography variant="h6" fontWeight="bold" mb={2}>
@@ -286,9 +211,16 @@ const AppointmentPage = () => {
                                 InputLabelProps={{ shrink: true }}
                                 rules={{
                                     required: 'Please enter time',
-                                    validate: (v) =>
-                                        date.hour(v.hour()).minute(v.minute()).second(0).diff(dayjs(), 'hour') >= 2 ||
-                                        'Please select a time at least 2 hours from now.',
+                                    validate: (v) => {
+                                        const now = dayjs();
+                                        const selected = dayjs(date).hour(v.hour()).minute(v.minute());
+
+                                        return selected.isBefore(now, 'day')
+                                            ? 'Time cannot be in the past'
+                                            : selected.isSame(now, 'day') && selected.diff(now, 'hour') < 2
+                                              ? 'Please select a time at least 2 hours from now.'
+                                              : true;
+                                    },
                                 }}
                             />
 
@@ -355,14 +287,19 @@ const AppointmentPage = () => {
                                 bgcolor: 'background.paper',
                                 p: { xs: 2, sm: 2, md: 2 },
                                 px: { xs: 2, sm: 3 },
+                                mb: 2,
                             }}
                         >
                             <Typography variant="h6" fontWeight="bold" mb={1}>
                                 Selected Items
                             </Typography>
 
-                            {selectedProducts.length === 0 && selectedServices.length === 0 && (
-                                <Typography variant="body2" sx={{ m: 1, color: 'text.secondary', textAlign: 'center' }}>
+                            {selectedServices.length === 0 && (
+                                <Typography
+                                    id="no-selected-item"
+                                    variant="body2"
+                                    sx={{ m: 1, color: 'text.secondary', textAlign: 'center' }}
+                                >
                                     No items selected yet
                                 </Typography>
                             )}
@@ -372,31 +309,17 @@ const AppointmentPage = () => {
                                     <Typography fontSize={12} mb={0.5} color="text.secondary">
                                         Services
                                     </Typography>
-                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                                        {selectedServices.map((service) => (
+                                    <Box
+                                        sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}
+                                        data-testid="selectedItems"
+                                    >
+                                        {selectedServices.map((service, i) => (
                                             <ServiceCard
                                                 key={service.serviceId}
+                                                index={i}
                                                 service={service}
                                                 selected
                                                 setSelectedServices={setSelectedServices}
-                                            />
-                                        ))}
-                                    </Box>
-                                </Box>
-                            )}
-
-                            {selectedProducts.length !== 0 && (
-                                <Box sx={{ bgcolor: 'background.paper', borderRadius: 2 }}>
-                                    <Typography fontSize={12} mb={0.5} color="text.secondary">
-                                        Products
-                                    </Typography>
-                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                                        {selectedProducts.map((product, index) => (
-                                            <ProductCard
-                                                key={index}
-                                                product={product}
-                                                selected
-                                                setSelectedProducts={setSelectedProducts}
                                             />
                                         ))}
                                     </Box>
@@ -408,17 +331,43 @@ const AppointmentPage = () => {
                                 <Typography variant="body2" mb={0.5} color="text.secondary">
                                     Subtotal:
                                 </Typography>
-                                <Typography variant="body2">${subTotal.toFixed(2)}</Typography>
+                                <Typography variant="body2">${total.toFixed(2)}</Typography>
                             </Box>
                             <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                                 <Typography fontWeight={500}>Total Amount:</Typography>
-                                <Typography fontWeight={500}>${subTotal.toFixed(2)}</Typography>
+                                <Typography fontWeight={500}>${total.toFixed(2)}</Typography>
                             </Box>
                         </Box>
 
-                        <Button type="submit" variant="contained" fullWidth>
-                            Confirm Booking
-                        </Button>
+                        <Box display="flex" flexDirection="column" gap={2}>
+                            <Card variant="outlined" sx={{ display: 'flex', gap: 2, p: 2, alignItems: 'center' }}>
+                                <Checkbox
+                                    checked={acceptTerms}
+                                    onChange={(e) => setAcceptTerms(e.target.checked)}
+                                    size="small"
+                                    id="acceptTerms"
+                                />
+                                <Box flex={1}>
+                                    <Typography fontSize={13} sx={{ fontWeight: 500, cursor: 'pointer' }}>
+                                        I agree to the <TermsDialog />
+                                    </Typography>
+                                    <Typography fontSize={10} color="text.secondary">
+                                        By checking this box, you acknowledge that you have read and agree to our terms
+                                        and conditions.
+                                    </Typography>
+                                </Box>
+                            </Card>
+
+                            <Button
+                                id="submitButton"
+                                type="submit"
+                                variant="contained"
+                                color="primary"
+                                disabled={!acceptTerms}
+                            >
+                                Confirm Booking
+                            </Button>
+                        </Box>
                     </Box>
                 </FormProvider>
             </Box>

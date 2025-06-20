@@ -113,16 +113,18 @@ const AppointmentCard = ({ appointment }) => {
 
                 {/* Hành động */}
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Button
-                        size="small"
-                        variant="outlined"
-                        color="error"
-                        sx={{ textTransform: 'none', py: 0.4 }}
-                        startIcon={<Cancel fontSize="small" />}
-                        onClick={() => setOpenConfirmDialog(true)}
-                    >
-                        Cancel
-                    </Button>
+                    {status !== 'CANCELLED' && (
+                        <Button
+                            size="small"
+                            variant="outlined"
+                            color="error"
+                            sx={{ textTransform: 'none', py: 0.4 }}
+                            startIcon={<Cancel fontSize="small" />}
+                            onClick={() => setOpenConfirmDialog(true)}
+                        >
+                            Cancel
+                        </Button>
+                    )}
                     <Button
                         size="small"
                         variant="contained"
